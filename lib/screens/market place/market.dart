@@ -5,7 +5,7 @@ import '../../models/category.dart';
 import '../../models/product.dart';
 import '../../services/api_service.dart';
 import '../navigation bar/navigation_bar.dart';
-import '../product/new_product.dart';
+import 'manage_products_screen.dart';
 import 'product_detail.dart';
 import 'cart_screen.dart';
 
@@ -220,7 +220,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
         decoration: BoxDecoration(
           color: backgroundColor,
           image: DecorationImage(
-            image: const AssetImage('assets/images/subtle_farm_pattern.png'),
+            image: const AssetImage('assets/subtle_farm_pattern.jpg'),
             opacity: 0.05,
             repeat: ImageRepeat.repeat,
           ),

@@ -1,6 +1,6 @@
 import 'package:agritech/screens/feature%20page/feature_page.dart';
+import 'package:agritech/screens/market%20place/manage_products_screen.dart';
 import 'package:agritech/screens/market%20place/market.dart';
-import 'package:agritech/screens/product/new_product.dart';
 import 'package:agritech/screens/profile/my_profile.dart';
 import 'package:agritech/screens/sign%20in/signIn.dart';
 import 'package:agritech/screens/signUp/signUp.dart';
