@@ -531,7 +531,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                               Expanded(
                                 child: _buildTextField(
                                   controller: _priceController,
-                                  label: 'Price (\XAF)',
+                                  label: 'Price ',
                                   icon: Icons.attach_money_rounded,
                                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                   validator: (value) {

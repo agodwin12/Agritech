@@ -117,7 +117,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     ),
     ),
     Text(
-    '\$${_product!.price.toStringAsFixed(2)}',
+    '\XAF${_product!.price.toStringAsFixed(2)}',
     style: TextStyle(
     fontSize: 22,
     fontWeight: FontWeight.bold,
@@ -271,7 +271,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           ),
           child: Text(
             _product!.stockQuantity > 0
-                ? 'Add to Cart - \$${(_product!.price * _quantity).toStringAsFixed(2)}'
+                ? 'Add to Cart - \XAF ${(_product!.price * _quantity).toStringAsFixed(2)}'
                 : 'Out of Stock',
             style: const TextStyle(
               fontSize: 16,
