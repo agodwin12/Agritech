@@ -1,4 +1,6 @@
 import 'package:agritech/screens/feature%20page/feature_page.dart';
+import 'package:agritech/screens/market%20place/market.dart';
+import 'package:agritech/screens/product/new_product.dart';
 import 'package:agritech/screens/profile/my_profile.dart';
 import 'package:agritech/screens/sign%20in/signIn.dart';
 import 'package:agritech/screens/signUp/signUp.dart';
@@ -13,10 +15,12 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
+
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'GrowTech',
+      title: 'AgritTech',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: const Color(0xFF2E7D32),
@@ -36,6 +40,7 @@ class MyApp extends StatelessWidget {
         '/feature':(context)=>FeaturePage(userData: {}, token: '',),
         '/profile':(context)=>ProfileScreen(userData: {}, token: '',),
         '/weather': (context) => const WeatherScreen(userData: {}, token: '',),
+        '/add-product':(context)=>AddProductScreen(userData: {}, token: '', categories: [], onProductAdded: () {  },)
       },
     );
   }

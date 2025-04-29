@@ -1,3 +1,4 @@
+import 'package:agritech/screens/market%20place/market.dart';
 import 'package:flutter/material.dart';
 
 import '../profile/my_profile.dart';
@@ -76,7 +77,9 @@ class FarmConnectNavBar extends StatelessWidget {
               Navigator.pushReplacementNamed(context, '/feature');
               break;
             case 1:
-              Navigator.pushReplacementNamed(context, '/Market');
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder:
+                  (context)=>MarketplaceScreen(userData: userData, token: token)));
               break;
             case 2:
               Navigator.pushReplacement(
@@ -88,6 +91,7 @@ class FarmConnectNavBar extends StatelessWidget {
                   ),
                 ),
               );
+
               break;
             case 3:
               Navigator.pushReplacement(
