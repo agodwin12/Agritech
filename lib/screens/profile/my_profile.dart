@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:google_fonts/google_fonts.dart';
+import '../chat forum/forum.dart';
 import '../navigation bar/navigation_bar.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -19,19 +21,20 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-
 class _ProfileScreenState extends State<ProfileScreen> {
   Map<String, dynamic>? userData;
   bool isLoading = true;
 
-  // Color scheme - farm/agriculture themed green colors
+  // Modern color scheme
   static const Color primaryColor = Color(0xFF2E7D32); // Deep forest green
-  static const Color accentColor = Color(0xFF8BC34A);  // Light lime green
-  static const Color darkColor = Color(0xFF1B5E20);    // Dark forest green
-  static const Color lightColor = Color(0xFFF1F8E9);   // Very light green/cream
-  static const Color textDarkColor = Color(0xFF33691E); // Dark green text
-  static const Color textLightColor = Color(0xFFDCEDC8); // Light green text
-  static const Color cardColor = Color(0xFF1B5E20);    // Dark green for cards in dark mode
+  static const Color accentColor = Color(0xFF66BB6A);  // Medium green
+  static const Color highlightColor = Color(0xFF81C784); // Light green
+  static const Color backgroundColor = Color(0xFFF5F5F5); // Light grey background
+  static const Color cardColor = Colors.white;
+  static const Color darkBackgroundColor = Color(0xFF121212);
+  static const Color darkCardColor = Color(0xFF1E1E1E);
+  static const Color darkTextColor = Color(0xFFE0E0E0);
+  static const Color lightTextColor = Color(0xFF424242);
 
   static const String apiUrl = 'http://10.0.2.2:3000/api/myprofile';
 
@@ -39,23 +42,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
 
-    print("🟢 Received user data: ${widget.userData}");
-    print("🔐 Received token: ${widget.token}");
-
     setState(() {
       userData = widget.userData;
       isLoading = false;
     });
   }
 
-
   Future<void> fetchUserProfile() async {
+    setState(() {
+      isLoading = true;
+    });
+
     try {
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('authToken');
+      final token = prefs.getString('authToken') ?? widget.token;
 
-      if (token == null) {
+      if (token.isEmpty) {
         print('No token found');
+        setState(() {
+          isLoading = false;
+        });
         return;
       }
 
@@ -83,50 +89,131 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  void _showLogoutConfirmation() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+        final dialogBackgroundColor = isDarkMode ? darkCardColor : cardColor;
+        final textColor = isDarkMode ? darkTextColor : lightTextColor;
+
+        return AlertDialog(
+          backgroundColor: dialogBackgroundColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          title: Text(
+            'Logout',
+            style: GoogleFonts.poppins(
+              color: textColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Text(
+            'Are you sure you want to logout?',
+            style: GoogleFonts.poppins(
+              color: textColor,
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(
+                'Cancel',
+                style: GoogleFonts.poppins(
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColor,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+              ),
+              child: Text(
+                'Logout',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              onPressed: () async {
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.remove('authToken');
+                Navigator.of(context).pop(); // Close dialog
+                // Navigate to login screen
+                // Example: Navigator.of(context).pushReplacementNamed('/login');
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDarkMode ? textLightColor : textDarkColor;
-    final backgroundColor = isDarkMode ? darkColor : lightColor;
-    final cardBackgroundColor = isDarkMode ? cardColor : Colors.white;
+    final textColor = isDarkMode ? darkTextColor : lightTextColor;
+    final bgColor = isDarkMode ? darkBackgroundColor : backgroundColor;
+    final cardBackgroundColor = isDarkMode ? darkCardColor : cardColor;
 
     if (isLoading) {
       return Scaffold(
-        backgroundColor: backgroundColor,
-        body: const Center(
-          child: CircularProgressIndicator(),
+        backgroundColor: bgColor,
+        body: Center(
+          child: CircularProgressIndicator(
+            color: primaryColor,
+          ),
         ),
       );
     }
 
     if (userData == null) {
       return Scaffold(
-        backgroundColor: backgroundColor,
+        backgroundColor: bgColor,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
-                Icons.error_outline,
+                Icons.error_outline_rounded,
                 size: 80,
-                color: textColor.withOpacity(0.6),
+                color: primaryColor.withOpacity(0.6),
               ),
               const SizedBox(height: 16),
               Text(
                 'Could not load profile',
-                style: TextStyle(
+                style: GoogleFonts.poppins(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: textColor,
                 ),
               ),
-              const SizedBox(height: 8),
-              ElevatedButton(
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
                 onPressed: fetchUserProfile,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primaryColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-                child: const Text('Retry'),
+                icon: const Icon(Icons.refresh_rounded),
+                label: Text(
+                  'Retry',
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ),
             ],
           ),
@@ -136,373 +223,492 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          // App Bar with Cover Photo (Same for all users)
-          SliverAppBar(
-            expandedHeight: 200,
-            floating: false,
-            pinned: true,
-            backgroundColor: primaryColor,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Stack(
+      appBar: AppBar(
+        backgroundColor: backgroundColor,
+        elevation: 0,
+        title: Text(
+          'My Profile',
+          style: GoogleFonts.poppins(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: textColor,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.settings_outlined,
+              color: textColor,
+            ),
+            onPressed: () {
+              // Navigate to settings page
+            },
+          ),
+        ],
+      ),
+      body: RefreshIndicator(
+        color: primaryColor,
+        onRefresh: fetchUserProfile,
+        child: ListView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          children: [
+            // Profile Header
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: cardBackgroundColor,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    spreadRadius: 0,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
                 children: [
-                  // Cover Photo
-                  Positioned.fill(
-                    child: Image.network(
-                      'https://images.unsplash.com/photo-1500382017468-9049fed747ef', // Standard cover photo for all users
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: accentColor,
-                        );
-                      },
+                  // Profile Image
+                  Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: primaryColor,
+                        width: 3,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: primaryColor.withOpacity(0.2),
+                          blurRadius: 15,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(50),
+                      child: userData!['profile_image'] != null
+                          ? Image.network(
+                        userData!['profile_image'],
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: accentColor.withOpacity(0.8),
+                            child: Icon(
+                              Icons.person,
+                              size: 60,
+                              color: Colors.white,
+                            ),
+                          );
+                        },
+                      )
+                          : Container(
+                        color: accentColor.withOpacity(0.8),
+                        child: Icon(
+                          Icons.person,
+                          size: 60,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ),
-                  // Gradient Overlay
-                  Positioned.fill(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            Colors.black.withOpacity(0.7),
-                          ],
-                        ),
+                  const SizedBox(height: 16),
+
+                  // User Name
+                  Text(
+                    userData!['full_name'] ?? userData!['name'] ?? 'Unknown',
+                    style: GoogleFonts.poppins(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: textColor,
+                    ),
+                  ),
+
+                  // User Email
+                  Text(
+                    userData!['email'] ?? 'No email provided',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: textColor.withOpacity(0.7),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Edit Profile Button
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      // Navigate to edit profile
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColor,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    icon: const Icon(Icons.edit_outlined, size: 18),
+                    label: Text(
+                      'Edit Profile',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
                       ),
                     ),
                   ),
                 ],
               ),
-              title: const Text(
-                'My Profile',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
+            ),
+
+            const SizedBox(height: 24),
+
+            // Profile Information Section
+            Container(
+              decoration: BoxDecoration(
+                color: cardBackgroundColor,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    spreadRadius: 0,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+                    child: Text(
+                      'Profile Information',
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: textColor,
+                      ),
+                    ),
+                  ),
+
+                  const Divider(),
+
+                  // Phone Info
+                  _buildProfileInfoTile(
+                    icon: Icons.phone_outlined,
+                    title: 'Phone',
+                    subtitle: userData!['phone'] ?? 'Not specified',
+                    isDarkMode: isDarkMode,
+                    textColor: textColor,
+                  ),
+
+                  // Address Info
+                  _buildProfileInfoTile(
+                    icon: Icons.location_on_outlined,
+                    title: 'Address',
+                    subtitle: userData!['address'] ?? 'Not specified',
+                    isDarkMode: isDarkMode,
+                    textColor: textColor,
+                  ),
+
+                  // Date of Birth Info
+                  _buildProfileInfoTile(
+                    icon: Icons.cake_outlined,
+                    title: 'Date of Birth',
+                    subtitle: userData!['date_of_birth'] ?? 'Not specified',
+                    isDarkMode: isDarkMode,
+                    textColor: textColor,
+                    isLast: true,
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Account & Settings Section
+            Container(
+              decoration: BoxDecoration(
+                color: cardBackgroundColor,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    spreadRadius: 0,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+                    child: Text(
+                      'Account & Settings',
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: textColor,
+                      ),
+                    ),
+                  ),
+
+                  const Divider(),
+
+                  // Change Password
+                  _buildSettingsTile(
+                    icon: Icons.lock_outlined,
+                    iconColor: primaryColor,
+                    title: 'Change Password',
+                    isDarkMode: isDarkMode,
+                    textColor: textColor,
+                    onTap: () {
+                      // Navigate to change password
+                    },
+                  ),
+
+                  // Notification Settings
+                  _buildSettingsTile(
+                    icon: Icons.notifications_outlined,
+                    iconColor: primaryColor,
+                    title: 'Notifications',
+                    isDarkMode: isDarkMode,
+                    textColor: textColor,
+                    onTap: () {
+                      // Navigate to notification settings
+                    },
+                  ),
+
+                  // Forum Menu - NEW
+                  _buildSettingsTile(
+                    icon: Icons.forum_outlined,
+                    iconColor: primaryColor,
+                    title: 'Forums',
+                    isDarkMode: isDarkMode,
+                    textColor: textColor,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ForumScreen(
+                            userData: userData!, // contains {id, full_name, ...}
+                            token: '',       // the real JWT token
+                          ),
+                        ),
+                      );
+                    },
+
+                  ),
+
+                  // Privacy Policy - NEW
+                  _buildSettingsTile(
+                    icon: Icons.privacy_tip_outlined,
+                    iconColor: primaryColor,
+                    title: 'Privacy Policy',
+                    isDarkMode: isDarkMode,
+                    textColor: textColor,
+                    onTap: () {
+                      // Navigate to privacy policy
+                    },
+                  ),
+
+                  // Contact Us - NEW
+                  _buildSettingsTile(
+                    icon: Icons.headset_mic_outlined,
+                    iconColor: primaryColor,
+                    title: 'Contact Us',
+                    isDarkMode: isDarkMode,
+                    textColor: textColor,
+                    onTap: () {
+                      // Navigate to contact page
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Logout Button
+            Container(
+              decoration: BoxDecoration(
+                color: cardBackgroundColor,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    spreadRadius: 0,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: InkWell(
+                onTap: _showLogoutConfirmation,
+                borderRadius: BorderRadius.circular(20),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.logout_rounded,
+                        color: Colors.redAccent,
+                        size: 22,
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Logout',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.redAccent,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: () {
-                  // Navigate to edit profile page
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.settings),
-                onPressed: () {
-                  // Navigate to settings page
-                },
-              ),
-            ],
-          ),
 
-          // Profile Info
-          SliverToBoxAdapter(
-            child: Transform.translate(
-              offset: const Offset(0, -40),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  children: [
-                    // Profile Image
-                    Center(
-                      child: Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: backgroundColor,
-                            width: 4,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 10,
-                              spreadRadius: 2,
-                            ),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(60),
-                          child: userData!['profile_image'] != null
-                              ? Image.network(
-                            userData!['profile_image'],
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                color: accentColor,
-                                child: const Icon(
-                                  Icons.person,
-                                  size: 60,
-                                  color: Colors.white,
-                                ),
-                              );
-                            },
-                          )
-                              : Container(
-                            color: accentColor,
-                            child: const Icon(
-                              Icons.person,
-                              size: 60,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
+            const SizedBox(height: 30),
 
-                    // User Full Name
-                    Center(
-                      child: Text(
-                        userData!['full_name'] ?? 'Unknown',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: textColor,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-
-                    // User Information Card
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: cardBackgroundColor,
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 10,
-                            spreadRadius: 0,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          // Email Info
-                          _buildInfoRow(
-                            Icons.email_outlined,
-                            'Email',
-                            userData!['email'] ?? 'Not specified',
-                            textColor,
-                          ),
-                          const Divider(height: 20),
-
-                          // Phone Info
-                          _buildInfoRow(
-                            Icons.phone_outlined,
-                            'Phone',
-                            userData!['phone'] ?? 'Not specified',
-                            textColor,
-                          ),
-                          const Divider(height: 20),
-
-                          // Address Info
-                          _buildInfoRow(
-                            Icons.location_on_outlined,
-                            'Address',
-                            userData!['address'] ?? 'Not specified',
-                            textColor,
-                          ),
-                          const Divider(height: 20),
-
-                          // Date of Birth Info
-                          _buildInfoRow(
-                            Icons.cake_outlined,
-                            'Date of Birth',
-                            userData!['date_of_birth'] ?? 'Not specified',
-                            textColor,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+            // Version Info
+            Center(
+              child: Text(
+                'AgroMarket v1.0.2',
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  color: textColor.withOpacity(0.5),
                 ),
               ),
             ),
-          ),
 
-          // Actions Section
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              child: Container(
-                padding: const EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                  color: cardBackgroundColor,
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      spreadRadius: 0,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    _buildActionButton(
-                      'Edit Profile',
-                      Icons.edit,
-                      primaryColor,
-                      textColor,
-                          () {
-                        // Navigate to edit profile page
-                      },
-                    ),
-                    const Divider(height: 1),
-                    _buildActionButton(
-                      'Change Password',
-                      Icons.lock_outline,
-                      primaryColor,
-                      textColor,
-                          () {
-                        // Navigate to change password page
-                      },
-                    ),
-                    const Divider(height: 1),
-                    _buildActionButton(
-                      'Notification Settings',
-                      Icons.notifications_none,
-                      primaryColor,
-                      textColor,
-                          () {
-                        // Navigate to notification settings page
-                      },
-                    ),
-                    const Divider(height: 1),
-                    _buildActionButton(
-                      'Privacy Settings',
-                      Icons.privacy_tip_outlined,
-                      primaryColor,
-                      textColor,
-                          () {
-                        // Navigate to privacy settings page
-                      },
-                    ),
-                    const Divider(height: 1),
-                    _buildActionButton(
-                      'Logout',
-                      Icons.logout,
-                      Colors.redAccent,
-                      textColor,
-                          () async {
-                        // Logout implementation
-                        final prefs = await SharedPreferences.getInstance();
-                        await prefs.remove('authToken');
-                        // Navigate to login screen
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+            const SizedBox(height: 10),
 
-          // Bottom padding
-          const SliverPadding(padding: EdgeInsets.only(bottom: 30)),
-        ],
+          ],
+        ),
       ),
-      // Use the custom navigation bar
       bottomNavigationBar: FarmConnectNavBar(
         isDarkMode: isDarkMode,
-        darkColor: darkColor,
+        darkColor: darkBackgroundColor,
         primaryColor: primaryColor,
         textColor: textColor,
-        currentIndex: 3, userData: {}, token: '', // Profile tab
+        currentIndex: 3,
+        userData: userData ?? {},
+        token: widget.token,
       ),
     );
   }
 
-  Widget _buildInfoRow(
-      IconData icon,
-      String label,
-      String value,
-      Color textColor,
-      ) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildProfileInfoTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required bool isDarkMode,
+    required Color textColor,
+    bool isLast = false,
+  }) {
+    return Column(
       children: [
-        Icon(
-          icon,
-          color: primaryColor,
-          size: 24,
-        ),
-        const SizedBox(width: 15),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: textColor.withOpacity(0.7),
-                ),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: textColor,
-                ),
-              ),
-            ],
+        ListTile(
+          leading: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: isDarkMode
+                  ? primaryColor.withOpacity(0.2)
+                  : primaryColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              icon,
+              color: primaryColor,
+              size: 22,
+            ),
+          ),
+          title: Text(
+            title,
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: textColor.withOpacity(0.8),
+            ),
+          ),
+          subtitle: Text(
+            subtitle,
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: textColor,
+            ),
           ),
         ),
+        if (!isLast)
+          const Divider(
+            indent: 70,
+            height: 1,
+          ),
       ],
     );
   }
 
-  Widget _buildActionButton(
-      String text,
-      IconData icon,
-      Color iconColor,
-      Color textColor,
-      VoidCallback onTap,
-      ) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              color: iconColor,
-              size: 24,
-            ),
-            const SizedBox(width: 15),
-            Text(
-              text,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: textColor,
+  Widget _buildSettingsTile({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required bool isDarkMode,
+    required Color textColor,
+    required VoidCallback onTap,
+  }) {
+    return Column(
+      children: [
+        InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            child: ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: isDarkMode
+                      ? iconColor.withOpacity(0.2)
+                      : iconColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  icon,
+                  color: iconColor,
+                  size: 20,
+                ),
+              ),
+              title: Text(
+                title,
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: textColor,
+                ),
+              ),
+              trailing: Icon(
+                Icons.arrow_forward_ios,
+                color: textColor.withOpacity(0.4),
+                size: 16,
               ),
             ),
-            const Spacer(),
-            Icon(
-              Icons.arrow_forward_ios,
-              color: textColor.withOpacity(0.5),
-              size: 16,
-            ),
-          ],
+          ),
         ),
-      ),
+        const Divider(
+          indent: 70,
+          height: 1,
+        ),
+      ],
     );
   }
 }
