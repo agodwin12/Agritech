@@ -304,7 +304,7 @@ class _CartScreenState extends State<CartScreen> {
                           Icon(Icons.eco, color: primaryGreen, size: 20),
                           const SizedBox(width: 4),
                           Text(
-                            '\$${_totalAmount.toStringAsFixed(2)}',
+                            '\XAF${_totalAmount.toStringAsFixed(2)}',
                             style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
@@ -579,7 +579,7 @@ class CartItemTile extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      '\$${(cartItem.product.price * cartItem.quantity).toStringAsFixed(2)}',
+                      '\XAF${(cartItem.product.price * cartItem.quantity).toStringAsFixed(2)}',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
