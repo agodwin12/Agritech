@@ -31,9 +31,13 @@ class Product {
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
+    const String BASE_IMAGE_URL = 'http://10.0.2.2:3000';
+
     List<String>? productImages;
     if (json['images'] != null && json['images'] is List) {
-      productImages = List<String>.from(json['images']);
+      productImages = List<String>.from(json['images']).map((path) {
+        return path.startsWith('http') ? path : '$BASE_IMAGE_URL$path';
+      }).toList();
     }
 
     return Product(
