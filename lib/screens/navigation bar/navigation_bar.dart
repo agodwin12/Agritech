@@ -1,6 +1,7 @@
 import 'package:agritech/screens/market%20place/market.dart';
 import 'package:flutter/material.dart';
 
+import '../feature page/feature_page.dart';
 import '../profile/my_profile.dart';
 import '../weather/weather.dart';
 
@@ -71,42 +72,55 @@ class FarmConnectNavBar extends StatelessWidget {
           ),
         ],
         currentIndex: currentIndex, // Profile tab
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              Navigator.pushReplacementNamed(context, '/feature');
-              break;
-            case 1:
-              Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder:
-                  (context)=>MarketplaceScreen(userData: userData, token: token)));
-              break;
-            case 2:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => WeatherScreen(
-                    userData: userData,
-                    token: token,
-                  ),
-                ),
-              );
+      onTap: (index) {
+  switch (index) {
+    case 0:
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => FeaturePage( // Replace with actual class
+            userData: userData,
+            token: token,
+          ),
+        ),
+      );
+      break;
+    case 1:
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MarketplaceScreen(
+            userData: userData,
+            token: token,
+          ),
+        ),
+      );
+      break;
+    case 2:
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => WeatherScreen(
+            userData: userData,
+            token: token,
+          ),
+        ),
+      );
+      break;
+    case 3:
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ProfileScreen(
+            userData: userData,
+            token: token,
+          ),
+        ),
+      );
+      break;
+  }
+},
 
-              break;
-            case 3:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ProfileScreen(
-                    userData: userData,   // Make sure you pass this from FeaturePage
-                    token: token,
-                  ),
-                ),
-              );
-
-              break;
-          }
-        },
 
       ),
     );

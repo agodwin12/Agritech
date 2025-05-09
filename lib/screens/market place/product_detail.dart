@@ -290,39 +290,30 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Future<void> _addToCart() async {
-    // Show loading indicator
+    // Show loading
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) {
-        return const Dialog(
-          child: Padding(
-            padding: EdgeInsets.all(20.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(width: 20),
-                Text("Adding to cart..."),
-              ],
-            ),
+      builder: (context) => const Dialog(
+        child: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 20),
+              Text("Adding to cart..."),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
 
     try {
-      // Implement your addToCart API call here
-      // For example:
-      // await _apiService.addToCart(_product!.id, _quantity);
+      final addedItem = await _apiService.addToCart(_product!.id, _quantity);
 
-      // For now we'll just simulate a delay
-      await Future.delayed(const Duration(seconds: 1));
+      Navigator.pop(context); // Close dialog
 
-      // Close the loading dialog
-      Navigator.pop(context);
-
-      // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('${_product!.name} added to cart!'),
@@ -330,21 +321,21 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           action: SnackBarAction(
             label: 'View Cart',
             onPressed: () {
-              Navigator.pop(context); // Return to previous screen
+              Navigator.pop(context); // Optional back
               // Navigate to cart screen
-              // You'd implement this based on your navigation structure
             },
           ),
         ),
       );
     } catch (e) {
-      // Close the loading dialog
-      Navigator.pop(context);
+      Navigator.pop(context); // Close dialog
 
-      // Show error message
+      print('🔥 Add to cart failed: $e');
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error adding to cart: $e')),
+        SnackBar(content: Text('Failed to add item: $e')),
       );
     }
   }
+
 }

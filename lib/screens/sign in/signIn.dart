@@ -8,7 +8,11 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'dart:math' as math;
 
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
+import '../../services/api_service.dart';
+import '../../services/auth_provider.dart';
+import '../../services/cart_provider.dart';
 import '../feature page/feature_page.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -118,17 +122,22 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
           final token = responseData['token'];
           print('✅ Login successful. Token: $token');
 
-          // Navigate to feature page
-          Navigator.push(
+          final authProvider = Provider.of<AuthProvider>(context, listen: false);
+          authProvider.setToken(token); // <-- Save the token
+
+
+
+          // ✅ Now navigate
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => FeaturePage(
                 userData: responseData['user'],
-                token: responseData['token'],
+                token: token,
               ),
             ),
           );
-
+          ;
         } else {
           final error = jsonDecode(response.body);
           print('❌ Login failed: ${error['message']}');
@@ -144,6 +153,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
       }
     }
   }
+
 
 
   @override

@@ -22,13 +22,25 @@ class CartItem {
 
   factory CartItem.fromJson(Map<String, dynamic> json) {
     return CartItem(
-      id: json['id'],
-      quantity: json['quantity'],
-      product: Product.fromJson(json['Product']),
-      userId: json['UserId'],
-      productId: json['ProductId'],
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
+      id: json['id'] ?? 0,
+      quantity: json['quantity'] ?? 1,
+      product: json['Product'] != null
+          ? Product.fromJson(json['Product'])
+          : Product(
+        id: 0,
+        name: 'Unknown',
+        price: 0.0,
+        stockQuantity: 0,
+        isFeatured: false,
+        categoryId: 0,
+        subCategoryId: 0,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      ),
+      userId: json['UserId'] ?? 0,
+      productId: json['ProductId'] ?? 0,
+      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updatedAt'] ?? '') ?? DateTime.now(),
     );
   }
 }

@@ -5,12 +5,36 @@ import 'package:agritech/screens/profile/my_profile.dart';
 import 'package:agritech/screens/sign%20in/signIn.dart';
 import 'package:agritech/screens/signUp/signUp.dart';
 import 'package:agritech/screens/weather/weather.dart';
+import 'package:agritech/services/api_service.dart';
+import 'package:agritech/services/auth_provider.dart';
+import 'package:agritech/services/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AuthProvider>(
+          create: (_) => AuthProvider(),
+        ),
+        ProxyProvider<AuthProvider, ApiService>(
+          update: (_, authProvider, __) =>
+              ApiService(baseUrl: 'http://10.0.2.2:3000', token: authProvider.token),
+        ),
+        ChangeNotifierProxyProvider<ApiService, CartProvider>(
+          create: (context) => CartProvider(Provider.of<ApiService>(context, listen: false)),
+          update: (context, apiService, previous) =>
+          previous!..updateApiService(apiService),
+        ),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
+
+
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);

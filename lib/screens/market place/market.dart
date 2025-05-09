@@ -1,12 +1,16 @@
 // lib/screens/market_place/market.dart
+import 'dart:math' as Math;
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
 import 'package:card_swiper/card_swiper.dart';
+import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../models/category.dart';
 import '../../models/product.dart';
 import '../../services/api_service.dart';
+import '../../services/cart_provider.dart';
 import '../navigation bar/navigation_bar.dart';
 import 'manage_products_screen.dart';
 import 'product_detail.dart';
@@ -282,7 +286,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> with SingleTicker
                       minHeight: 16,
                     ),
                     child: Text(
-                      '0', // Replace with actual cart count
+                      '', // Replace with actual cart count
                       style: GoogleFonts.poppins(
                         fontSize: 10,
                         color: Colors.white,
@@ -1212,8 +1216,34 @@ class ProductCard extends StatelessWidget {
                           child: Material(
                             type: MaterialType.transparency,
                             child: InkWell(
-                              onTap: () {
-                                // Add to cart functionality
+                              onTap: () async {
+                                // Check for null values that could cause type errors
+                                if (product.id == null) {
+                                  _showErrorSnackBar(context, 'Cannot add product: Missing product ID');
+                                  return;
+                                }
+
+                                // Ensure price is a valid number
+                                if (product.price == null) {
+                                  _showErrorSnackBar(context, 'Cannot add product: Missing price');
+                                  return;
+                                }
+
+                                try {
+                                  final cartProvider = Provider.of<CartProvider>(context, listen: false);
+                                  await cartProvider.addProductToCart(product);
+
+                                  _showSuccessSnackBar(
+                                      context,
+                                      '${product.name} added to cart'
+                                  );
+                                } catch (e) {
+                                  print('🔥 Error adding product to cart: $e');
+                                  _showErrorSnackBar(
+                                      context,
+                                      'Error adding to cart: ${e.toString().substring(0, Math.min(e.toString().length, 50))}'
+                                  );
+                                }
                               },
                               borderRadius: BorderRadius.circular(12),
                               child: const Padding(
@@ -1235,6 +1265,34 @@ class ProductCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // Helper method to show success messages
+  void _showSuccessSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(10),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  // Helper method to show error messages
+  void _showErrorSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red[700],
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(10),
+        duration: const Duration(seconds: 3),
       ),
     );
   }

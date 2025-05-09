@@ -32,24 +32,24 @@ class Product {
 
   factory Product.fromJson(Map<String, dynamic> json) {
     List<String>? productImages;
-    if (json['images'] != null) {
+    if (json['images'] != null && json['images'] is List) {
       productImages = List<String>.from(json['images']);
     }
 
     return Product(
-      id: json['id'],
-      name: json['name'],
+      id: json['id'] ?? 0,
+      name: json['name'] ?? 'Unnamed Product',
       description: json['description'],
-      price: double.parse(json['price'].toString()),
-      stockQuantity: json['stock_quantity'],
+      price: double.tryParse(json['price']?.toString() ?? '0') ?? 0.0,
+      stockQuantity: json['stock_quantity'] ?? 0,
       images: productImages,
       isFeatured: json['is_featured'] ?? false,
-      categoryId: json['CategoryId'],
-      subCategoryId: json['SubCategoryId'],
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
-      categoryName: json['Category'] != null ? json['Category']['name'] : null,
-      subCategoryName: json['SubCategory'] != null ? json['SubCategory']['name'] : null,
+      categoryId: json['CategoryId'] ?? 0,
+      subCategoryId: json['SubCategoryId'] ?? 0,
+      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updatedAt'] ?? '') ?? DateTime.now(),
+      categoryName: json['Category']?['name'],
+      subCategoryName: json['SubCategory']?['name'],
     );
   }
 }

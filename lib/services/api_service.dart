@@ -9,16 +9,25 @@ import '../models/cart_item.dart';
 
 class ApiService {
   final String baseUrl;
-  final String token;
+  String _token; // ✅ Mutable private token
 
-  ApiService({required this.baseUrl, required this.token});
+  ApiService({required this.baseUrl, required String token}) : _token = token;
 
+  // ✅ Setter to update token after login
+  set token(String newToken) {
+    _token = newToken;
+  }
+
+  // ✅ Getter if needed
+  String get token => _token;
+
+  // Example: Get categories
   Future<List<Category>> getCategories() async {
     final response = await http.get(
       Uri.parse('$baseUrl/api/categories'),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
+        'Authorization': 'Bearer $_token', // Use updated token
       },
     );
 
@@ -26,7 +35,7 @@ class ApiService {
       List<dynamic> data = json.decode(response.body);
       return data.map((json) => Category.fromJson(json)).toList();
     } else {
-      throw Exception('Failed to load categories');
+      throw Exception('Failed to load categories: ${response.body}');
     }
   }
 
@@ -162,10 +171,12 @@ class ApiService {
       }),
     );
 
+    print('🧾 Response: ${response.statusCode} - ${response.body}');
+
     if (response.statusCode == 200) {
       return CartItem.fromJson(json.decode(response.body));
     } else {
-      throw Exception('Failed to add item to cart');
+      throw Exception('Failed to add item to cart: ${response.body}');
     }
   }
 

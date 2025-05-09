@@ -478,11 +478,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _buildSettingsTile(
                     icon: Icons.notifications_outlined,
                     iconColor: primaryColor,
-                    title: 'Notifications',
+                    title: 'My Products',
                     isDarkMode: isDarkMode,
                     textColor: textColor,
                     onTap: () {
-                      // Navigate to notification settings
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ForumScreen(
+                            userData: userData!, // contains {id, full_name, ...}
+                            token: '',       // the real JWT token
+                          ),
+                        ),
+                      );
                     },
                   ),
 

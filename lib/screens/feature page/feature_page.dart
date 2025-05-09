@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
@@ -8,10 +7,9 @@ import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:weather/weather.dart';
 import 'dart:convert';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../navigation bar/navigation_bar.dart';
-
-// Import the navigation bar
 
 // Model classes
 class PlantDisease {
@@ -19,20 +17,78 @@ class PlantDisease {
   final String description;
   final String date;
   final String imageUrl;
+  final String sourceUrl;
 
   PlantDisease({
     required this.title,
     required this.description,
     required this.date,
     required this.imageUrl,
+    required this.sourceUrl,
   });
 
   factory PlantDisease.fromJson(Map<String, dynamic> json) {
+    String publishedDate = json['publishedAt'] ?? '';
+    String formattedDate;
+
+    try {
+      if (publishedDate.isNotEmpty) {
+        formattedDate = DateFormat('MMM dd, yyyy').format(DateTime.parse(publishedDate));
+      } else {
+        formattedDate = DateFormat('MMM dd, yyyy').format(DateTime.now());
+      }
+    } catch (e) {
+      formattedDate = DateFormat('MMM dd, yyyy').format(DateTime.now());
+    }
+
     return PlantDisease(
       title: json['title'] ?? 'Unknown Disease',
       description: json['description'] ?? 'No description available',
-      date: json['date'] ?? DateFormat('MMM dd, yyyy').format(DateTime.now()),
-      imageUrl: json['image_url'] ?? 'https://via.placeholder.com/150',
+      date: formattedDate,
+      imageUrl: json['urlToImage'] ?? 'https://via.placeholder.com/150?text=Plant+Disease',
+      sourceUrl: json['url'] ?? 'https://example.com',
+    );
+  }
+}
+
+class AgricultureNews {
+  final String title;
+  final String description;
+  final String date;
+  final String imageUrl;
+  final String sourceUrl;
+  final String sourceName;
+
+  AgricultureNews({
+    required this.title,
+    required this.description,
+    required this.date,
+    required this.imageUrl,
+    required this.sourceUrl,
+    required this.sourceName,
+  });
+
+  factory AgricultureNews.fromJson(Map<String, dynamic> json) {
+    String publishedDate = json['publishedAt'] ?? '';
+    String formattedDate;
+
+    try {
+      if (publishedDate.isNotEmpty) {
+        formattedDate = DateFormat('MMM dd, yyyy').format(DateTime.parse(publishedDate));
+      } else {
+        formattedDate = DateFormat('MMM dd, yyyy').format(DateTime.now());
+      }
+    } catch (e) {
+      formattedDate = DateFormat('MMM dd, yyyy').format(DateTime.now());
+    }
+
+    return AgricultureNews(
+      title: json['title'] ?? 'Unknown News',
+      description: json['description'] ?? 'No description available',
+      date: formattedDate,
+      imageUrl: json['urlToImage'] ?? 'https://via.placeholder.com/150?text=Agriculture+News',
+      sourceUrl: json['url'] ?? 'https://example.com',
+      sourceName: json['source'] != null ? json['source']['name'] ?? 'Unknown Source' : 'Unknown Source',
     );
   }
 }
@@ -49,37 +105,6 @@ class FarmingTip {
     required this.category,
     required this.icon,
   });
-
-  factory FarmingTip.fromJson(Map<String, dynamic> json) {
-    IconData iconData;
-    switch (json['category']?.toLowerCase() ?? '') {
-      case 'water management':
-        iconData = Icons.water_drop;
-        break;
-      case 'soil health':
-        iconData = Icons.terrain;
-        break;
-      case 'pest management':
-        iconData = Icons.bug_report;
-        break;
-      case 'harvesting':
-        iconData = Icons.access_time;
-        break;
-      case 'planting':
-        iconData = Icons.grass;
-        break;
-      default:
-        iconData = Icons.agriculture;
-        break;
-    }
-
-    return FarmingTip(
-      title: json['title'] ?? 'Unknown Tip',
-      description: json['description'] ?? 'No description available',
-      category: json['category'] ?? 'General',
-      icon: iconData,
-    );
-  }
 }
 
 class FeaturePage extends StatefulWidget {
@@ -91,7 +116,6 @@ class FeaturePage extends StatefulWidget {
     required this.userData,
     required this.token,
   }) : super(key: key);
-
 
   @override
   State<FeaturePage> createState() => _FeaturePageState();
@@ -107,12 +131,14 @@ class _FeaturePageState extends State<FeaturePage> {
 
   // Data
   List<PlantDisease> _diseases = [];
+  List<AgricultureNews> _news = [];
   List<FarmingTip> _tips = [];
   bool _isLoading = true;
   bool _isError = false;
 
   // API Keys and URLs
   final String _weatherApiKey = 'e1aec962217269cb21622d157c043f5f';
+  final String _newsApiKey = '80d9361201a841c39e9f5418dec247f8'; // Replace with your actual News API key
 
   @override
   void initState() {
@@ -121,24 +147,129 @@ class _FeaturePageState extends State<FeaturePage> {
     print("🔐 Token: ${widget.token}");
     _getCurrentDateTime();
     _getCurrentLocation();
-    _loadSampleData();
+    _fetchNewsAndDiseases();
+    _loadFarmingTips();
   }
 
+  // Launch URL in browser
+  Future<void> _launchURL(String url) async {
+    final Uri uri = Uri.parse(url);
+    try {
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        print("Could not launch $url");
+      }
+    } catch (e) {
+      print("Error launching URL: $e");
+    }
+  }
+
+  Future<void> _fetchNewsAndDiseases() async {
+    try {
+      // Attempt to fetch news and diseases from the API
+      await Future.wait([
+        _fetchAgricultureNews(),
+        _fetchPlantDiseases(),
+      ]);
+    } catch (e) {
+      print("Error fetching data: $e");
+      _loadFallbackData();
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  // Fetch agriculture news from News API
+  Future<void> _fetchAgricultureNews() async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://newsapi.org/v2/everything?q=agriculture+farming&sortBy=publishedAt&language=en&apiKey=$_newsApiKey'),
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        if (data['status'] == 'ok' && data['articles'] != null) {
+          final List<dynamic> articles = data['articles'];
+          if (mounted) {
+            setState(() {
+              _news = articles.map((article) => AgricultureNews.fromJson(article)).toList();
+              // Limit to first 5 articles
+              if (_news.length > 5) {
+                _news = _news.sublist(0, 5);
+              }
+            });
+          }
+        } else {
+          print("API Error: ${data['message'] ?? 'Unknown error'}");
+          _loadFallbackNews();
+        }
+      } else {
+        print("HTTP Error: ${response.statusCode}");
+        _loadFallbackNews();
+      }
+    } catch (e) {
+      print("Error fetching agriculture news: $e");
+      _loadFallbackNews();
+    }
+  }
+
+  // Fetch plant disease alerts
+  Future<void> _fetchPlantDiseases() async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://newsapi.org/v2/everything?q=plant+disease+agriculture&sortBy=publishedAt&language=en&apiKey=$_newsApiKey'),
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        if (data['status'] == 'ok' && data['articles'] != null) {
+          final List<dynamic> articles = data['articles'];
+          if (mounted) {
+            setState(() {
+              _diseases = articles.map((article) => PlantDisease.fromJson(article)).toList();
+              // Limit to first 5 disease alerts
+              if (_diseases.length > 5) {
+                _diseases = _diseases.sublist(0, 5);
+              }
+            });
+          }
+        } else {
+          print("API Error: ${data['message'] ?? 'Unknown error'}");
+          _loadFallbackDiseases();
+        }
+      } else {
+        print("HTTP Error: ${response.statusCode}");
+        _loadFallbackDiseases();
+      }
+    } catch (e) {
+      print("Error fetching plant diseases: $e");
+      _loadFallbackDiseases();
+    }
+  }
 
   void _getCurrentDateTime() {
     final now = DateTime.now();
-    setState(() {
-      _currentDate = DateFormat('EEEE, MMMM d').format(now);
-    });
+    if (mounted) {
+      setState(() {
+        _currentDate = DateFormat('EEEE, MMMM d').format(now);
+      });
+    }
   }
 
   Future<void> _getCurrentLocation() async {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        setState(() {
-          _currentAddress = "Location services disabled";
-        });
+        if (mounted) {
+          setState(() {
+            _currentAddress = "Location services disabled";
+          });
+        }
         return;
       }
 
@@ -146,9 +277,11 @@ class _FeaturePageState extends State<FeaturePage> {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          setState(() {
-            _currentAddress = "Location permissions denied";
-          });
+          if (mounted) {
+            setState(() {
+              _currentAddress = "Location permissions denied";
+            });
+          }
           return;
         }
       }
@@ -157,18 +290,22 @@ class _FeaturePageState extends State<FeaturePage> {
         desiredAccuracy: LocationAccuracy.high,
       );
 
-      setState(() {
-        _currentPosition = position;
-      });
+      if (mounted) {
+        setState(() {
+          _currentPosition = position;
+        });
+      }
 
       await _getAddressFromLatLng();
       await _getWeatherData();
     } catch (e) {
-      setState(() {
-        _currentAddress = "Error: Could not get location";
-        _isError = true;
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _currentAddress = "Error: Could not get location";
+          _isError = true;
+          _isLoading = false;
+        });
+      }
       print("Error getting location: $e");
     }
   }
@@ -181,16 +318,22 @@ class _FeaturePageState extends State<FeaturePage> {
           _currentPosition!.longitude,
         );
 
-        Placemark place = placemarks[0];
-        setState(() {
-          _currentAddress = "${place.locality}, ${place.country}";
-          _currentCity = place.locality ?? "Unknown City";
-        });
+        if (placemarks.isNotEmpty) {
+          Placemark place = placemarks[0];
+          if (mounted) {
+            setState(() {
+              _currentAddress = "${place.locality ?? ''}, ${place.country ?? ''}";
+              _currentCity = place.locality ?? "Unknown City";
+            });
+          }
+        }
       }
     } catch (e) {
-      setState(() {
-        _currentAddress = "Error: Could not get address";
-      });
+      if (mounted) {
+        setState(() {
+          _currentAddress = "Error: Could not get address";
+        });
+      }
       print("Error getting address: $e");
     }
   }
@@ -204,68 +347,111 @@ class _FeaturePageState extends State<FeaturePage> {
           _currentPosition!.longitude,
         );
 
-        setState(() {
-          _weatherData = weather;
-          _isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _weatherData = weather;
+          });
+        }
       }
     } catch (e) {
-      setState(() {
-        _isError = true;
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isError = true;
+        });
+      }
       print("Error getting weather: $e");
     }
   }
 
-  void _loadSampleData() {
-    // Generate sample diseases
+  void _loadFallbackData() {
+    _loadFallbackNews();
+    _loadFallbackDiseases();
+    _loadFarmingTips();
+
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  // Load fallback data if API fails
+  void _loadFallbackDiseases() {
     _diseases = [
       PlantDisease(
         title: "Tomato Leaf Blight in Eastern Region",
-        description: "Monitor crops closely as leaf blight incidents have increased this season.",
-        date: "Apr 15, 2025",
+        description: "Monitor crops closely as leaf blight incidents have increased this season. Apply copper-based fungicides early in the season.",
+        date: "May 05, 2025",
         imageUrl: "https://via.placeholder.com/150?text=Leaf+Blight",
+        sourceUrl: "https://en.wikipedia.org/wiki/Tomato_leaf_blight",
       ),
       PlantDisease(
         title: "Wheat Rust Spreading in Northern Areas",
-        description: "Apply preventative fungicides to protect wheat crops from rust infections.",
-        date: "Apr 12, 2025",
+        description: "Apply preventative fungicides to protect wheat crops from rust infections. Early detection is crucial.",
+        date: "May 02, 2025",
         imageUrl: "https://via.placeholder.com/150?text=Wheat+Rust",
+        sourceUrl: "https://en.wikipedia.org/wiki/Wheat_rust",
       ),
       PlantDisease(
         title: "Powdery Mildew Alert",
-        description: "Maintain proper spacing between plants to reduce powdery mildew spread.",
-        date: "Apr 10, 2025",
+        description: "Maintain proper spacing between plants to reduce powdery mildew spread. Consider sulfur-based treatments.",
+        date: "Apr 28, 2025",
         imageUrl: "https://via.placeholder.com/150?text=Powdery+Mildew",
+        sourceUrl: "https://en.wikipedia.org/wiki/Powdery_mildew",
       ),
     ];
+  }
 
-    // Generate sample tips
+  void _loadFallbackNews() {
+    _news = [
+      AgricultureNews(
+        title: "New Sustainable Farming Methods Show Promise",
+        description: "Recent studies show that regenerative farming practices can improve soil health and increase crop yields by up to 30% while reducing water usage.",
+        date: "May 06, 2025",
+        imageUrl: "https://via.placeholder.com/150?text=Sustainable+Farming",
+        sourceUrl: "https://www.example.com/sustainable-farming",
+        sourceName: "Agriculture Today",
+      ),
+      AgricultureNews(
+        title: "Government Launches New Subsidy Program for Small Farms",
+        description: "Small-scale farmers can now apply for financial support under a new government initiative aimed at increasing food security and promoting sustainable practices.",
+        date: "May 04, 2025",
+        imageUrl: "https://via.placeholder.com/150?text=Farm+Subsidies",
+        sourceUrl: "https://www.example.com/farm-subsidies",
+        sourceName: "Rural News Network",
+      ),
+      AgricultureNews(
+        title: "Climate Change Affecting Crop Patterns Globally",
+        description: "Researchers observe shifting growing seasons and recommend adaptation strategies for farmers as traditional planting times become less reliable.",
+        date: "May 01, 2025",
+        imageUrl: "https://via.placeholder.com/150?text=Climate+Change",
+        sourceUrl: "https://www.example.com/climate-agriculture",
+        sourceName: "Climate Science Journal",
+      ),
+    ];
+  }
+
+  void _loadFarmingTips() {
     _tips = [
       FarmingTip(
         title: "Optimize Irrigation",
-        description: "Check for leaks and ensure even water distribution to conserve water.",
+        description: "Check for leaks and ensure even water distribution to conserve water. Consider drip irrigation for higher efficiency.",
         category: "Water Management",
         icon: Icons.water_drop,
       ),
       FarmingTip(
         title: "Crop Rotation Benefits",
-        description: "Implement a 3-4 year rotation plan to break pest cycles and improve soil health.",
+        description: "Implement a 3-4 year rotation plan to break pest cycles and improve soil health without relying on chemical inputs.",
         category: "Soil Health",
         icon: Icons.terrain,
       ),
       FarmingTip(
         title: "Natural Pest Control",
-        description: "Introduce beneficial insects like ladybugs to control harmful pests naturally.",
+        description: "Introduce beneficial insects like ladybugs to control harmful pests naturally and reduce pesticide dependency.",
         category: "Pest Management",
         icon: Icons.bug_report,
       ),
     ];
-
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   String _getWeatherIcon() {
@@ -312,17 +498,32 @@ class _FeaturePageState extends State<FeaturePage> {
   }
 
   Future<void> _refreshData() async {
-    setState(() {
-      _isLoading = true;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+        _isError = false;
+      });
+    }
 
-    await Future.delayed(const Duration(seconds: 1));
-    await _getCurrentLocation();
-    _loadSampleData();
-
-    setState(() {
-      _isLoading = false;
-    });
+    try {
+      await _getCurrentLocation();
+      await _fetchNewsAndDiseases();
+      _loadFarmingTips();
+    } catch (e) {
+      print("Error refreshing data: $e");
+      _loadFallbackData();
+      if (mounted) {
+        setState(() {
+          _isError = true;
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -342,7 +543,6 @@ class _FeaturePageState extends State<FeaturePage> {
         userData: widget.userData,
         token: widget.token,
       ),
-
     );
   }
 
@@ -462,9 +662,20 @@ class _FeaturePageState extends State<FeaturePage> {
                     _buildWeatherCard(),
                     const SizedBox(height: 24),
 
+                    _buildSectionTitle("Agriculture News"),
+                    const SizedBox(height: 10),
+                    if (_news.isEmpty)
+                      _buildEmptyCard("No agriculture news available")
+                    else
+                      ..._news.map((news) => _buildNewsCard(news)).toList(),
+                    const SizedBox(height: 24),
+
                     _buildSectionTitle("Disease Alerts"),
                     const SizedBox(height: 10),
-                    ..._diseases.map((disease) => _buildDiseaseCard(disease)).toList(),
+                    if (_diseases.isEmpty)
+                      _buildEmptyCard("No disease alerts available")
+                    else
+                      ..._diseases.map((disease) => _buildDiseaseCard(disease)).toList(),
                     const SizedBox(height: 24),
 
                     _buildSectionTitle("Farming Tips"),
@@ -476,6 +687,28 @@ class _FeaturePageState extends State<FeaturePage> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyCard(String message) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(20.0),
+        child: Center(
+          child: Text(
+            message,
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              color: Colors.grey[600],
+              fontStyle: FontStyle.italic,
+            ),
+          ),
         ),
       ),
     );
@@ -526,7 +759,7 @@ class _FeaturePageState extends State<FeaturePage> {
               color: Colors.white.withOpacity(0.2),
               borderRadius: BorderRadius.circular(30),
             ),
-            child: Icon(
+            child: const Icon(
               Icons.menu,
               color: Colors.white,
               size: 24,
@@ -698,6 +931,145 @@ class _FeaturePageState extends State<FeaturePage> {
     );
   }
 
+  Widget _buildNewsCard(AgricultureNews news) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: InkWell(
+          onTap: () => _launchURL(news.sourceUrl),
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8.0),
+                      child: Image.network(
+                        news.imageUrl,
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: 80,
+                            height: 80,
+                            color: Colors.grey[300],
+                            child: Icon(
+                              Icons.image_not_supported,
+                              color: Colors.grey[600],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 16.0),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            news.title,
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.source,
+                                size: 12,
+                                color: Colors.grey[600],
+                              ),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  news.sourceName,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 12,
+                                    color: Colors.grey[600],
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Icon(
+                                Icons.calendar_today,
+                                size: 12,
+                                color: Colors.grey[600],
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                news.date,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  news.description,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.grey[800],
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => _launchURL(news.sourceUrl),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "READ MORE",
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 1.0,
+                            color: Colors.green[700],
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        const Icon(
+                          Icons.open_in_new,
+                          size: 16,
+                          color: Colors.green,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildDiseaseCard(PlantDisease disease) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
@@ -706,84 +1078,94 @@ class _FeaturePageState extends State<FeaturePage> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.red[400]!.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          onTap: () => _launchURL(disease.sourceUrl),
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.red[400]!.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        Icons.warning_amber_rounded,
+                        color: Colors.red[700],
+                        size: 20,
+                      ),
                     ),
-                    child: Icon(
-                      Icons.warning_amber_rounded,
-                      color: Colors.red[700],
-                      size: 20,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            disease.title,
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            disease.date,
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  disease.description,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.grey[800],
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => _launchURL(disease.sourceUrl),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          disease.title,
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          disease.date,
+                          "READ MORE",
                           style: GoogleFonts.poppins(
                             fontSize: 12,
-                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 1.0,
+                            color: Colors.green[700],
                           ),
+                        ),
+                        const SizedBox(width: 4),
+                        const Icon(
+                          Icons.open_in_new,
+                          size: 16,
+                          color: Colors.green,
                         ),
                       ],
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                disease.description,
-                style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  color: Colors.grey[800],
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () {
-                    // Navigate to disease details
-                  },
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.green[700],
-                    padding: EdgeInsets.zero,
-                  ),
-                  child: Text(
-                    "READ MORE",
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 1.0,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

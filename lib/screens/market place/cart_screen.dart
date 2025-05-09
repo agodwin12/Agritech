@@ -28,7 +28,7 @@ class _CartScreenState extends State<CartScreen> {
   void initState() {
     super.initState();
     _apiService = ApiService(
-      baseUrl: 'http://10.0.2.2:3000', // Replace with your actual API URL
+      baseUrl: 'http://10.0.2.2:3000',
       token: widget.token,
     );
     _loadCartData();
@@ -40,17 +40,8 @@ class _CartScreenState extends State<CartScreen> {
     });
 
     try {
-      // Implement this method in your ApiService or use the mock data for now
-      // final cartItems = await _apiService.getUserCart();
-
-      // Mock data for development
-      await Future.delayed(const Duration(seconds: 1));
-      final List<CartItem> cartItems = [];
-
-      double total = 0;
-      for (var item in cartItems) {
-        total += item.product.price * item.quantity;
-      }
+      final cartItems = await _apiService.getUserCart();
+      double total = cartItems.fold(0, (sum, item) => sum + item.product.price * item.quantity);
 
       setState(() {
         _cartItems = cartItems;
@@ -67,14 +58,10 @@ class _CartScreenState extends State<CartScreen> {
     }
   }
 
+
   Future<void> _updateCartItem(int cartItemId, int quantity) async {
     try {
-      // Implement this method in your ApiService
-      // await _apiService.updateCartItem(cartItemId, quantity);
-
-      // For development, just simulate the API call
-      await Future.delayed(const Duration(milliseconds: 500));
-
+      await _apiService.updateCartItem(cartItemId, quantity);
       _loadCartData();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -83,14 +70,10 @@ class _CartScreenState extends State<CartScreen> {
     }
   }
 
+
   Future<void> _removeCartItem(int cartItemId) async {
     try {
-      // Implement this method in your ApiService
-      // await _apiService.removeFromCart(cartItemId);
-
-      // For development, just simulate the API call
-      await Future.delayed(const Duration(milliseconds: 500));
-
+      await _apiService.removeFromCart(cartItemId);
       _loadCartData();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -99,14 +82,10 @@ class _CartScreenState extends State<CartScreen> {
     }
   }
 
+
   Future<void> _clearCart() async {
     try {
-      // Implement this method in your ApiService
-      // await _apiService.clearCart();
-
-      // For development, just simulate the API call
-      await Future.delayed(const Duration(milliseconds: 500));
-
+      await _apiService.clearCart();
       _loadCartData();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -114,6 +93,7 @@ class _CartScreenState extends State<CartScreen> {
       );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
