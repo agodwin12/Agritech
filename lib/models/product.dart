@@ -1,4 +1,6 @@
 // lib/models/product.dart
+import 'dart:convert';
+
 class Product {
   final int id;
   final String name;
@@ -31,22 +33,13 @@ class Product {
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
-    const String BASE_IMAGE_URL = 'http://10.0.2.2:3000';
-
-    List<String>? productImages;
-    if (json['images'] != null && json['images'] is List) {
-      productImages = List<String>.from(json['images']).map((path) {
-        return path.startsWith('http') ? path : '$BASE_IMAGE_URL$path';
-      }).toList();
-    }
-
     return Product(
       id: json['id'] ?? 0,
       name: json['name'] ?? 'Unnamed Product',
       description: json['description'],
       price: double.tryParse(json['price']?.toString() ?? '0') ?? 0.0,
       stockQuantity: json['stock_quantity'] ?? 0,
-      images: productImages,
+      images: json['images'] != null ? List<String>.from(json['images']) : null,
       isFeatured: json['is_featured'] ?? false,
       categoryId: json['CategoryId'] ?? 0,
       subCategoryId: json['SubCategoryId'] ?? 0,
