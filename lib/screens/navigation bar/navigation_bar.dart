@@ -1,7 +1,7 @@
-import 'package:agritech/screens/market%20place/market.dart';
 import 'package:flutter/material.dart';
 
 import '../feature page/feature_page.dart';
+import '../market 2/market.dart';
 import '../profile/my_profile.dart';
 import '../weather/weather.dart';
 
@@ -89,9 +89,8 @@ class FarmConnectNavBar extends StatelessWidget {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => MarketplaceScreen(
-            userData: userData,
-            token: token,
+          builder: (context) => MarketplaceScreen(userData: userData, token: token,
+
           ),
         ),
       );
