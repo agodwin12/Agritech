@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../models/product.dart';
 import '../../models/review.dart';
 import '../../services/api_service.dart';
+import '../profile/users_profile.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final int productId;
@@ -59,6 +60,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
 
     try {
       final product = await _apiService.getProductDetails(widget.productId);
+
+      // Debug print to check product details
+      print('DEBUG: Product loaded: ${product.id} ${product.name}');
+      print('DEBUG: Seller info - userId: ${product.userId}');
+
       setState(() {
         _product = product;
         _isLoading = false;
@@ -216,7 +222,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                   ),
 
                   // NEW badge if the product is new
-                  if (_product!.isNew ?? false)
+                  if (_shouldShowNewBadge(_product!))
                     Positioned(
                       top: 16,
                       right: 16,
@@ -385,6 +391,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
     );
   }
 
+  bool _shouldShowNewBadge(Product product) {
+    // Check direct isNew property
+    if (product.isNew == true) {
+      return true;
+    }
+
+    // Add any additional logic for when to show the NEW badge
+    return false;
+  }
+
   Widget _buildDetailsTab(BuildContext context, Color textColor, Color cardColor, Color primaryColor) {
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -515,6 +531,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
           ),
         ),
 
+        // Seller Information Card - Always show this section
+        const SizedBox(height: 24),
+        _buildSellerCard(textColor, cardColor, primaryColor),
+
         const SizedBox(height: 24),
 
         // Quantity Selector
@@ -618,6 +638,258 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
         const SizedBox(height: 100), // Bottom padding for the floating button
       ],
     );
+  }
+
+  // ENHANCED Seller Card that's always visible and more prominent
+  Widget _buildSellerCard(Color textColor, Color cardColor, Color primaryColor) {
+    // Print debug info about the product and seller
+    print('DEBUG Product UserId: ${_product!.userId}');
+
+    // Determine if seller information is available
+    bool hasSellerInfo = _product!.userId != null;
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.withOpacity(0.2),
+            blurRadius: 8,
+            spreadRadius: 1,
+          ),
+        ],
+      ),
+      child: Card(
+        color: cardColor,
+        elevation: 1,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: Colors.blue, width: 1.5),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Seller Information',
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.blue[800],
+                    ),
+                  ),
+                  // Info icon with tooltip
+                  Tooltip(
+                    message: hasSellerInfo
+                        ? 'Click below to view seller profile'
+                        : 'Seller profile not available for this product',
+                    child: Icon(
+                      Icons.info_outline,
+                      size: 20,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Seller info row
+              Row(
+                children: [
+                  // Seller avatar
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundColor: primaryColor.withOpacity(0.1),
+                    backgroundImage: _getSellerImage(),
+                    child: _getSellerImage() == null
+                        ? Icon(
+                      Icons.person,
+                      size: 30,
+                      color: primaryColor,
+                    )
+                        : null,
+                  ),
+                  const SizedBox(width: 16),
+
+                  // Seller name and rating
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.store, size: 14, color: primaryColor),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Seller',
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          _getSellerName(),
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: primaryColor,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Icon(Icons.star, color: Colors.amber, size: 16),
+                            const SizedBox(width: 4),
+                            Text(
+                              _getSellerRating(),
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+              const Divider(color: Colors.blue),
+              const SizedBox(height: 16),
+
+              // View seller profile button
+              GestureDetector(
+                onTap: hasSellerInfo ? () {
+                  // Navigate to seller profile
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => UserProfileScreen(
+                        userId: _product!.userId!,
+                        token: widget.token,
+                      ),
+                    ),
+                  );
+                } : () {
+                  // Show message when seller profile is not available
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Seller profile not available for this product'),
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  );
+                },
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  decoration: BoxDecoration(
+                    gradient: hasSellerInfo
+                        ? LinearGradient(
+                      colors: [Colors.blue, Colors.blue.shade700],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    )
+                        : null,
+                    color: hasSellerInfo ? null : Colors.grey[300],
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: hasSellerInfo ? [
+                      BoxShadow(
+                        color: Colors.blue.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ] : null,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.person_outline,
+                        size: 20,
+                        color: hasSellerInfo ? Colors.white : Colors.grey[700],
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        hasSellerInfo ? 'View Seller Profile' : 'Seller Profile Not Available',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: hasSellerInfo ? Colors.white : Colors.grey[700],
+                        ),
+                      ),
+                      if (hasSellerInfo) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          padding: const EdgeInsets.all(4),
+                          child: Icon(
+                            Icons.arrow_forward,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Helper methods for seller info
+  ImageProvider? _getSellerImage() {
+    if (_product?.sellerImage != null) {
+      return NetworkImage(_product!.sellerImage!);
+    }
+
+    // Try alternative field names
+    if (_product?.sellerProfileImage != null) {
+      return NetworkImage(_product!.sellerProfileImage!);
+    }
+
+    return null;
+  }
+
+  String _getSellerName() {
+    if (_product?.sellerName != null) {
+      return _product!.sellerName!;
+    }
+
+    // Try alternative field names
+    if (_product?.sellerFullName != null) {
+      return _product!.sellerFullName!;
+    }
+
+    return 'Unknown Seller';
+  }
+
+  String _getSellerRating() {
+    if (_product?.sellerRating != null) {
+      return _product!.sellerRating!.toStringAsFixed(1);
+    }
+
+    // Try alternative field names
+    if (_product?.sellerAverageRating != null) {
+      return _product!.sellerAverageRating!.toStringAsFixed(1);
+    }
+
+    return 'No ratings';
   }
 
   Widget _buildReviewsTab(BuildContext context, Color textColor, Color cardColor, Color primaryColor) {
@@ -830,7 +1102,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
             separatorBuilder: (context, index) => const SizedBox(height: 16),
             itemBuilder: (context, index) {
               final review = _reviews[index];
-              return _buildReviewCard(review, textColor, cardColor);
+              return _buildReviewCard(review, textColor, cardColor, primaryColor);
             },
           ),
 
@@ -839,7 +1111,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
     );
   }
 
-  Widget _buildReviewCard(Review review, Color textColor, Color cardColor) {
+  // ENHANCED Review Card with more obvious clickable username
+  Widget _buildReviewCard(Review review, Color textColor, Color cardColor, Color primaryColor) {
     return Card(
       color: cardColor,
       elevation: 0,
@@ -856,10 +1129,55 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                // Make username clickable when userId is available
+                review.userId != null
+                    ? Tooltip(
+                  message: 'View user profile',
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => UserProfileScreen(
+                            userId: review.userId!,
+                            token: widget.token,
+                          ),
+                        ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: primaryColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            review.userName ?? 'Anonymous',
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: primaryColor,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Icon(
+                            Icons.person_outline,
+                            size: 14,
+                            color: primaryColor,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+                    : Text(
                   review.userName ?? 'Anonymous',
                   style: GoogleFonts.poppins(
-                    fontSize: 16,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: textColor,
                   ),
@@ -874,7 +1192,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
               ],
             ),
 
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
 
             // Rating stars
             Row(

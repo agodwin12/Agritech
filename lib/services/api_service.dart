@@ -7,6 +7,7 @@ import '../models/product.dart';
 import '../models/review.dart';
 import '../models/sub_category.dart';
 import '../models/cart_item.dart';
+import '../models/user_profile.dart';
 
 class ApiService {
   final String baseUrl;
@@ -390,4 +391,33 @@ class ApiService {
     if (response.statusCode != 201) {
       throw Exception('Failed to submit review: ${response.body}');
     }
-  }}
+  }
+
+
+// Add this method to your ApiService class
+  Future<UserProfile> getUserProfile(int userId) async {
+    try {
+      // Debug print to track the request
+      print('Getting user profile for userId: $userId');
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/users/$userId/profile'),
+        headers: _headers(),
+      );
+
+      // Debug print the response
+      print('getUserProfile response code: ${response.statusCode}');
+      print('getUserProfile response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        return UserProfile.fromJson(json.decode(response.body));
+      } else {
+        throw Exception('Failed to load user profile: ${response.statusCode}, ${response.body}');
+      }
+    } catch (e) {
+      print('Error in getUserProfile: $e');
+      throw Exception('Error fetching user profile: $e');
+    }
+  }
+
+}

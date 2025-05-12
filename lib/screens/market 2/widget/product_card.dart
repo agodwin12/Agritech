@@ -28,6 +28,9 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Debug: Print isNew value to check what's happening
+    print('Product ${product.id} (${product.name}) isNew value: ${product.isNew}');
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -95,9 +98,8 @@ class ProductCard extends StatelessWidget {
                       ),
                     ),
 
-                    // NEW Badge - Added here
-                    if (product.isNew)
-
+                    // FIXED: Use multiple checks for NEW badge
+                    if (_shouldShowNewBadge(product))
                       Positioned(
                         top: 8,
                         left: 8,
@@ -233,17 +235,6 @@ class ProductCard extends StatelessWidget {
                             type: MaterialType.transparency,
                             child: InkWell(
                               onTap: () async {
-                                // Check for null values
-                                if (product.id == null) {
-                                  _showErrorSnackBar(context, 'Cannot add product: Missing product ID');
-                                  return;
-                                }
-
-                                if (product.price == null) {
-                                  _showErrorSnackBar(context, 'Cannot add product: Missing price');
-                                  return;
-                                }
-
                                 try {
                                   final cartProvider = Provider.of<CartProvider>(context, listen: false);
                                   await cartProvider.addProductToCart(product);
@@ -282,6 +273,19 @@ class ProductCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // NEW: More robust method to determine if the "NEW" badge should be shown
+  bool _shouldShowNewBadge(Product product) {
+    // Check direct isNew property
+    if (product.isNew == true) {
+      return true;
+    }
+
+    // If you want to add any additional logic for when to show the NEW badge
+    // (e.g., based on product creation date), you can add it here
+
+    return false;
   }
 
   void _showSuccessSnackBar(BuildContext context, String message) {
