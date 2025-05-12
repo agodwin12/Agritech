@@ -15,6 +15,8 @@ class Product {
   final DateTime updatedAt;
   final String? categoryName;
   final String? subCategoryName;
+  final bool isNew; // ← Add this
+
 
   Product({
     required this.id,
@@ -30,6 +32,7 @@ class Product {
     required this.updatedAt,
     this.categoryName,
     this.subCategoryName,
+    this.isNew = false, // ← Default to false
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -68,6 +71,7 @@ class Product {
       updatedAt: DateTime.tryParse(json['updatedAt'] ?? '') ?? DateTime.now(),
       categoryName: json['Category']?['name'],
       subCategoryName: json['SubCategory']?['name'],
+      isNew: json['isNew'] ?? false, // ← Parse isNew from JSON
     );
   }
 }

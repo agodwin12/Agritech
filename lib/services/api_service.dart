@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart'; // Add this import for MediaType
 import '../models/category.dart';
 import '../models/product.dart';
+import '../models/review.dart';
 import '../models/sub_category.dart';
 import '../models/cart_item.dart';
 
@@ -21,6 +22,13 @@ class ApiService {
   // ✅ Getter if needed
   String get token => _token;
 
+
+  Map<String, String> _headers() {
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $_token',
+    };
+  }
   // Example: Get categories
   Future<List<Category>> getCategories() async {
     final response = await http.get(
@@ -353,4 +361,33 @@ class ApiService {
       throw Exception('Failed to cancel order');
     }
   }
-}
+
+  Future<List<Review>> getReviews(int productId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/api/reviews/$productId'),
+      headers: _headers(),
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.map((json) => Review.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load reviews');
+    }
+  }
+
+  Future<void> submitReview(int productId, String comment, double rating) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/products/$productId/reviews'),  // Changed endpoint to match backend
+      headers: _headers(),
+      body: jsonEncode({
+        'comment': comment,
+        'rating': rating,
+
+      }),
+    );
+
+    if (response.statusCode != 201) {
+      throw Exception('Failed to submit review: ${response.body}');
+    }
+  }}

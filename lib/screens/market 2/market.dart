@@ -460,7 +460,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen>
                       ),
                     ),
 
-                    // Market Updates Card - NEW ADDITION
+                    // Market Updates Card
                     SliverToBoxAdapter(
                       child: MarketUpdatesCard(
                         onTap: _navigateToMarketUpdates,
@@ -557,103 +557,38 @@ class _MarketplaceScreenState extends State<MarketplaceScreen>
                         ),
                       ),
 
-                    // Featured Products Section with swiper card
+                    // Featured Products Hero Section - UPDATED
                     if (_selectedCategoryId == null &&
                         _searchQuery.isEmpty &&
                         _featuredProducts.isNotEmpty)
                       SliverToBoxAdapter(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.fromLTRB(
-                                horizontalPadding,
-                                16,
-                                horizontalPadding,
-                                12,
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      color: MarketplaceTheme.warningColor.withOpacity(0.2),
-                                      borderRadius: BorderRadius.circular(8),
+                        child: FeaturedProductsCarousel(
+                          featuredProducts: _featuredProducts,
+                          onProductTap: (product) {
+                            Navigator.push(
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder: (context, animation, secondaryAnimation) =>
+                                    ProductDetailScreen(
+                                      productId: product.id,
+                                      userData: widget.userData,
+                                      token: widget.token,
                                     ),
-                                    child: Icon(
-                                      Icons.star_rounded,
-                                      color: MarketplaceTheme.warningColor,
-                                      size: 18,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'Featured Products',
-                                    style: GoogleFonts.montserrat(
-                                      fontSize: isSmallScreen ? 16 : 18,
-                                      fontWeight: FontWeight.w600,
-                                      color: textColor,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              height: screenSize.height * 0.28,
-                              padding: const EdgeInsets.only(bottom: 20),
-                              child: Swiper(
-                                itemBuilder: (BuildContext context, int index) {
-                                  final product = _featuredProducts[index];
-                                  return FeaturedProductCard(
-                                    product: product,
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        PageRouteBuilder(
-                                          pageBuilder: (context, animation, secondaryAnimation) =>
-                                              ProductDetailScreen(
-                                                productId: product.id,
-                                                userData: widget.userData,
-                                                token: widget.token,
-                                              ),
-                                          transitionsBuilder:
-                                              (context, animation, secondaryAnimation, child) {
-                                            return FadeTransition(
-                                              opacity: animation,
-                                              child: child,
-                                            );
-                                          },
-                                        ),
-                                      );
-                                    },
-                                    primaryColor: MarketplaceTheme.primaryColor,
-                                    accentColor: MarketplaceTheme.accentColor,
-                                    warningColor: MarketplaceTheme.warningColor,
-                                    textColor: textColor,
-                                    isDarkMode: isDarkMode,
-                                    screenWidth: screenSize.width,
+                                transitionsBuilder:
+                                    (context, animation, secondaryAnimation, child) {
+                                  return FadeTransition(
+                                    opacity: animation,
+                                    child: child,
                                   );
                                 },
-                                itemCount: _featuredProducts.length,
-                                viewportFraction:
-                                isSmallScreen ? 0.8 : (isMediumScreen ? 0.6 : 0.4),
-                                scale: 0.9,
-                                layout: SwiperLayout.DEFAULT,
-                                pagination: SwiperPagination(
-                                  builder: DotSwiperPaginationBuilder(
-                                    activeColor: MarketplaceTheme.primaryColor,
-                                    color: isDarkMode ? Colors.grey[700] : Colors.grey[300],
-                                    size: 6.0,
-                                    activeSize: 8.0,
-                                  ),
-                                ),
-                                control: const SwiperControl(size: 0), // Hide arrows
-                                autoplay: true,
-                                autoplayDelay: 5000,
-                                duration: 800,
                               ),
-                            ),
-                          ],
+                            );
+                          },
+                          primaryColor: MarketplaceTheme.primaryColor,
+                          accentColor: MarketplaceTheme.accentColor,
+                          warningColor: MarketplaceTheme.warningColor,
+                          textColor: textColor,
+                          isDarkMode: isDarkMode,
                         ),
                       ),
 

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:card_swiper/card_swiper.dart';
 import '../../../models/product.dart';
 
-class FeaturedProductCard extends StatelessWidget {
+class FeaturedProductHero extends StatelessWidget {
   final Product product;
   final VoidCallback onTap;
   final Color primaryColor;
@@ -10,9 +11,8 @@ class FeaturedProductCard extends StatelessWidget {
   final Color warningColor;
   final Color textColor;
   final bool isDarkMode;
-  final double screenWidth;
 
-  const FeaturedProductCard({
+  const FeaturedProductHero({
     Key? key,
     required this.product,
     required this.onTap,
@@ -21,154 +21,184 @@ class FeaturedProductCard extends StatelessWidget {
     required this.warningColor,
     required this.textColor,
     required this.isDarkMode,
-    this.screenWidth = 360,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: isDarkMode
-                ? [const Color(0xFF2C3E50), const Color(0xFF1A1A2E)]
-                : [primaryColor.withOpacity(0.8), accentColor.withOpacity(0.9)],
-          ),
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: isDarkMode
-              ? [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.3),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
-              spreadRadius: -5,
-            )
-          ]
-              : [
-            BoxShadow(
-              color: primaryColor.withOpacity(0.3),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
-              spreadRadius: -5,
-            )
-          ],
-        ),
-        child: Stack(
-          children: [
-            // Background pattern
-            ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              child: Opacity(
-                opacity: 0.1,
-                child: Image.network(
-                  'https://i.imgur.com/8Ecyz1u.png', // A subtle pattern image
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  height: double.infinity,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const SizedBox();
-                  },
+    final size = MediaQuery.of(context).size;
+    final imageUrl = product.images != null && product.images!.isNotEmpty
+        ? product.images!.first
+        : 'https://via.placeholder.com/800x500?text=No+Image';
+
+    return Container(
+      height: size.height * 0.45,
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Stack(
+        children: [
+          // Hero Image
+          ClipRRect(
+            borderRadius: BorderRadius.circular(0),
+            child: ShaderMask(
+              shaderCallback: (rect) {
+                return LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withOpacity(0.8),
+                  ],
+                  stops: const [0.5, 1.0],
+                ).createShader(rect);
+              },
+              blendMode: BlendMode.darken,
+              child: Image.network(
+                imageUrl,
+                height: size.height * 0.45,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: isDarkMode
+                          ? [const Color(0xFF2C3E50), const Color(0xFF1A1A2E)]
+                          : [primaryColor.withOpacity(0.8), accentColor.withOpacity(0.9)],
+                    ),
+                  ),
+                  child: Center(
+                    child: Icon(
+                      Icons.eco_outlined,
+                      size: 80,
+                      color: Colors.white.withOpacity(0.5),
+                    ),
+                  ),
                 ),
               ),
             ),
+          ),
 
-            // Content
-            Padding(
-              padding: const EdgeInsets.all(20.0),
+          // Content Overlay
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Card header with featured tag
+                  // Badges Row
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Featured tag
+                      // Featured badge
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(50),
+                          color: warningColor,
+                          borderRadius: BorderRadius.circular(30),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.star_rounded,
-                              color: warningColor,
+                              color: Colors.white,
                               size: 16,
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              'Featured',
-                              style: GoogleFonts.poppins(
+                              'FEATURED',
+                              style: GoogleFonts.montserrat(
                                 color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 1,
                               ),
                             ),
                           ],
                         ),
                       ),
 
-                      // Category pill
+                      const SizedBox(width: 8),
+
+                      // Category badge
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.15),
+                          color: Colors.white.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: Text(
                           product.categoryName ?? 'Farm Product',
-                          style: GoogleFonts.poppins(
+                          style: GoogleFonts.montserrat(
                             color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
+
+                      // NEW badge if product is new
+                      if (product.isNew ?? false)
+                        Container(
+                          margin: const EdgeInsets.only(left: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.blue[600],
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: Text(
+                            'NEW',
+                            style: GoogleFonts.montserrat(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1,
+                            ),
+                          ),
+                        ),
                     ],
                   ),
 
-                  const Spacer(),
+                  const SizedBox(height: 12),
 
-                  // Product title
+                  // Product Name
                   Text(
                     product.name,
                     style: GoogleFonts.montserrat(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: 20,
+                      fontSize: 28,
+                      height: 1.2,
                       letterSpacing: 0.5,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
 
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
 
-                  // Description snippet
+                  // Product Description
                   Text(
-                    product.description ?? 'Fresh farm products directly from local farmers',
+                    product.description ?? 'Quality farm products from local producers',
                     style: GoogleFonts.poppins(
                       color: Colors.white.withOpacity(0.8),
-                      fontSize: 12,
+                      fontSize: 14,
                       height: 1.4,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
 
-                  // Price and call-to-action button
+                  // Price and Action Button
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Price display
+                      // Price
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -176,7 +206,7 @@ class FeaturedProductCard extends StatelessWidget {
                             'Price',
                             style: GoogleFonts.poppins(
                               color: Colors.white.withOpacity(0.7),
-                              fontSize: 12,
+                              fontSize: 14,
                             ),
                           ),
                           Text(
@@ -184,34 +214,31 @@ class FeaturedProductCard extends StatelessWidget {
                             style: GoogleFonts.montserrat(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
-                              fontSize: 22,
+                              fontSize: 24,
                             ),
                           ),
                         ],
                       ),
 
-                      // View Details button
-                      TextButton.icon(
+                      // Shop Now Button
+                      ElevatedButton(
                         onPressed: onTap,
-                        icon: const Icon(
-                          Icons.arrow_forward_rounded,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                        label: Text(
-                          'View',
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                          ),
-                        ),
-                        style: TextButton.styleFrom(
-                          backgroundColor: Colors.white.withOpacity(0.2),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: primaryColor,
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        ),
+                        child: Text(
+                          'SHOP NOW',
+                          style: GoogleFonts.montserrat(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
+                            letterSpacing: 1,
+                          ),
                         ),
                       ),
                     ],
@@ -219,8 +246,68 @@ class FeaturedProductCard extends StatelessWidget {
                 ],
               ),
             ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// For multiple featured products, create a swiper carousel
+class FeaturedProductsCarousel extends StatelessWidget {
+  final List<Product> featuredProducts;
+  final Function(Product) onProductTap;
+  final Color primaryColor;
+  final Color accentColor;
+  final Color warningColor;
+  final Color textColor;
+  final bool isDarkMode;
+
+  const FeaturedProductsCarousel({
+    Key? key,
+    required this.featuredProducts,
+    required this.onProductTap,
+    required this.primaryColor,
+    required this.accentColor,
+    required this.warningColor,
+    required this.textColor,
+    required this.isDarkMode,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (featuredProducts.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.45,
+      child: Swiper(
+        itemBuilder: (context, index) {
+          final product = featuredProducts[index];
+          return FeaturedProductHero(
+            product: product,
+            onTap: () => onProductTap(product),
+            primaryColor: primaryColor,
+            accentColor: accentColor,
+            warningColor: warningColor,
+            textColor: textColor,
+            isDarkMode: isDarkMode,
+          );
+        },
+        itemCount: featuredProducts.length,
+        pagination: SwiperPagination(
+          builder: DotSwiperPaginationBuilder(
+            activeColor: warningColor,
+            color: Colors.white.withOpacity(0.5),
+            size: 8.0,
+            activeSize: 10.0,
+          ),
         ),
+        autoplay: true,
+        autoplayDelay: 5000,
+        duration: 800,
+        control: const SwiperControl(size: 0), // Hide navigation arrows
       ),
     );
   }
