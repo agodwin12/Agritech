@@ -1,4 +1,3 @@
-// lib/screens/user/user_profile_screen.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../models/product.dart';
@@ -36,9 +35,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   Future<void> _loadUserProfile() async {
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     try {
       final userProfile = await _apiService.getUserProfile(widget.userId);
@@ -47,9 +44,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error loading user profile: $e')),
       );
@@ -68,9 +63,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       backgroundColor: backgroundColor,
       appBar: AppBar(
         title: Text(
-          _isLoading || _userProfile == null ? 'User Profile' : _userProfile!.fullName,          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-          ),
+          _isLoading || _userProfile == null ? 'User Profile' : _userProfile!.fullName,
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
         ),
         backgroundColor: primaryColor,
         foregroundColor: Colors.white,
@@ -78,6 +72,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
+          : _userProfile == null
+          ? const Center(child: Text('No user profile found.'))
           : RefreshIndicator(
         onRefresh: _loadUserProfile,
         child: SingleChildScrollView(
@@ -98,7 +94,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     children: [
-                      // Profile Image
                       CircleAvatar(
                         radius: 50,
                         backgroundColor: primaryColor.withOpacity(0.1),
@@ -106,36 +101,28 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             ? NetworkImage(_userProfile!.profileImage!)
                             : null,
                         child: _userProfile?.profileImage == null
-                            ? Icon(
-                          Icons.person,
-                          size: 50,
-                          color: primaryColor,
-                        )
+                            ? Icon(Icons.person, size: 50, color: primaryColor)
                             : null,
                       ),
                       const SizedBox(height: 16),
-
-                      // Name
-                      Text(
-                        _userProfile!.fullName,
-                        style: GoogleFonts.poppins(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: textColor,
+                      if (_userProfile?.fullName != null)
+                        Text(
+                          _userProfile!.fullName,
+                          style: GoogleFonts.poppins(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: textColor,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-
                       const SizedBox(height: 8),
-
-                      // Rating
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.star, color: Colors.amber, size: 20),
                           const SizedBox(width: 4),
                           Text(
-                            _userProfile!.averageRating.toString(),
+                            (_userProfile?.averageRating ?? 0).toString(),
                             style: GoogleFonts.poppins(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -144,65 +131,52 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           ),
                         ],
                       ),
-
                       const SizedBox(height: 16),
-
-                      // Bio
-                      if (_userProfile?.bio != null && _userProfile!.bio!.isNotEmpty) ...[
-                        Text(
-                          _userProfile!.bio!,
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            color: Colors.grey[700],
-                            height: 1.5,
-                          ),
-                          textAlign: TextAlign.center,
+                      if (_userProfile?.bio != null && _userProfile!.bio!.isNotEmpty)
+                        Column(
+                          children: [
+                            Text(
+                              _userProfile!.bio!,
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: Colors.grey[700],
+                                height: 1.5,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                          ],
                         ),
-                        const SizedBox(height: 16),
-                      ],
-
-                      // Social Media Links
                       if (_userProfile?.facebook != null ||
                           _userProfile?.instagram != null ||
                           _userProfile?.twitter != null ||
-                          _userProfile?.tiktok != null) ...[
+                          _userProfile?.tiktok != null)
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             if (_userProfile?.facebook != null && _userProfile!.facebook!.isNotEmpty)
                               IconButton(
                                 icon: Icon(Icons.facebook, color: primaryColor),
-                                onPressed: () {
-                                  // Open Facebook URL
-                                },
+                                onPressed: () {},
                               ),
                             if (_userProfile?.instagram != null && _userProfile!.instagram!.isNotEmpty)
                               IconButton(
                                 icon: Icon(Icons.camera_alt, color: primaryColor),
-                                onPressed: () {
-                                  // Open Instagram URL
-                                },
+                                onPressed: () {},
                               ),
                             if (_userProfile?.twitter != null && _userProfile!.twitter!.isNotEmpty)
                               IconButton(
                                 icon: Icon(Icons.flutter_dash, color: primaryColor),
-                                onPressed: () {
-                                  // Open Twitter URL
-                                },
+                                onPressed: () {},
                               ),
                             if (_userProfile?.tiktok != null && _userProfile!.tiktok!.isNotEmpty)
                               IconButton(
                                 icon: Icon(Icons.music_note, color: primaryColor),
-                                onPressed: () {
-                                  // Open TikTok URL
-                                },
+                                onPressed: () {},
                               ),
                           ],
                         ),
-                        const SizedBox(height: 8),
-                      ],
-
-                      // Member Since
+                      const SizedBox(height: 8),
                       Text(
                         'Member since ${_formatDate(_userProfile!.createdAt)}',
                         style: GoogleFonts.poppins(
@@ -214,10 +188,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 24),
-
-              // Products Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -238,10 +209,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   ),
                 ],
               ),
-
               const SizedBox(height: 16),
-
-              // Products Grid
               if (_userProfile?.products == null || _userProfile!.products!.isEmpty)
                 Center(
                   child: Column(
@@ -307,7 +275,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Product Image
             AspectRatio(
               aspectRatio: 1,
               child: ClipRRect(
@@ -336,13 +303,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 ),
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Product Name
                   Text(
                     product.name,
                     style: GoogleFonts.poppins(
@@ -352,10 +317,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-
                   const SizedBox(height: 4),
-
-                  // Product Price
                   Text(
                     '\XAF${product.price.toStringAsFixed(0)}',
                     style: GoogleFonts.poppins(
@@ -364,10 +326,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       color: primaryColor,
                     ),
                   ),
-
                   const SizedBox(height: 4),
-
-                  // Stock Status
                   Text(
                     product.stockQuantity > 0 ? 'In Stock' : 'Out of Stock',
                     style: GoogleFonts.poppins(

@@ -394,7 +394,6 @@ class ApiService {
   }
 
 
-// Add this method to your ApiService class
   Future<UserProfile> getUserProfile(int userId) async {
     try {
       // Debug print to track the request

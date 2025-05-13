@@ -1,4 +1,3 @@
-// lib/models/user_profile.dart
 import 'package:flutter/foundation.dart';
 import 'product.dart';
 
@@ -17,7 +16,7 @@ class UserProfile {
   final String? tiktok;
   final DateTime createdAt;
   final double averageRating;
-  final List<Product>? products;
+  final List<Product> products;
 
   UserProfile({
     required this.id,
@@ -34,13 +33,16 @@ class UserProfile {
     this.tiktok,
     required this.createdAt,
     required this.averageRating,
-    this.products,
+    required this.products,
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
-    List<Product>? productsList;
-    if (json['products'] != null) {
-      productsList = (json['products'] as List)
+    final rawProducts = json['products'];
+    List<Product> productsList = [];
+
+    // ✅ Safely handle if "products" is not a list (e.g. it's a string)
+    if (rawProducts is List) {
+      productsList = rawProducts
           .map((productJson) => Product.fromJson(productJson))
           .toList();
     }
@@ -52,22 +54,27 @@ class UserProfile {
       phone: json['phone'],
       address: json['address'],
       dateOfBirth: json['date_of_birth'] != null
-          ? DateTime.parse(json['date_of_birth'])
+          ? DateTime.tryParse(json['date_of_birth'])
           : null,
-      profileImage: json['profile_image'],
+      profileImage: json['profile_image'] != null
+          ? (json['profile_image'].toString().startsWith('http')
+          ? json['profile_image']
+          : 'http://10.0.2.2:3000/uploads/${json['profile_image']}')
+          : null,
       bio: json['bio'],
       facebook: json['facebook'],
       instagram: json['instagram'],
       twitter: json['twitter'],
       tiktok: json['tiktok'],
       createdAt: DateTime.parse(json['created_at']),
-      averageRating: double.parse(json['average_rating'] ?? '0.0'),
+      averageRating:
+      double.tryParse(json['average_rating'].toString()) ?? 0.0,
       products: productsList,
     );
   }
 
   @override
   String toString() {
-    return 'UserProfile{id: $id, fullName: $fullName, email: $email, products: ${products?.length ?? 0} items}';
+    return 'UserProfile{id: $id, fullName: $fullName, email: $email, products: ${products.length} items}';
   }
 }

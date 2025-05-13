@@ -99,8 +99,7 @@ class ProductCard extends StatelessWidget {
                     ),
 
                     // FIXED: Use multiple checks for NEW badge
-                    if (_shouldShowNewBadge(product))
-                      Positioned(
+                    if (product.isNew == true)                      Positioned(
                         top: 8,
                         left: 8,
                         child: Container(
