@@ -1,11 +1,14 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart'; // Add this package
 import '../chat forum/forum.dart';
+import '../my Products/my_products_screen.dart';
+import '../my Products/userProductDetailScreen.dart';
 import '../navigation bar/navigation_bar.dart';
+import 'edit_profile.dart';
 
 class ProfileScreen extends StatefulWidget {
   final Map<String, dynamic> userData;
@@ -89,6 +92,60 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  // Function to launch social media apps
+  Future<void> _launchSocialMedia(String platform, String username) async {
+    String url = '';
+
+    // Prepare URL based on platform
+    switch (platform) {
+      case 'facebook':
+        url = 'https://www.facebook.com/$username';
+        break;
+      case 'instagram':
+        url = 'https://www.instagram.com/$username';
+        break;
+      case 'twitter':
+        url = 'https://twitter.com/$username';
+        break;
+      case 'tiktok':
+        url = 'https://www.tiktok.com/@$username';
+        break;
+      default:
+        return;
+    }
+
+    // Launch URL in external browser/app
+    if (await canLaunch(url)) {
+      await launch(url, forceSafariVC: false, universalLinksOnly: true);
+    } else {
+      // If can't launch app directly, try web version
+      if (await canLaunch(url)) {
+        await launch(url);
+      } else {
+        print('Could not launch $url');
+        // Show a snackbar or dialog to inform user
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not open $platform'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> logout() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('authToken');
+
+      // Navigate to login screen and remove all previous routes
+      Navigator.of(context).pushNamedAndRemoveUntil('/signin', (route) => false);
+    } catch (e) {
+      print('Error during logout: $e');
+    }
+  }
+
   void _showLogoutConfirmation() {
     showDialog(
       context: context,
@@ -142,12 +199,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              onPressed: () async {
-                final prefs = await SharedPreferences.getInstance();
-                await prefs.remove('authToken');
+              onPressed: () {
                 Navigator.of(context).pop(); // Close dialog
-                // Navigate to login screen
-                // Example: Navigator.of(context).pushReplacementNamed('/login');
+                logout(); // Call the logout function
               },
             ),
           ],
@@ -342,6 +396,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ElevatedButton.icon(
                     onPressed: () {
                       // Navigate to edit profile
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EditProfileScreen(
+                            userData: userData!,
+                            token: widget.token,
+                            onProfileUpdated: (updatedData) {
+                              setState(() {
+                                userData = updatedData;
+                              });
+                            },
+                          ),
+                        ),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryColor,
@@ -366,6 +434,149 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
 
             const SizedBox(height: 24),
+
+            // Bio Section
+            if (userData!['bio'] != null && userData!['bio'].isNotEmpty)
+              Container(
+                decoration: BoxDecoration(
+                  color: cardBackgroundColor,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      spreadRadius: 0,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+                      child: Text(
+                        'About Me',
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: textColor,
+                        ),
+                      ),
+                    ),
+                    const Divider(),
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Text(
+                        userData!['bio'] ?? '',
+                        style: GoogleFonts.poppins(
+                          fontSize: 15,
+                          color: textColor,
+                          height: 1.5,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+            if (userData!['bio'] != null && userData!['bio'].isNotEmpty)
+              const SizedBox(height: 24),
+
+            // Social Media Links Section - Redesigned with clickable icons
+            if (_hasSocialLinks())
+              Container(
+                decoration: BoxDecoration(
+                  color: cardBackgroundColor,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      spreadRadius: 0,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+                      child: Row(
+                        children: [
+                          Text(
+                            'Connect With Me',
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: textColor,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Icon(
+                            Icons.link,
+                            size: 18,
+                            color: primaryColor,
+                          )
+                        ],
+                      ),
+                    ),
+                    const Divider(),
+                    // Social Media Icons in a Row
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          // Facebook
+                          if (userData!['facebook'] != null && userData!['facebook'].isNotEmpty)
+                            _buildSocialMediaIcon(
+                              icon: Icons.facebook,
+                              backgroundColor: const Color(0xFF1877F2), // Facebook blue
+                              platformName: 'facebook',
+                              username: userData!['facebook'] ?? '',
+                              tooltip: 'Facebook: ${userData!['facebook']}',
+                            ),
+
+                          // Instagram
+                          if (userData!['instagram'] != null && userData!['instagram'].isNotEmpty)
+                            _buildSocialMediaIcon(
+                              icon: Icons.camera_alt_rounded,
+                              backgroundColor: const Color(0xFFE1306C), // Instagram pink/purple
+                              platformName: 'instagram',
+                              username: userData!['instagram'] ?? '',
+                              tooltip: 'Instagram: ${userData!['instagram']}',
+                            ),
+
+                          // Twitter
+                          if (userData!['twitter'] != null && userData!['twitter'].isNotEmpty)
+                            _buildSocialMediaIcon(
+                              icon: Icons.travel_explore, // Twitter/X icon
+                              backgroundColor: const Color(0xFF000000), // X Black
+                              platformName: 'twitter',
+                              username: userData!['twitter'] ?? '',
+                              tooltip: 'Twitter: ${userData!['twitter']}',
+                            ),
+
+                          // TikTok
+                          if (userData!['tiktok'] != null && userData!['tiktok'].isNotEmpty)
+                            _buildSocialMediaIcon(
+                              icon: Icons.music_note_rounded,
+                              backgroundColor: const Color(0xFF000000), // TikTok black
+                              platformName: 'tiktok',
+                              username: userData!['tiktok'] ?? '',
+                              tooltip: 'TikTok: ${userData!['tiktok']}',
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+            if (_hasSocialLinks())
+              const SizedBox(height: 24),
 
             // Profile Information Section
             Container(
@@ -412,15 +623,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     icon: Icons.location_on_outlined,
                     title: 'Address',
                     subtitle: userData!['address'] ?? 'Not specified',
-                    isDarkMode: isDarkMode,
-                    textColor: textColor,
-                  ),
-
-                  // Date of Birth Info
-                  _buildProfileInfoTile(
-                    icon: Icons.cake_outlined,
-                    title: 'Date of Birth',
-                    subtitle: userData!['date_of_birth'] ?? 'Not specified',
                     isDarkMode: isDarkMode,
                     textColor: textColor,
                     isLast: true,
@@ -474,9 +676,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
 
-                  // Notification Settings
+                  // My Products
                   _buildSettingsTile(
-                    icon: Icons.notifications_outlined,
+                    icon: Icons.shopping_basket_outlined,
                     iconColor: primaryColor,
                     title: 'My Products',
                     isDarkMode: isDarkMode,
@@ -485,16 +687,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ForumScreen(
-                            userData: userData!, // contains {id, full_name, ...}
-                            token: '',       // the real JWT token
+                          builder: (_) => MyProductsScreen(
+                            userData: widget.userData,
+                            token: widget.token,
                           ),
+
                         ),
                       );
                     },
                   ),
 
-                  // Forum Menu - NEW
+                  // Forum Menu
                   _buildSettingsTile(
                     icon: Icons.forum_outlined,
                     iconColor: primaryColor,
@@ -506,16 +709,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => ForumScreen(
-                            userData: userData!, // contains {id, full_name, ...}
-                            token: '',       // the real JWT token
+                            userData: userData!,
+                            token: widget.token,
                           ),
                         ),
                       );
                     },
-
                   ),
 
-                  // Privacy Policy - NEW
+                  // Privacy Policy
                   _buildSettingsTile(
                     icon: Icons.privacy_tip_outlined,
                     iconColor: primaryColor,
@@ -527,7 +729,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
 
-                  // Contact Us - NEW
+                  // Contact Us
                   _buildSettingsTile(
                     icon: Icons.headset_mic_outlined,
                     iconColor: primaryColor,
@@ -537,6 +739,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     onTap: () {
                       // Navigate to contact page
                     },
+                    isLast: true,
                   ),
                 ],
               ),
@@ -600,7 +803,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
 
             const SizedBox(height: 10),
-
           ],
         ),
       ),
@@ -614,6 +816,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
         token: widget.token,
       ),
     );
+  }
+
+  // New method for building social media icons
+  Widget _buildSocialMediaIcon({
+    required IconData icon,
+    required Color backgroundColor,
+    required String platformName,
+    required String username,
+    required String tooltip,
+  }) {
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        onTap: () => _launchSocialMedia(platformName, username),
+        child: Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: backgroundColor.withOpacity(0.3),
+                blurRadius: 8,
+                spreadRadius: 1,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Center(
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 28,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  bool _hasSocialLinks() {
+    return (userData!['facebook'] != null && userData!['facebook'].isNotEmpty) ||
+        (userData!['instagram'] != null && userData!['instagram'].isNotEmpty) ||
+        (userData!['twitter'] != null && userData!['twitter'].isNotEmpty) ||
+        (userData!['tiktok'] != null && userData!['tiktok'].isNotEmpty);
   }
 
   Widget _buildProfileInfoTile({
@@ -674,6 +922,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required bool isDarkMode,
     required Color textColor,
     required VoidCallback onTap,
+    bool isLast = false,
   }) {
     return Column(
       children: [
@@ -712,10 +961,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
         ),
-        const Divider(
-          indent: 70,
-          height: 1,
-        ),
+        if (!isLast)
+          const Divider(
+            indent: 70,
+            height: 1,
+          ),
       ],
     );
   }
