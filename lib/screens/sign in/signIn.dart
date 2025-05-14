@@ -9,7 +9,9 @@ import 'dart:math' as math;
 
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../Admin/screens/dashboard.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_provider.dart';
 import '../../services/cart_provider.dart';
@@ -120,25 +122,39 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
         if (response.statusCode == 200) {
           final responseData = jsonDecode(response.body);
           final token = responseData['token'];
+          final user = responseData['user']; // ✅ Moved here
+
           print('✅ Login successful. Token: $token');
 
           final authProvider = Provider.of<AuthProvider>(context, listen: false);
-          authProvider.setToken(token); // <-- Save the token
+          authProvider.setToken(token);
 
-
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('jwt_token', token);
+          await prefs.setString('user_role', user['role']);
+          await prefs.setString('user_id', user['id'].toString());
 
           // ✅ Now navigate
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => FeaturePage(
-                userData: responseData['user'],
-                token: token,
+          if (user['role'] == 'admin') {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AdminDashboardScreen(),
               ),
-            ),
-          );
-          ;
-        } else {
+            );
+          } else {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => FeaturePage(
+                  userData: user,
+                  token: token,
+                ),
+              ),
+            );
+          }
+        }
+        else {
           final error = jsonDecode(response.body);
           print('❌ Login failed: ${error['message']}');
           ScaffoldMessenger.of(context).showSnackBar(
