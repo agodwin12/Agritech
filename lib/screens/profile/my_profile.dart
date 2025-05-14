@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart'; // Add this package
 import '../chat forum/forum.dart';
+import '../disease detection/CameraCaptureScreen.dart';
 import '../my Products/my_products_screen.dart';
 import '../my Products/userProductDetailScreen.dart';
 import '../navigation bar/navigation_bar.dart';
@@ -91,6 +93,254 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
     }
   }
+
+  void _showChangePasswordDialog() {
+    final oldPasswordController = TextEditingController();
+    final newPasswordController = TextEditingController();
+    final confirmPasswordController = TextEditingController();
+    bool hideOld = true;
+    bool hideNew = true;
+    bool hideConfirm = true;
+    bool isLoading = false;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              elevation: 0,
+              backgroundColor: Colors.transparent,
+              child: Container(
+                padding: EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 20,
+                      spreadRadius: 5,
+                    ),
+                  ],
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Change Password',
+                        style: GoogleFonts.poppins(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF2E7D32),
+                        ),
+                      ),
+                      SizedBox(height: 24),
+                      _buildPasswordField(
+                        controller: oldPasswordController,
+                        label: 'Current Password',
+                        hideText: hideOld,
+                        onToggle: () => setState(() => hideOld = !hideOld),
+                      ),
+                      SizedBox(height: 16),
+                      _buildPasswordField(
+                        controller: newPasswordController,
+                        label: 'New Password',
+                        hideText: hideNew,
+                        onToggle: () => setState(() => hideNew = !hideNew),
+                      ),
+                      SizedBox(height: 16),
+                      _buildPasswordField(
+                        controller: confirmPasswordController,
+                        label: 'Confirm Password',
+                        hideText: hideConfirm,
+                        onToggle: () => setState(() => hideConfirm = !hideConfirm),
+                      ),
+                      SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            onPressed: isLoading ? null : () => Navigator.pop(context),
+                            child: Text(
+                              'Cancel',
+                              style: GoogleFonts.poppins(
+                                color: Color(0xFF666666),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFF2E7D32),
+                              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              elevation: 0,
+                            ),
+                            onPressed: isLoading ? null : () async {
+                              final oldPass = oldPasswordController.text.trim();
+                              final newPass = newPasswordController.text.trim();
+                              final confirmPass = confirmPasswordController.text.trim();
+
+                              if (newPass.isEmpty || confirmPass.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Please fill all fields'),
+                                    behavior: SnackBarBehavior.floating,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                );
+                                return;
+                              }
+
+                              if (newPass != confirmPass) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('New passwords do not match'),
+                                    behavior: SnackBarBehavior.floating,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                );
+                                return;
+                              }
+
+                              setState(() => isLoading = true);
+
+                              try {
+                                final response = await http.post(
+                                  Uri.parse('http://10.0.2.2:3000/api/users/change-password'),
+                                  headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': 'Bearer ${widget.token}',
+                                  },
+                                  body: jsonEncode({
+                                    'oldPassword': oldPass,
+                                    'newPassword': newPass,
+                                    'phone': userData?['phone'],
+                                  }),
+                                );
+
+                                if (response.statusCode == 200) {
+                                  Navigator.pop(context);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Password changed successfully'),
+                                      behavior: SnackBarBehavior.floating,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  final err = jsonDecode(response.body);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(err['message'] ?? 'Password change failed'),
+                                      behavior: SnackBarBehavior.floating,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Network error occurred'),
+                                    behavior: SnackBarBehavior.floating,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                );
+                              } finally {
+                                setState(() => isLoading = false);
+                              }
+                            },
+                            child: isLoading
+                                ? SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                                : Text(
+                              'Update ',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildPasswordField({
+    required TextEditingController controller,
+    required String label,
+    required bool hideText,
+    required VoidCallback onToggle,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: hideText,
+      style: GoogleFonts.poppins(),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: GoogleFonts.poppins(color: Color(0xFF666666)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Color(0xFF2E7D32), width: 1.5),
+        ),
+        suffixIcon: IconButton(
+          icon: Icon(
+            hideText ? Icons.visibility_off : Icons.visibility,
+            color: Color(0xFF666666),
+          ),
+          onPressed: onToggle,
+        ),
+      ),
+    );
+  }
+
 
   // Function to launch social media apps
   Future<void> _launchSocialMedia(String platform, String username) async {
@@ -672,7 +922,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     isDarkMode: isDarkMode,
                     textColor: textColor,
                     onTap: () {
-                      // Navigate to change password
+                      _showChangePasswordDialog();
                     },
                   ),
 
@@ -729,16 +979,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
 
-                  // Contact Us
+
                   _buildSettingsTile(
-                    icon: Icons.headset_mic_outlined,
+                    icon: Icons.camera_alt_rounded,
                     iconColor: primaryColor,
-                    title: 'Contact Us',
+                    title: 'Detect Disease',
                     isDarkMode: isDarkMode,
                     textColor: textColor,
                     onTap: () {
-                      // Navigate to contact page
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => CameraCaptureScreen(
+                            onImageCaptured: (File imageFile) {
+                              //  model for disease detection
+                              print('Captured image: ${imageFile.path}');
+
+                            },
+                          ),
+                        ),
+                      );
                     },
+
                     isLast: true,
                   ),
                 ],

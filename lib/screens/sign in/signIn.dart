@@ -134,15 +134,17 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
           await prefs.setString('user_role', user['role']);
           await prefs.setString('user_id', user['id'].toString());
 
-          // ✅ Now navigate
           if (user['role'] == 'admin') {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => AdminDashboardScreen(),
+                builder: (context) => AdminDashboardScreen(
+                  userData: user,
+                  token: token,
+                ),
               ),
             );
-          } else {
+          }else {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -560,7 +562,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                     FadeTransition(
                       opacity: _fadeAnimation!,
                       child: Container(
-                        width: double.infinity, // Full width for Google button as well
+                        width: double.infinity,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(15),
@@ -577,10 +579,15 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                             // TODO: Implement Google OAuth
                             print('Google Sign In');
                           },
-                          icon: SvgPicture.asset(
-                            'assets/google_icon.png',
-                            width: 24,
-                            height: 24,
+                          icon: Container(
+                            padding: const EdgeInsets.all(2),
+                            child: Image.asset(
+                              'assets/google.png',
+                              width: 24,
+                              height: 24,
+                              errorBuilder: (context, error, stackTrace) =>
+                              const Icon(Icons.account_circle, size: 24),
+                            ),
                           ),
                           label: Text(
                             _isLogin ? 'Continue with Google' : 'Sign up with Google',
@@ -595,7 +602,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15),
                             ),
-                            minimumSize: Size(double.infinity, 50), // Ensure full width
+                            minimumSize: const Size(double.infinity, 50),
                           ),
                         ),
                       ),

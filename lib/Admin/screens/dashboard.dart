@@ -1,12 +1,16 @@
 import 'package:agritech/Admin/screens/admin%20Forum/AdminForum.dart';
 import 'package:agritech/Admin/screens/admin%20product/AdminProductScreen.dart';
 import 'package:agritech/Admin/screens/admin%20users/AdminUserScreen.dart';
+import 'package:agritech/Admin/screens/categories%20management/categoryManagement.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Import for session management
 import 'admin management/AdminManagementScreen.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
-  const AdminDashboardScreen({Key? key}) : super(key: key);
+  final Map<String, dynamic> userData;
+  final String token;
+
+  const AdminDashboardScreen({Key? key, required this.userData, required this.token}) : super(key: key);
 
   // Method to handle logout
   Future<void> _logout(BuildContext context) async {
@@ -79,6 +83,19 @@ class AdminDashboardScreen extends StatelessWidget {
         'description': 'Monitor and moderate forum discussions',
         'onTap': () {
           Navigator.push(context, MaterialPageRoute(builder: (_) => AdminForumScreen()));
+        }
+      },
+      {
+        'title': 'Categories',
+        'icon': Icons.widgets_outlined,
+        'description': 'Manage products categories and Sub categories',
+        'onTap': () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => CategoryManagementScreen(token: token),
+            ),
+          );
         }
       },
     ];
