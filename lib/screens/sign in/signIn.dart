@@ -1,10 +1,12 @@
 import 'dart:convert';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'dart:math' as math;
 
 import 'package:http/http.dart' as http;
@@ -13,7 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Admin/screens/dashboard.dart';
 import '../../services/api_service.dart';
-import '../../services/auth_provider.dart';
+import 'package:agritech/services/auth_provider.dart' as myAuth;
 import '../../services/cart_provider.dart';
 import '../feature page/feature_page.dart';
 
@@ -103,6 +105,61 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
     });
   }
 
+  Future<void> _handleGoogleSignIn() async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+
+    try {
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      if (googleUser == null) return;
+
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final UserCredential userCredential =
+      await firebaseAuth.signInWithCredential(credential);
+      final user = userCredential.user;
+
+      if (user != null) {
+        final response = await http.post(
+          Uri.parse('http://10.0.2.2:3000/api/auth/google-login'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'email': user.email,
+            'full_name': user.displayName,
+            'profile_image': user.photoURL,
+          }),
+        );
+
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          final token = data['token'];
+          final userData = data['user'];
+
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('jwt_token', token);
+          await prefs.setString('user_id', userData['id'].toString());
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => FeaturePage(userData: userData, token: token),
+            ),
+          );
+        } else {
+          print("❌ Backend error: ${response.body}");
+        }
+      }
+    } catch (e) {
+      print("⚠️ Google Sign-in error: $e");
+    }
+  }
+
+
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       String identifier = _isEmailLogin ? _emailController.text.trim() : _phoneController.text.trim();
@@ -126,7 +183,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
 
           print('✅ Login successful. Token: $token');
 
-          final authProvider = Provider.of<AuthProvider>(context, listen: false);
+          final authProvider = Provider.of<myAuth.AuthProvider>(context, listen: false);
           authProvider.setToken(token);
 
           final prefs = await SharedPreferences.getInstance();
@@ -575,10 +632,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                           ],
                         ),
                         child: TextButton.icon(
-                          onPressed: () {
-                            // TODO: Implement Google OAuth
-                            print('Google Sign In');
-                          },
+                          onPressed: _handleGoogleSignIn,
                           icon: Container(
                             padding: const EdgeInsets.all(2),
                             child: Image.asset(
@@ -604,7 +658,8 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                             ),
                             minimumSize: const Size(double.infinity, 50),
                           ),
-                        ),
+                        )
+                        ,
                       ),
                     ),
 
@@ -641,7 +696,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                 ),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
-                                    // 🚀 Redirection selon l'état actuel
+
                                     if (_isLogin) {
                                       Navigator.pushNamed(context, '/signup');
                                     } else {

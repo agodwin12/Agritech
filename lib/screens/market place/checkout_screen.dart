@@ -1,7 +1,9 @@
 // lib/screens/market_place/checkout_screen.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../models/cart_item.dart';
 import '../../services/api_service.dart';
+import '../../services/cart_provider.dart';
 import 'order_confirmation_screen.dart';
 import '../../utils/colors.dart'; // Create this file for app theme colors
 
@@ -66,17 +68,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     });
 
     try {
-      // For now, simulate API call with delay
-      // You need to implement the createOrder method in ApiService
-      // await _apiService.createOrder(
-      //   _addressController.text,
-      //   _shippingMethod,
-      //   _paymentMethod,
-      //   _notesController.text.isEmpty ? null : _notesController.text,
-      // );
 
-      // Simulate API call with delay
-      await Future.delayed(const Duration(seconds: 2));
+
+      await _apiService.createOrder(
+        shippingAddress: _addressController.text,
+        shippingMethod: _shippingMethod,
+        paymentMethod: _paymentMethod,
+        notes: _notesController.text.isEmpty ? null : _notesController.text,
+      );
+
 
       final orderNumber = 'ORD-${DateTime.now().millisecondsSinceEpoch.toString().substring(0, 8)}';
 

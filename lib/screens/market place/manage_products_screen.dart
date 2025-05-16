@@ -838,50 +838,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                               ),
                             ),
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.star_outline_rounded,
-                                  color: _isFeatured ? _highlightColor : isDarkMode ? Colors.grey[400] : Colors.grey[600],
-                                  size: 24,
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Feature this product',
-                                        style: GoogleFonts.lato(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                          color: textColor,
-                                        ),
-                                      ),
-                                      Text(
-                                        'Featured products appear at the top of the marketplace',
-                                        style: GoogleFonts.lato(
-                                          fontSize: 13,
-                                          color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Switch(
-                                  value: _isFeatured,
-                                  activeColor: _primaryGreen,
-                                  activeTrackColor: _primaryGreen.withOpacity(0.4),
-                                  inactiveThumbColor: isDarkMode ? Colors.grey[300] : Colors.grey[400],
-                                  inactiveTrackColor: isDarkMode ? Colors.grey[700] : Colors.grey[300],
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _isFeatured = value;
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
+
                           ),
                           const SizedBox(height: 24),
 
@@ -940,7 +897,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     );
   }
 
-  // Helper widget methods
+
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,

@@ -2,6 +2,7 @@ import 'package:agritech/Admin/screens/admin%20Forum/AdminForum.dart';
 import 'package:agritech/Admin/screens/admin%20product/AdminProductScreen.dart';
 import 'package:agritech/Admin/screens/admin%20users/AdminUserScreen.dart';
 import 'package:agritech/Admin/screens/categories%20management/categoryManagement.dart';
+import 'package:agritech/Admin/screens/process%20orders/AdminOrderEditScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Import for session management
 import 'admin management/AdminManagementScreen.dart';
@@ -94,6 +95,20 @@ class AdminDashboardScreen extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (_) => CategoryManagementScreen(token: token),
+            ),
+          );
+        }
+      },
+
+      {
+        'title': 'Orders',
+        'icon': Icons.business,
+        'description': 'Manage and process in  real-time',
+        'onTap': () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => AdminOrdersScreen(token: token),
             ),
           );
         }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "554540375586",
+    "project_id": "agritracker-70ba3",
+    "storage_bucket": "agritracker-70ba3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:554540375586:android:fefd5980eebfcdeeee347b",
+        "android_client_info": {
+          "package_name": "com.example.agritech"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCRoD6aSmINcyevh9s7CxHbzLWoexial5U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

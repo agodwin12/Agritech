@@ -237,14 +237,19 @@ class ApiService {
   }
 
   // Order methods
-  Future<Map<String, dynamic>> createOrder(String shippingAddress, String shippingMethod, String paymentMethod, String? notes) async {
+  Future<void> createOrder({
+    required String shippingAddress,
+    required String shippingMethod,
+    required String paymentMethod,
+    String? notes,
+  }) async {
     final response = await http.post(
       Uri.parse('$baseUrl/api/orders'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       },
-      body: json.encode({
+      body: jsonEncode({
         'shipping_address': shippingAddress,
         'shipping_method': shippingMethod,
         'payment_method': paymentMethod,
@@ -252,12 +257,20 @@ class ApiService {
       }),
     );
 
-    if (response.statusCode == 201) {
-      return json.decode(response.body);
-    } else {
-      throw Exception('Failed to create order');
+    if (response.statusCode != 201) {
+      print('❌ Status: ${response.statusCode}');
+      print('❌ Body: ${response.body}');
+
+      try {
+        final error = jsonDecode(response.body);
+        throw Exception(error['message'] ?? 'Failed to place order');
+      } catch (_) {
+        throw Exception('Unexpected response: ${response.body}');
+      }
     }
   }
+
+
 
   Future<List<dynamic>> getUserOrders() async {
     final response = await http.get(
@@ -416,6 +429,27 @@ class ApiService {
     } catch (e) {
       print('Error in getUserProfile: $e');
       throw Exception('Error fetching user profile: $e');
+    }
+  }
+
+
+  Future<dynamic> get(String endpoint) async {
+    final url = Uri.parse('${baseUrl.replaceAll(RegExp(r'/+$'), '')}/${endpoint.replaceAll(RegExp(r'^/+'), '')}');
+    final response = await http.get(url, headers: _headers());
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('GET request failed: ${response.body}');
+    }
+  }
+
+  Future<void> put(String endpoint, {required Map<String, dynamic> body}) async {
+    final url = Uri.parse('${baseUrl.replaceAll(RegExp(r'/+$'), '')}/${endpoint.replaceAll(RegExp(r'^/+'), '')}');
+    final response = await http.put(url, headers: _headers(), body: json.encode(body));
+
+    if (response.statusCode != 200) {
+      throw Exception('PUT request failed: ${response.statusCode} ${response.body}');
     }
   }
 

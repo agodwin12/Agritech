@@ -191,9 +191,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen>
     Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => MarketUpdateScreen(
-
-        ),
+        pageBuilder: (context, animation, secondaryAnimation) => MarketUpdateScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0);
           const end = Offset.zero;
@@ -353,36 +351,146 @@ class _MarketplaceScreenState extends State<MarketplaceScreen>
                           horizontal: horizontalPadding,
                           vertical: 12,
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Hello, ${widget.userData['name'] ?? 'Farmer'}!',
-                              style: GoogleFonts.poppins(
-                                fontSize: isSmallScreen ? 20 : 24,
-                                fontWeight: FontWeight.w600,
-                                color: textColor,
+
+                      ),
+                    ),
+
+                    // Featured Products Hero Section - MOVED TO TOP
+                    if (_featuredProducts.isNotEmpty && _selectedCategoryId == null && _searchQuery.isEmpty)
+                      SliverToBoxAdapter(
+                        child: FeaturedProductsCarousel(
+                          featuredProducts: _featuredProducts,
+                          onProductTap: (product) {
+                            Navigator.push(
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder: (context, animation, secondaryAnimation) =>
+                                    ProductDetailScreen(
+                                      productId: product.id,
+                                      userData: widget.userData,
+                                      token: widget.token,
+                                    ),
+                                transitionsBuilder:
+                                    (context, animation, secondaryAnimation, child) {
+                                  return FadeTransition(
+                                    opacity: animation,
+                                    child: child,
+                                  );
+                                },
                               ),
-                            ),
-                            Text(
-                              'Find fresh farm products for your needs',
-                              style: GoogleFonts.poppins(
-                                fontSize: isSmallScreen ? 13 : 15,
-                                color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                          ],
+                            );
+                          },
+                          primaryColor: MarketplaceTheme.primaryColor,
+                          accentColor: MarketplaceTheme.accentColor,
+                          warningColor: MarketplaceTheme.warningColor,
+                          textColor: textColor,
+                          isDarkMode: isDarkMode,
+                        ),
+                      ),
+
+                    // Market Updates Card - MOVED AFTER HERO
+                    SliverToBoxAdapter(
+                      child: MarketUpdatesCard(
+                        onTap: _navigateToMarketUpdates,
+                        isDarkMode: isDarkMode,
+                      ),
+                    ),
+
+                    // Category Filter with modern design
+                    SliverToBoxAdapter(
+                      child: Container(
+                        height: screenSize.height * 0.06,
+                        margin: const EdgeInsets.only(top: 16, bottom: 4),
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(),
+                          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                          itemCount: _categories.length + 1, // +1 for "All" option
+                          itemBuilder: (context, index) {
+                            if (index == 0) {
+                              return CategoryChip(
+                                label: 'All Products',
+                                isSelected: _selectedCategoryId == null,
+                                onSelected: (selected) {
+                                  if (selected) {
+                                    _resetFilters();
+                                  }
+                                },
+                                isDarkMode: isDarkMode,
+                                textColor: textColor,
+                              );
+                            }
+
+                            final category = _categories[index - 1];
+                            return CategoryChip(
+                              label: category.name,
+                              isSelected: _selectedCategoryId == category.id,
+                              onSelected: (selected) {
+                                if (selected) {
+                                  _filterByCategory(category.id);
+                                }
+                              },
+                              isDarkMode: isDarkMode,
+                              textColor: textColor,
+                            );
+                          },
                         ),
                       ),
                     ),
 
-                    // Search Bar with modern design
+                    // Subcategory Filter
+                    if (_selectedCategoryId != null && _categories.isNotEmpty)
+                      SliverToBoxAdapter(
+                        child: Container(
+                          height: screenSize.height * 0.05,
+                          margin: const EdgeInsets.only(bottom: 12),
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            physics: const BouncingScrollPhysics(),
+                            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                            itemCount: _categories
+                                .firstWhere(
+                                  (cat) => cat.id == _selectedCategoryId,
+                              orElse: () => Category(id: 0, name: '', subCategories: []),
+                            )
+                                .subCategories
+                                ?.length ??
+                                0,
+                            itemBuilder: (context, index) {
+                              final selectedCategory = _categories.firstWhere(
+                                    (cat) => cat.id == _selectedCategoryId,
+                                orElse: () => Category(id: 0, name: '', subCategories: []),
+                              );
+
+                              if (selectedCategory.subCategories == null ||
+                                  selectedCategory.subCategories!.isEmpty ||
+                                  index >= selectedCategory.subCategories!.length) {
+                                return const SizedBox.shrink();
+                              }
+
+                              final subCategory = selectedCategory.subCategories![index];
+                              return SubcategoryChip(
+                                label: subCategory.name,
+                                isSelected: _selectedSubCategoryId == subCategory.id,
+                                onSelected: (selected) {
+                                  if (selected) {
+                                    _filterBySubCategory(subCategory.id);
+                                  }
+                                },
+                                isDarkMode: isDarkMode,
+                                textColor: textColor,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+
+                    // Search Bar - MOVED AFTER CATEGORIES
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: EdgeInsets.symmetric(
                           horizontal: horizontalPadding,
-                          vertical: 16,
+                          vertical: 12,
                         ),
                         child: Container(
                           decoration: BoxDecoration(
@@ -459,144 +567,12 @@ class _MarketplaceScreenState extends State<MarketplaceScreen>
                       ),
                     ),
 
-                    // Market Updates Card
-                    SliverToBoxAdapter(
-                      child: MarketUpdatesCard(
-                        onTap: _navigateToMarketUpdates,
-                        isDarkMode: isDarkMode,
-                      ),
-                    ),
-
-                    // Category Filter with modern design
-                    SliverToBoxAdapter(
-                      child: Container(
-                        height: screenSize.height * 0.06,
-                        margin: const EdgeInsets.only(top: 8, bottom: 4),
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          physics: const BouncingScrollPhysics(),
-                          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-                          itemCount: _categories.length + 1, // +1 for "All" option
-                          itemBuilder: (context, index) {
-                            if (index == 0) {
-                              return CategoryChip(
-                                label: 'All Products',
-                                isSelected: _selectedCategoryId == null,
-                                onSelected: (selected) {
-                                  if (selected) {
-                                    _resetFilters();
-                                  }
-                                },
-                                isDarkMode: isDarkMode,
-                                textColor: textColor,
-                              );
-                            }
-
-                            final category = _categories[index - 1];
-                            return CategoryChip(
-                              label: category.name,
-                              isSelected: _selectedCategoryId == category.id,
-                              onSelected: (selected) {
-                                if (selected) {
-                                  _filterByCategory(category.id);
-                                }
-                              },
-                              isDarkMode: isDarkMode,
-                              textColor: textColor,
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-
-                    // Subcategory Filter
-                    if (_selectedCategoryId != null && _categories.isNotEmpty)
-                      SliverToBoxAdapter(
-                        child: Container(
-                          height: screenSize.height * 0.05,
-                          margin: const EdgeInsets.only(bottom: 8),
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            physics: const BouncingScrollPhysics(),
-                            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-                            itemCount: _categories
-                                .firstWhere(
-                                  (cat) => cat.id == _selectedCategoryId,
-                              orElse: () => Category(id: 0, name: '', subCategories: []),
-                            )
-                                .subCategories
-                                ?.length ??
-                                0,
-                            itemBuilder: (context, index) {
-                              final selectedCategory = _categories.firstWhere(
-                                    (cat) => cat.id == _selectedCategoryId,
-                                orElse: () => Category(id: 0, name: '', subCategories: []),
-                              );
-
-                              if (selectedCategory.subCategories == null ||
-                                  selectedCategory.subCategories!.isEmpty ||
-                                  index >= selectedCategory.subCategories!.length) {
-                                return const SizedBox.shrink();
-                              }
-
-                              final subCategory = selectedCategory.subCategories![index];
-                              return SubcategoryChip(
-                                label: subCategory.name,
-                                isSelected: _selectedSubCategoryId == subCategory.id,
-                                onSelected: (selected) {
-                                  if (selected) {
-                                    _filterBySubCategory(subCategory.id);
-                                  }
-                                },
-                                isDarkMode: isDarkMode,
-                                textColor: textColor,
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-
-                    // Featured Products Hero Section - UPDATED
-                    if (_selectedCategoryId == null &&
-                        _searchQuery.isEmpty &&
-                        _featuredProducts.isNotEmpty)
-                      SliverToBoxAdapter(
-                        child: FeaturedProductsCarousel(
-                          featuredProducts: _featuredProducts,
-                          onProductTap: (product) {
-                            Navigator.push(
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) =>
-                                    ProductDetailScreen(
-                                      productId: product.id,
-                                      userData: widget.userData,
-                                      token: widget.token,
-                                    ),
-                                transitionsBuilder:
-                                    (context, animation, secondaryAnimation, child) {
-                                  return FadeTransition(
-                                    opacity: animation,
-                                    child: child,
-                                  );
-                                },
-                              ),
-                            );
-                          },
-                          primaryColor: MarketplaceTheme.primaryColor,
-                          accentColor: MarketplaceTheme.accentColor,
-                          warningColor: MarketplaceTheme.warningColor,
-                          textColor: textColor,
-                          isDarkMode: isDarkMode,
-                        ),
-                      ),
-
                     // Available Products Section Title
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: EdgeInsets.fromLTRB(
                           horizontalPadding,
-                          8,
+                          16,
                           horizontalPadding,
                           16,
                         ),

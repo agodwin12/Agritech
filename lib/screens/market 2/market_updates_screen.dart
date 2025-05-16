@@ -15,13 +15,13 @@ class MarketUpdateScreen extends StatefulWidget {
 class _MarketUpdateScreenState extends State<MarketUpdateScreen> {
   final RefreshController _refreshController = RefreshController();
   bool _isLoading = true;
+  String _errorMessage = '';
 
-  // API Endpoints (Example APIs - replace with your own)
-  final String commodityApi =
-      'https://www.alphavantage.co/query?function=CORN&interval=monthly&apikey=H2WGONWCSFD5EBHC';
+  // API Endpoints
+  final String commodityApi = 'https://www.alphavantage.co/query?function=COMMODITIES&apikey=H2WGONWCSFD5EBHC';
   final String newsApi = 'https://newsapi.org/v2/everything?q=agriculture&apiKey=80d9361201a841c39e9f5418dec247f8';
 
-  List<dynamic> commodities = [];
+  List<Map<String, dynamic>> commodities = [];
   List<dynamic> news = [];
 
   @override
@@ -31,26 +31,91 @@ class _MarketUpdateScreenState extends State<MarketUpdateScreen> {
   }
 
   Future<void> _fetchData() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
 
     try {
       // Fetch commodity prices
       final commodityResponse = await http.get(Uri.parse(commodityApi));
       if (commodityResponse.statusCode == 200) {
-        commodities = json.decode(commodityResponse.body);
+        final data = json.decode(commodityResponse.body);
+
+        // Parse Alpha Vantage response format
+        if (data['data'] != null) {
+          setState(() {
+            commodities = (data['data'] as List).map<Map<String, dynamic>>((item) {
+              return {
+                'name': item['name'] ?? 'Unknown',
+                'price': double.tryParse(item['value']?.toString() ?? '0') ?? 0.0,
+                'change': 0.0, // Alpha Vantage doesn't provide change percentage
+                'unit': 'per unit',
+                'date': item['date'] ?? 'N/A'
+              };
+            }).toList();
+          });
+        } else {
+          // Fallback to mock data if API response is unexpected
+          _useMockCommodityData();
+        }
+      } else {
+        _useMockCommodityData();
       }
 
       // Fetch agriculture news
       final newsResponse = await http.get(Uri.parse(newsApi));
       if (newsResponse.statusCode == 200) {
-        news = json.decode(newsResponse.body)['articles'];
+        final newsData = json.decode(newsResponse.body);
+        setState(() {
+          news = newsData['articles'] ?? [];
+        });
+      } else {
+        _useMockNewsData();
       }
     } catch (e) {
-      print('Error fetching data: $e');
+      setState(() {
+        _errorMessage = 'Failed to load data: ${e.toString()}';
+      });
+      _useMockData();
+    } finally {
+      setState(() => _isLoading = false);
+      _refreshController.refreshCompleted();
     }
+  }
 
-    setState(() => _isLoading = false);
-    _refreshController.refreshCompleted();
+  void _useMockCommodityData() {
+    setState(() {
+      commodities = [
+        {'name': 'Corn', 'price': 210.5, 'change': 1.2, 'unit': 'bushel', 'date': '2023-11-15'},
+        {'name': 'Wheat', 'price': 185.75, 'change': -0.8, 'unit': 'kg', 'date': '2023-11-15'},
+        {'name': 'Soybeans', 'price': 320.0, 'change': 2.1, 'unit': 'bushel', 'date': '2023-11-15'},
+      ];
+    });
+  }
+
+  void _useMockNewsData() {
+    setState(() {
+      news = [
+        {
+          'title': 'Global Wheat Prices Rise Due to Supply Concerns',
+          'description': 'Recent weather patterns have affected wheat yields in major producing regions.',
+          'urlToImage': 'https://images.unsplash.com/photo-1605000797499-95a51c5269ae',
+          'publishedAt': '2023-11-15T10:30:00Z'
+        },
+        {
+          'title': 'New Sustainable Farming Practices Show Promise',
+          'description': 'Researchers demonstrate 20% yield increase with regenerative techniques.',
+          'urlToImage': 'https://images.unsplash.com/photo-1535254973040-607b474cb50d',
+          'publishedAt': '2023-11-14T08:15:00Z'
+        }
+      ];
+    });
+  }
+
+  void _useMockData() {
+    _useMockCommodityData();
+    _useMockNewsData();
   }
 
   void _onRefresh() {
@@ -77,7 +142,11 @@ class _MarketUpdateScreenState extends State<MarketUpdateScreen> {
       body: SmartRefresher(
         controller: _refreshController,
         onRefresh: _onRefresh,
-        child: _isLoading ? _buildShimmerLoader() : _buildContent(),
+        child: _isLoading
+            ? _buildShimmerLoader()
+            : _errorMessage.isNotEmpty
+            ? Center(child: Text(_errorMessage))
+            : _buildContent(),
       ),
     );
   }
@@ -169,14 +238,14 @@ class _MarketUpdateScreenState extends State<MarketUpdateScreen> {
         ),
       ),
       title: Text(
-        commodity['name'] ?? 'N/A',
+        commodity['name'],
         style: GoogleFonts.poppins(
           fontWeight: FontWeight.w500,
           fontSize: 14,
         ),
       ),
       subtitle: Text(
-        'Per ${commodity['unit'] ?? 'kg'}',
+        'Per ${commodity['unit']} (${DateFormat('MMM d').format(DateTime.parse(commodity['date']))}',
         style: GoogleFonts.poppins(
           fontSize: 12,
           color: Color(0xFF666666),
@@ -187,7 +256,7 @@ class _MarketUpdateScreenState extends State<MarketUpdateScreen> {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Text(
-            '\$${commodity['price']?.toStringAsFixed(2) ?? '0.00'}',
+            '\$${commodity['price'].toStringAsFixed(2)}',
             style: GoogleFonts.poppins(
               fontWeight: FontWeight.w600,
               fontSize: 14,
@@ -207,11 +276,11 @@ class _MarketUpdateScreenState extends State<MarketUpdateScreen> {
 
   Widget _buildNewsList() {
     return Column(
-      children: news.take(3).map((article) => _buildNewsItem(article)).toList(),
+      children: news.map((article) => _buildNewsItem(article)).toList(),
     );
   }
 
-  Widget _buildNewsItem(Map<String, dynamic> article) {
+  Widget _buildNewsItem(dynamic article) {
     return Card(
       margin: EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(
@@ -236,6 +305,11 @@ class _MarketUpdateScreenState extends State<MarketUpdateScreen> {
                     height: 150,
                     width: double.infinity,
                     fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      height: 150,
+                      color: Colors.grey[200],
+                      child: Icon(Icons.image, color: Colors.grey),
+                    ),
                   ),
                 ),
               SizedBox(height: 8),
