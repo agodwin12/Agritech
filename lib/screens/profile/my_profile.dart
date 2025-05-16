@@ -10,6 +10,7 @@ import '../disease detection/CameraCaptureScreen.dart';
 import '../my Products/my_products_screen.dart';
 import '../my Products/userProductDetailScreen.dart';
 import '../navigation bar/navigation_bar.dart';
+import '../users orders/my_orders.dart';
 import 'edit_profile.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -959,6 +960,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       );
                     },
                   ),
+                  // My Orders
+                  _buildSettingsTile(
+                    icon: Icons.receipt_long_outlined,
+                    iconColor: primaryColor,
+                    title: 'My Orders',
+                    isDarkMode: isDarkMode,
+                    textColor: textColor,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => MyOrdersScreen(
+                            userData: widget.userData,
+                            token: widget.token,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+
 
                   // Forum Menu
                   _buildSettingsTile(
