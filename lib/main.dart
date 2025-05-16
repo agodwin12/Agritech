@@ -1,4 +1,5 @@
 import 'package:agritech/screens/feature%20page/feature_page.dart';
+import 'package:agritech/screens/forgot%20screen/forgot_reset_screen.dart';
 import 'package:agritech/screens/market%20place/manage_products_screen.dart';
 import 'package:agritech/screens/profile/my_profile.dart';
 import 'package:agritech/screens/sign%20in/signIn.dart';
@@ -63,7 +64,8 @@ class MyApp extends StatelessWidget {
         '/feature':(context)=>FeaturePage(userData: {}, token: '',),
         '/profile':(context)=>ProfileScreen(userData: {}, token: '',),
         '/weather': (context) => const WeatherScreen(userData: {}, token: '',),
-        '/add-product':(context)=>AddProductScreen(userData: {}, token: '', categories: [], onProductAdded: () {  },)
+        '/add-product':(context)=>AddProductScreen(userData: {}, token: '', categories: [], onProductAdded: () {  },),
+        '/forgot-reset': (_) => const ForgotResetScreen(),
       },
     );
   }

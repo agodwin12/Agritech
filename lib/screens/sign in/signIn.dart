@@ -516,7 +516,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                       alignment: Alignment.centerRight,
                                       child: TextButton(
                                         onPressed: () {
-                                          // TODO: Implement forgot password
+                                          Navigator.pushNamed(context, '/forgot-reset');
                                         },
                                         child: Text(
                                           'Forgot Password?',

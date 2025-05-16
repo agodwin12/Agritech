@@ -94,6 +94,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+
+  Future<void> logout() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear(); // ✅ Clears all saved sessions
+
+
+      print('✅ Session cleared. Redirecting to login.');
+
+      // Navigate to SignIn and remove all history
+      Navigator.of(context).pushNamedAndRemoveUntil('/signin', (route) => false);
+    } catch (e) {
+      print('❌ Error during logout: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Logout failed. Try again.'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+    }
+  }
+
+
   void _showChangePasswordDialog() {
     final oldPasswordController = TextEditingController();
     final newPasswordController = TextEditingController();
@@ -384,17 +407,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Future<void> logout() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('authToken');
 
-      // Navigate to login screen and remove all previous routes
-      Navigator.of(context).pushNamedAndRemoveUntil('/signin', (route) => false);
-    } catch (e) {
-      print('Error during logout: $e');
-    }
-  }
 
   void _showLogoutConfirmation() {
     showDialog(
