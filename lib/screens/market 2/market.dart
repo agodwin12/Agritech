@@ -26,7 +26,7 @@ class MarketplaceScreen extends StatefulWidget {
   const MarketplaceScreen({
     Key? key,
     required this.userData,
-    required this.token,
+    required this.token, required int categoryId,
   }) : super(key: key);
 
   @override

@@ -1,7 +1,9 @@
+import 'package:agritech/screens/educational%20library/EducationalLibraryScreen.dart';
 import 'package:flutter/material.dart';
 
 import '../feature page/feature_page.dart';
 import '../market 2/market.dart';
+import '../plant detection/MyAi.dart';
 import '../profile/my_profile.dart';
 import '../weather/weather.dart';
 
@@ -60,10 +62,16 @@ class FarmConnectNavBar extends StatelessWidget {
             activeIcon: Icon(Icons.agriculture_rounded),
             label: 'Market',
           ),
+
           BottomNavigationBarItem(
-            icon: Icon(Icons.wb_cloudy_outlined),
-            activeIcon: Icon(Icons.wb_cloudy),
-            label: 'Weather',
+            icon: Icon(Icons.slideshow_outlined),
+            activeIcon: Icon(Icons.slideshow_rounded),
+            label: 'Education & Videos',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_3),
+            activeIcon: Icon(Icons.person_3),
+            label: 'Doctor',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
@@ -78,7 +86,7 @@ class FarmConnectNavBar extends StatelessWidget {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => FeaturePage( // Replace with actual class
+          builder: (context) => HomeScreen(
             userData: userData,
             token: token,
           ),
@@ -89,7 +97,7 @@ class FarmConnectNavBar extends StatelessWidget {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => MarketplaceScreen(userData: userData, token: token,
+          builder: (context) => MarketplaceScreen(userData: userData, token: token, categoryId: 1,
 
           ),
         ),
@@ -99,7 +107,7 @@ class FarmConnectNavBar extends StatelessWidget {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => WeatherScreen(
+          builder: (context) => EducationalLibraryScreen(
             userData: userData,
             token: token,
           ),
@@ -107,6 +115,17 @@ class FarmConnectNavBar extends StatelessWidget {
       );
       break;
     case 3:
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MyAi(
+            userData: userData,
+            token: token,
+          ),
+        ),
+      );
+      break;
+    case 4:
       Navigator.push(
         context,
         MaterialPageRoute(

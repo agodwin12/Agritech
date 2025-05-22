@@ -1,5 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:agritech/screens/ebooks/ebooks.dart';
+import 'package:agritech/screens/educational%20library/EducationalLibraryScreen.dart';
+import 'package:agritech/screens/video/videoTips.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -1001,6 +1004,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
 
+
+
                   // Privacy Policy
                   _buildSettingsTile(
                     icon: Icons.privacy_tip_outlined,
@@ -1014,29 +1019,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
 
 
-                  _buildSettingsTile(
-                    icon: Icons.camera_alt_rounded,
-                    iconColor: primaryColor,
-                    title: 'Detect Disease',
-                    isDarkMode: isDarkMode,
-                    textColor: textColor,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => CameraCaptureScreen(
-                            onImageCaptured: (File imageFile) {
-                              //  model for disease detection
-                              print('Captured image: ${imageFile.path}');
 
-                            },
-                          ),
-                        ),
-                      );
-                    },
-
-                    isLast: true,
-                  ),
                 ],
               ),
             ),

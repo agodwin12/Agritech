@@ -76,13 +76,12 @@ class OrderConfirmationScreen extends StatelessWidget {
                 const SizedBox(width: 16),
                 ElevatedButton(
                   onPressed: () {
-                    // Navigate to orders history page if available, or back to marketplace
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (context) => MarketplaceScreen(
                           userData: userData,
-                          token: token,
+                          token: token, categoryId: 1,
                         ),
                       ),
                     );

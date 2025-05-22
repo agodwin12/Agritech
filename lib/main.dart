@@ -61,9 +61,9 @@ class MyApp extends StatelessWidget {
       routes: {
         '/signin':(context)=>AuthScreen(),
         '/signup': (context)=>SignUpScreen(),
-        '/feature':(context)=>FeaturePage(userData: {}, token: '',),
+        '/feature':(context)=>HomeScreen(userData: {}, token: '',),
         '/profile':(context)=>ProfileScreen(userData: {}, token: '',),
-        '/weather': (context) => const WeatherScreen(userData: {}, token: '',),
+        '/weather': (context) => const WeatherScreen(userData: {}, token: '',  cityName: '', longitude: '', latitude: '',),
         '/add-product':(context)=>AddProductScreen(userData: {}, token: '', categories: [], onProductAdded: () {  },),
         '/forgot-reset': (_) => const ForgotResetScreen(),
       },

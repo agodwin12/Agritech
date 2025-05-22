@@ -5,6 +5,7 @@ import 'package:agritech/Admin/screens/categories%20management/categoryManagemen
 import 'package:agritech/Admin/screens/process%20orders/AdminOrderEditScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Import for session management
+import 'admin ebooks/educational_section_management.dart';
 import 'admin management/AdminManagementScreen.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
@@ -109,6 +110,19 @@ class AdminDashboardScreen extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (_) => AdminOrdersScreen(token: token),
+            ),
+          );
+        }
+      },
+      {
+        'title': 'Educational Section',
+        'icon': Icons.business,
+        'description': 'Manage your educational blog',
+        'onTap': () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => AdminEbookModerationScreen(token: token),
             ),
           );
         }

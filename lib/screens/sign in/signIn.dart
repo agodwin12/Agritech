@@ -147,7 +147,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => FeaturePage(userData: userData, token: token),
+              builder: (context) => HomeScreen(userData: userData, token: token),
             ),
           );
         } else {
@@ -205,7 +205,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => FeaturePage(
+                builder: (context) => HomeScreen(
                   userData: user,
                   token: token,
                 ),

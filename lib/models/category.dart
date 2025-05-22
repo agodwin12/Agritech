@@ -32,4 +32,6 @@ class Category {
       subCategories: subCats,
     );
   }
+
+  get imageUrl => null;
 }
