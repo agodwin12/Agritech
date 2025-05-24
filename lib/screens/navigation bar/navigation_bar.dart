@@ -62,6 +62,11 @@ class FarmConnectNavBar extends StatelessWidget {
             activeIcon: Icon(Icons.agriculture_rounded),
             label: 'Market',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.wb_sunny_outlined),
+            activeIcon: Icon(Icons.wb_sunny),
+            label: 'Weather',
+          ),
 
           BottomNavigationBarItem(
             icon: Icon(Icons.slideshow_outlined),
@@ -107,7 +112,7 @@ class FarmConnectNavBar extends StatelessWidget {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => EducationalLibraryScreen(
+          builder: (context) => WeatherScreen(
             userData: userData,
             token: token,
           ),
@@ -118,7 +123,7 @@ class FarmConnectNavBar extends StatelessWidget {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => MyAi(
+          builder: (context) => EducationalLibraryScreen(
             userData: userData,
             token: token,
           ),
@@ -126,6 +131,17 @@ class FarmConnectNavBar extends StatelessWidget {
       );
       break;
     case 4:
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MyAi(
+            userData: userData,
+            token: token,
+          ),
+        ),
+      );
+      break;
+    case 5:
       Navigator.push(
         context,
         MaterialPageRoute(

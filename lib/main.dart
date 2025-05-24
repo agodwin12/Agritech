@@ -63,7 +63,7 @@ class MyApp extends StatelessWidget {
         '/signup': (context)=>SignUpScreen(),
         '/feature':(context)=>HomeScreen(userData: {}, token: '',),
         '/profile':(context)=>ProfileScreen(userData: {}, token: '',),
-        '/weather': (context) => const WeatherScreen(userData: {}, token: '',  cityName: '', longitude: '', latitude: '',),
+        '/weather': (context) => const WeatherScreen(userData: {}, token: '', ),
         '/add-product':(context)=>AddProductScreen(userData: {}, token: '', categories: [], onProductAdded: () {  },),
         '/forgot-reset': (_) => const ForgotResetScreen(),
 
