@@ -66,6 +66,7 @@ class MyApp extends StatelessWidget {
         '/weather': (context) => const WeatherScreen(userData: {}, token: '',  cityName: '', longitude: '', latitude: '',),
         '/add-product':(context)=>AddProductScreen(userData: {}, token: '', categories: [], onProductAdded: () {  },),
         '/forgot-reset': (_) => const ForgotResetScreen(),
+
       },
     );
   }
