@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 import '../model/category_model.dart';
-import '../model/ebook_model.dart' show Ebook;
+import '../model/ebook_model.dart';
 import '../model/video_model.dart';
 
 
@@ -181,125 +181,88 @@ class ApiService {
     required File coverImage,
   }) async {
     try {
-      print('📚 Starting ebook upload (matching backend controller)...');
-      print('Backend expects: req.body fields + req.file for PDF');
-      print('Title: "$title"');
-      print('Description: "$description"');
-      print('Price: "$price"');
-      print('Category ID: $categoryId');
-      print('Has PDF: ${pdfFile != null}');
+      print('📚 =================================');
+      print('📚 EBOOK UPLOAD DEBUG SESSION');
+      print('📚 =================================');
+
+      print('📝 Input Parameters:');
+      print('  Title: "$title" (${title.length} chars)');
+      print('  Description: "$description" (${description.length} chars)');
+      print('  Price: "$price"');
+      print('  Category ID: $categoryId');
+      print('  PDF File: ${pdfFile?.path ?? "null"}');
+      print('  Cover Image: ${coverImage.path}');
+      print('  Token available: ${_token != null}');
 
       final uri = Uri.parse('$baseUrl/ebooks');
-      print('Upload URL: $uri');
+      print('📡 Target URL: $uri');
 
       final request = http.MultipartRequest('POST', uri);
 
-      // Add authorization header
       if (_token != null && _token!.isNotEmpty) {
         request.headers['Authorization'] = 'Bearer $_token';
-        print('✅ Authorization header added');
+        print('🔐 Authorization header added (${_token!.length} chars)');
       } else {
-        print('⚠️ No valid token provided');
+        print('⚠️ WARNING: No authorization token!');
       }
 
-      // Add form fields exactly as backend expects them in req.body
-      request.fields['title'] = title.trim();
-      request.fields['description'] = description.trim();
-      request.fields['price'] = price.trim();
+      // Add form fields
+      request.fields['title'] = title;
+      request.fields['description'] = description;
+      request.fields['price'] = price;
       request.fields['category_id'] = categoryId.toString();
 
-      // For cover_image, the backend expects it in req.body.cover_image
-      // Let's try sending the file path or a placeholder
-      request.fields['cover_image'] = coverImage.path.split('/').last;
+      print('📋 Added text fields: title, description, price, category_id');
 
-      print('📝 Form fields (req.body):');
-      request.fields.forEach((key, value) {
-        print('  $key: "$value"');
-      });
+      // Add cover image file
+      final coverStream = http.ByteStream(coverImage.openRead());
+      final coverLength = await coverImage.length();
+      final coverMultipartFile = http.MultipartFile(
+        'cover_image', // backend must accept `cover_image` as file
+        coverStream,
+        coverLength,
+        filename: coverImage.path.split('/').last,
+      );
+      request.files.add(coverMultipartFile);
+      print('📎 Cover image added as multipart file: ${coverImage.path.split('/').last}');
 
-      // Add PDF file as req.file (optional)
-      // Backend uses: req.file?.path, so the field name should be generic
+      // Add PDF file if available
       if (pdfFile != null) {
-        try {
-          final fileStream = http.ByteStream(pdfFile.openRead());
-          final fileSize = await pdfFile.length();
-
-          // Use 'file' as field name since backend checks req.file
-          final multipartFile = http.MultipartFile(
-            'file', // This creates req.file
-            fileStream,
-            fileSize,
-            filename: pdfFile.path.split('/').last,
-          );
-
-          request.files.add(multipartFile);
-          print('✅ PDF file added as req.file: ${pdfFile.path.split('/').last} (${fileSize} bytes)');
-        } catch (e) {
-          print('❌ Error adding PDF file: $e');
-          throw Exception('Failed to process PDF file: $e');
-        }
-      } else {
-        print('ℹ️ No PDF file provided (backend allows null)');
-      }
-
-      // Add cover image as a separate file too, in case backend needs it
-      try {
-        final coverStream = http.ByteStream(coverImage.openRead());
-        final coverSize = await coverImage.length();
-
-        final coverFile = http.MultipartFile(
-          'cover_image_file', // Different field name to avoid conflict
-          coverStream,
-          coverSize,
-          filename: coverImage.path.split('/').last,
+        final fileStream = http.ByteStream(pdfFile.openRead());
+        final fileSize = await pdfFile.length();
+        final multipartFile = http.MultipartFile(
+          'file',
+          fileStream,
+          fileSize,
+          filename: pdfFile.path.split('/').last,
         );
-
-        request.files.add(coverFile);
-        print('✅ Cover image file added: ${coverImage.path.split('/').last} (${coverSize} bytes)');
-      } catch (e) {
-        print('❌ Error adding cover image file: $e');
-        // Don't throw here since cover_image is in fields
+        request.files.add(multipartFile);
+        print('📎 PDF file added as multipart file: ${pdfFile.path.split('/').last}');
+      } else {
+        print('📎 No PDF file (optional)');
       }
 
-      print('📤 Final request summary:');
-      print('  Method: ${request.method}');
-      print('  URL: ${request.url}');
-      print('  Headers: ${request.headers.keys.toList()}');
-      print('  Form fields: ${request.fields.keys.toList()}');
-      print('  Files: ${request.files.map((f) => '${f.field}:${f.filename}').toList()}');
-
-      print('📤 Sending request to backend...');
-      final streamedResponse = await request.send().timeout(Duration(minutes: 8));
+      print(' SENDING REQUEST...');
+      final streamedResponse = await request.send().timeout(Duration(minutes: 5));
       final response = await http.Response.fromStream(streamedResponse);
 
-      print('📥 Backend response received!');
-      print('📊 Status: ${response.statusCode}');
-      print('📝 Body: ${response.body}');
+      print('📨 Response received: ${response.statusCode}');
+      print('📄 Body: ${response.body}');
 
-      // Backend returns 201 for success
       if (response.statusCode == 201) {
-        print('🎉 Ebook upload successful!');
+        print('✅ Ebook uploaded successfully!');
         return true;
       } else {
-        print('❌ Upload failed');
-
-        // Parse backend error message
-        String errorMessage = 'Upload failed';
-        try {
-          final errorData = json.decode(response.body);
-          errorMessage = errorData['error'] ?? errorData['message'] ?? response.body;
-        } catch (e) {
-          errorMessage = 'HTTP ${response.statusCode}: ${response.body}';
-        }
-
-        print('❌ Error details: $errorMessage');
+        final errorData = json.decode(response.body);
+        final errorMessage = errorData['error'] ?? errorData['message'] ?? response.body;
         throw Exception(errorMessage);
       }
     } catch (e) {
-      print('💥 Exception during ebook upload: $e');
+      print(' Exception during upload: $e');
       rethrow;
     }
   }
+
 
   Future<bool> uploadVideo({
     required String title,
@@ -353,7 +316,7 @@ class ApiService {
         print('✅ Video upload successful!');
         return true;
       } else {
-        print('❌ Video upload failed with status: ${response.statusCode}');
+        print(' Video upload failed with status: ${response.statusCode}');
         return false;
       }
     } catch (e) {
@@ -361,11 +324,35 @@ class ApiService {
       rethrow;
     }
   }
+  static const String baseUrlImage = 'http://10.0.2.2:3000';
 
-  // Utility method to get full URL
-  static String getFullUrl(String? relativePath) {
-    if (relativePath == null || relativePath.isEmpty) return '';
-    if (relativePath.startsWith('http')) return relativePath;
-    return '$baseUrl/$relativePath';
+  static String getFullUrl(String? path) {
+    print('🔍 ApiService.getFullUrl called with: "$path"');
+
+    if (path == null || path.isEmpty) {
+      print(' Path is null or empty, returning empty string');
+      return '';
+    }
+
+    // If it's already a full URL, return as is
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      print('✅ Path is already a full URL: $path');
+      return path;
+    }
+
+    // Convert backslashes to forward slashes for URL
+    String normalizedPath = path.replaceAll('\\', '/');
+    print('🔄 Normalized path: "$normalizedPath"');
+
+    // Ensure path doesn't start with '/'
+    if (normalizedPath.startsWith('/')) {
+      normalizedPath = normalizedPath.substring(1);
+      print(' Removed leading slash: "$normalizedPath"');
+    }
+
+    String fullUrl = '$baseUrlImage/$normalizedPath';
+    print('🌐 Final URL: "$fullUrl"');
+
+    return fullUrl;
   }
 }

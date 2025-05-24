@@ -2,7 +2,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../model/category_model.dart';  // Ensure correct import
+import '../model/category_model.dart';
 import '../services/api_service.dart';
 import '../services/file_service.dart';
 import '../utils/constants.dart';
@@ -139,7 +139,7 @@ class _UploadDialogState extends State<UploadDialog>
     try {
       print('🎥 Attempting to pick video file...');
 
-      // Show action sheet to choose source  
+      // Show action sheet to choose source
       final result = await showDialog<String>(
         context: context,
         builder: (context) => AlertDialog(
@@ -289,6 +289,46 @@ class _UploadDialogState extends State<UploadDialog>
 
   Future<bool> _uploadEbookWithProgress() async {
     try {
+      // Enhanced validation with detailed logging
+      print('🔍 Detailed ebook upload validation...');
+
+      final title = _titleController.text.trim();
+      final description = _descriptionController.text.trim();
+      final price = _priceController.text.trim();
+
+      print('📝 Form field validation:');
+      print('  Title: "${title}" (length: ${title.length}, empty: ${title.isEmpty})');
+      print('  Description: "${description}" (length: ${description.length}, empty: ${description.isEmpty})');
+      print('  Price: "${price}" (length: ${price.length}, empty: ${price.isEmpty})');
+      print('  Category ID: $_selectedCategoryId (zero: ${_selectedCategoryId == 0})');
+      print('  Cover image: ${_selectedCover != null ? "✅ Selected" : "❌ Missing"}');
+      print('  PDF file: ${_selectedFile != null ? "✅ Selected" : "ℹ️ Optional"}');
+
+      // Detailed field validation
+      if (title.isEmpty) {
+        throw Exception('Title field is empty');
+      }
+      if (description.isEmpty) {
+        throw Exception('Description field is empty');
+      }
+      if (price.isEmpty) {
+        throw Exception('Price field is empty');
+      }
+      if (_selectedCategoryId == 0) {
+        throw Exception('No category selected');
+      }
+      if (_selectedCover == null) {
+        throw Exception('Cover image not selected');
+      }
+
+      // Validate price format
+      final priceValue = double.tryParse(price);
+      if (priceValue == null || priceValue <= 0) {
+        throw Exception('Invalid price format: "$price"');
+      }
+
+      print('✅ All validations passed');
+
       // Update progress through upload stages
       setState(() {
         _uploadProgress = 0.3;
@@ -298,30 +338,35 @@ class _UploadDialogState extends State<UploadDialog>
 
       setState(() {
         _uploadProgress = 0.5;
-        _uploadStatus = 'Uploading files...';
+        _uploadStatus = 'Uploading to server...';
       });
 
+      print('🚀 Starting API call with validated data...');
       final success = await widget.apiService.uploadEbook(
-        title: _titleController.text,
-        description: _descriptionController.text,
-        price: _priceController.text,
+        title: title,
+        description: description,
+        price: price,
         categoryId: _selectedCategoryId,
         pdfFile: _selectedFile,
         coverImage: _selectedCover!,
       );
 
+      print('📊 API call completed - Result: $success');
+
       if (success) {
         setState(() {
           _uploadProgress = 0.9;
-          _uploadStatus = 'Finalizing...';
+          _uploadStatus = 'Upload completed successfully!';
         });
         await Future.delayed(Duration(milliseconds: 500));
       }
 
       return success;
     } catch (e) {
+      print('💥 Error in _uploadEbookWithProgress: $e');
       setState(() {
-        _uploadStatus = 'Ebook upload failed: ${e.toString()}';
+        _uploadStatus = 'Upload failed: ${e.toString()}';
+        _uploadProgress = 0.0;
       });
       rethrow;
     }

@@ -244,7 +244,7 @@ class CategoryDropdown extends StatelessWidget {
   }
 }
 
-// Specialized dropdown for upload dialog
+/// Fixed CategoryDropdownForUpload widget
 class CategoryDropdownForUpload extends StatelessWidget {
   final List<Category> categories;
   final int selectedCategoryId;
@@ -264,7 +264,7 @@ class CategoryDropdownForUpload extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Add comprehensive null checks
-    if (categories == null || categories.isEmpty) {
+    if (categories.isEmpty) {
       return Container(
         padding: const EdgeInsets.symmetric(
           horizontal: 8,
@@ -297,9 +297,17 @@ class CategoryDropdownForUpload extends StatelessWidget {
       );
     }
 
+    // Fixed filtering logic with proper null checks
     final filteredCategories = categories.where((category) {
-      return category?.type == contentType || category?.type == 'both';
-    }).where((category) => category != null).toList();
+      // Check if category is null first
+      if (category == null) return false;
+
+      // Then check if type is null
+      if (category.type == null) return false;
+
+      // Finally check the type
+      return category.type == contentType || category.type == 'both';
+    }).toList();
 
     // Check if filtered categories is empty
     if (filteredCategories.isEmpty) {

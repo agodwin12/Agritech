@@ -85,9 +85,13 @@ class ContentCard extends StatelessWidget {
   }
 
   Widget _buildMainImage(String? imageUrl) {
+    print('🖼️ Building image for URL: "$imageUrl"');
+
     final fullImageUrl = imageUrl != null
         ? ApiService.getFullUrl(imageUrl)
         : null;
+
+    print('🔗 Full image URL: "$fullImageUrl"');
 
     if (fullImageUrl != null && fullImageUrl.isNotEmpty) {
       return CachedNetworkImage(
@@ -95,19 +99,27 @@ class ContentCard extends StatelessWidget {
         width: double.infinity,
         height: double.infinity,
         fit: BoxFit.cover,
-        placeholder: (context, url) => Container(
-          color: Colors.grey[100],
-          child: Center(
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(AppColorss.primary),
+        placeholder: (context, url) {
+          print('⏳ Loading image: $url');
+          return Container(
+            color: Colors.grey[100],
+            child: Center(
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(AppColorss.primary),
+              ),
             ),
-          ),
-        ),
-        errorWidget: (context, url, error) => _buildFallbackImage(),
+          );
+        },
+        errorWidget: (context, url, error) {
+          print('❌ Failed to load image: $url');
+          print('❌ Error: $error');
+          return _buildFallbackImage();
+        },
       );
     }
 
+    print('🔄 Using fallback image');
     return _buildFallbackImage();
   }
 
