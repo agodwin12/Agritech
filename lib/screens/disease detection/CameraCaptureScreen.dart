@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -22,13 +23,13 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
   int _currentCameraIndex = 0;
   bool _hasError = false;
   String _errorMessage = '';
+  bool _showGrid = true;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _initializeCamera();
-    // Lock orientation to portrait for better camera experience
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -78,7 +79,6 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
         return;
       }
 
-      // Use back camera by default, or first available camera
       final camera = cameras.length > _currentCameraIndex
           ? cameras[_currentCameraIndex]
           : cameras.first;
@@ -153,6 +153,12 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
     await _initializeCamera();
   }
 
+  void _toggleGrid() {
+    setState(() {
+      _showGrid = !_showGrid;
+    });
+  }
+
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -163,8 +169,29 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
         backgroundColor: Colors.red[600],
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        margin: const EdgeInsets.all(16),
+        margin: EdgeInsets.all(_getResponsiveSize(context, 16)),
       ),
+    );
+  }
+
+  double _getResponsiveSize(BuildContext context, double baseSize) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final shortestSide = min(screenWidth, screenHeight);
+
+    // Scale based on device size (375 is iPhone 6/7/8 width as baseline)
+    final scaleFactor = shortestSide / 375;
+    return baseSize * scaleFactor.clamp(0.8, 1.3);
+  }
+
+  // Get responsive padding
+  EdgeInsets _getResponsivePadding(BuildContext context, {
+    double horizontal = 16,
+    double vertical = 16,
+  }) {
+    return EdgeInsets.symmetric(
+      horizontal: _getResponsiveSize(context, horizontal),
+      vertical: _getResponsiveSize(context, vertical),
     );
   }
 
@@ -172,9 +199,10 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
     if (!_isInitialized || _controller == null) {
       return Container(
         color: Colors.black,
-        child: const Center(
+        child: Center(
           child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            strokeWidth: _getResponsiveSize(context, 3),
+            valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
           ),
         ),
       );
@@ -183,15 +211,27 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
     return LayoutBuilder(
       builder: (context, constraints) {
         final size = constraints.biggest;
+        final deviceRatio = size.width / size.height;
+        final cameraRatio = _controller!.value.aspectRatio;
 
-        // Calculate the correct aspect ratio for the camera preview
-        var scale = size.aspectRatio * _controller!.value.aspectRatio;
-        if (scale < 1) scale = 1 / scale;
+        double scale;
+        if (deviceRatio > cameraRatio) {
+          // Screen is wider than camera aspect ratio
+          scale = size.width / (size.height * cameraRatio);
+        } else {
+          // Screen is taller than camera aspect ratio
+          scale = size.height / (size.width / cameraRatio);
+        }
 
-        return Transform.scale(
-          scale: scale,
-          child: Center(
-            child: CameraPreview(_controller!),
+        return ClipRect(
+          child: Transform.scale(
+            scale: scale,
+            child: Center(
+              child: AspectRatio(
+                aspectRatio: cameraRatio,
+                child: CameraPreview(_controller!),
+              ),
+            ),
           ),
         );
       },
@@ -203,49 +243,58 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
       color: Colors.black,
       child: Center(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: _getResponsivePadding(context, horizontal: 24, vertical: 24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 Icons.camera_alt_outlined,
-                size: 80,
+                size: _getResponsiveSize(context, 80),
                 color: Colors.white54,
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: _getResponsiveSize(context, 24)),
               Text(
                 'Camera Error',
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Poppins',
-                  fontSize: 24,
+                  fontSize: _getResponsiveSize(context, 24),
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: _getResponsiveSize(context, 12)),
               Text(
                 _errorMessage,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Poppins',
-                  fontSize: 16,
+                  fontSize: _getResponsiveSize(context, 16),
                   color: Colors.white70,
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: _getResponsiveSize(context, 24)),
               ElevatedButton.icon(
                 onPressed: _initializeCamera,
-                icon: const Icon(Icons.refresh),
-                label: const Text(
+                icon: Icon(
+                  Icons.refresh,
+                  size: _getResponsiveSize(context, 20),
+                ),
+                label: Text(
                   'Retry',
-                  style: TextStyle(fontFamily: 'Poppins'),
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: _getResponsiveSize(context, 16),
+                  ),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green[700],
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: _getResponsiveSize(context, 24),
+                    vertical: _getResponsiveSize(context, 12),
+                  ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(_getResponsiveSize(context, 12)),
                   ),
                 ),
               ),
@@ -257,8 +306,12 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
   }
 
   Widget _buildControlBar() {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isSmallScreen = screenHeight < 700;
+    final controlBarHeight = isSmallScreen ? 100.0 : 120.0;
+
     return Container(
-      height: 120,
+      height: controlBarHeight + MediaQuery.of(context).padding.bottom,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
@@ -272,39 +325,23 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          padding: _getResponsivePadding(context, horizontal: 24, vertical: 0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Gallery Button (placeholder for future enhancement)
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white.withOpacity(0.3)),
-                ),
-                child: IconButton(
-                  onPressed: () {
-                    // Future: Open gallery
-                    Navigator.pop(context);
-                  },
-                  icon: const Icon(
-                    Icons.photo_library,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
+              _buildControlButton(
+                onPressed: () => Navigator.pop(context),
+                icon: Icons.photo_library,
+                size: _getResponsiveSize(context, 50),
+                iconSize: _getResponsiveSize(context, 24),
               ),
 
-              // Capture Button
               GestureDetector(
                 onTap: _isCapturing ? null : _takePicture,
                 child: Container(
-                  width: 80,
-                  height: 80,
+                  width: _getResponsiveSize(context, 80),
+                  height: _getResponsiveSize(context, 80),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.white,
@@ -318,50 +355,38 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
                     ],
                   ),
                   child: _isCapturing
-                      ? const Center(
+                      ? Center(
                     child: SizedBox(
-                      width: 30,
-                      height: 30,
-                      child: CircularProgressIndicator(
+                      width: _getResponsiveSize(context, 30),
+                      height: _getResponsiveSize(context, 30),
+                      child: const CircularProgressIndicator(
                         strokeWidth: 3,
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
                       ),
                     ),
                   )
                       : Container(
-                    margin: const EdgeInsets.all(8),
+                    margin: EdgeInsets.all(_getResponsiveSize(context, 8)),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: Colors.green[600],
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.camera_alt,
                       color: Colors.white,
-                      size: 32,
+                      size: _getResponsiveSize(context, 32),
                     ),
                   ),
                 ),
               ),
 
               // Switch Camera Button
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white.withOpacity(0.3)),
-                ),
-                child: IconButton(
-                  onPressed: cameras.length > 1 ? _switchCamera : null,
-                  icon: Icon(
-                    Icons.flip_camera_ios,
-                    color: cameras.length > 1
-                        ? Colors.white
-                        : Colors.white.withOpacity(0.5),
-                    size: 24,
-                  ),
-                ),
+              _buildControlButton(
+                onPressed: cameras.length > 1 ? _switchCamera : null,
+                icon: Icons.flip_camera_ios,
+                size: _getResponsiveSize(context, 50),
+                iconSize: _getResponsiveSize(context, 24),
+                isEnabled: cameras.length > 1,
               ),
             ],
           ),
@@ -370,9 +395,41 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
     );
   }
 
-  Widget _buildTopBar() {
+  Widget _buildControlButton({
+    required VoidCallback? onPressed,
+    required IconData icon,
+    required double size,
+    required double iconSize,
+    bool isEnabled = true,
+  }) {
     return Container(
-      height: 100,
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(_getResponsiveSize(context, 12)),
+        border: Border.all(color: Colors.white.withOpacity(0.3)),
+      ),
+      child: IconButton(
+        onPressed: onPressed,
+        icon: Icon(
+          icon,
+          color: isEnabled
+              ? Colors.white
+              : Colors.white.withOpacity(0.5),
+          size: iconSize,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTopBar() {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isSmallScreen = screenHeight < 700;
+    final topBarHeight = isSmallScreen ? 80.0 : 100.0;
+
+    return Container(
+      height: topBarHeight + MediaQuery.of(context).padding.top,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
@@ -386,59 +443,31 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          padding: _getResponsivePadding(context, horizontal: 16, vertical: 0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               // Back Button
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white.withOpacity(0.3)),
-                ),
-                child: IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(
-                    Icons.arrow_back_ios,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
+              _buildTopBarButton(
+                onPressed: () => Navigator.pop(context),
+                icon: Icons.arrow_back_ios,
               ),
 
               // Title
-              const Text(
+              Text(
                 'Take Photo',
                 style: TextStyle(
                   fontFamily: 'Poppins',
-                  fontSize: 20,
+                  fontSize: _getResponsiveSize(context, 20),
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),
               ),
 
-              // Settings Button (placeholder)
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white.withOpacity(0.3)),
-                ),
-                child: IconButton(
-                  onPressed: () {
-                    // Future: Camera settings
-                  },
-                  icon: const Icon(
-                    Icons.settings,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
+              // Grid Toggle Button
+              _buildTopBarButton(
+                onPressed: _toggleGrid,
+                icon: _showGrid ? Icons.grid_on : Icons.grid_off,
               ),
             ],
           ),
@@ -447,65 +476,111 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
     );
   }
 
+  Widget _buildTopBarButton({
+    required VoidCallback onPressed,
+    required IconData icon,
+  }) {
+    final buttonSize = _getResponsiveSize(context, 44);
+    return Container(
+      width: buttonSize,
+      height: buttonSize,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(_getResponsiveSize(context, 12)),
+        border: Border.all(color: Colors.white.withOpacity(0.3)),
+      ),
+      child: IconButton(
+        onPressed: onPressed,
+        icon: Icon(
+          icon,
+          color: Colors.white,
+          size: _getResponsiveSize(context, 20),
+        ),
+      ),
+    );
+  }
+
   Widget _buildCameraGrid() {
+    if (!_showGrid) return const SizedBox.shrink();
+
     return CustomPaint(
-      painter: GridPainter(),
+      painter: ResponsiveGridPainter(context),
       child: Container(),
     );
+  }
+
+  Widget _buildFocusIndicator() {
+    return const SizedBox.shrink();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: _hasError
-          ? _buildErrorState()
-          : Stack(
-        children: [
-          // Camera Preview
-          Positioned.fill(
-            child: _buildCameraPreview(),
-          ),
+      body: OrientationBuilder(
+        builder: (context, orientation) {
+          return _hasError
+              ? _buildErrorState()
+              : Stack(
+            children: [
+              Positioned.fill(
+                child: _buildCameraPreview(),
+              ),
 
-          // Camera Grid Overlay
-          Positioned.fill(
-            child: _buildCameraGrid(),
-          ),
+              // Camera Grid Overlay
+              if (_showGrid)
+                Positioned.fill(
+                  child: _buildCameraGrid(),
+                ),
 
-          // Top Bar
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: _buildTopBar(),
-          ),
+              // Focus Indicator
+              Positioned.fill(
+                child: _buildFocusIndicator(),
+              ),
 
-          // Bottom Controls
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: _buildControlBar(),
-          ),
-        ],
+              // Top Bar
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: _buildTopBar(),
+              ),
+
+              // Bottom Controls
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: _buildControlBar(),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 }
 
-// Custom painter for camera grid lines
-class GridPainter extends CustomPainter {
+class ResponsiveGridPainter extends CustomPainter {
+  final BuildContext context;
+
+  ResponsiveGridPainter(this.context);
+
+  double _getResponsiveStrokeWidth() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final scaleFactor = screenWidth / 375; // Base width
+    return (1.0 * scaleFactor).clamp(0.5, 2.0);
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = Colors.white.withOpacity(0.3)
-      ..strokeWidth = 1.0;
+      ..strokeWidth = _getResponsiveStrokeWidth();
 
-    // Draw rule of thirds grid
     final double horizontalSpacing = size.height / 3;
     final double verticalSpacing = size.width / 3;
 
-    // Horizontal lines
     for (int i = 1; i < 3; i++) {
       canvas.drawLine(
         Offset(0, i * horizontalSpacing),
@@ -514,7 +589,6 @@ class GridPainter extends CustomPainter {
       );
     }
 
-    // Vertical lines
     for (int i = 1; i < 3; i++) {
       canvas.drawLine(
         Offset(i * verticalSpacing, 0),
@@ -522,8 +596,27 @@ class GridPainter extends CustomPainter {
         paint,
       );
     }
+
+    final centerPaint = Paint()
+      ..color = Colors.white.withOpacity(0.5)
+      ..strokeWidth = _getResponsiveStrokeWidth() * 2;
+
+    const double centerMarkSize = 10;
+    final centerX = size.width / 2;
+    final centerY = size.height / 2;
+
+    canvas.drawLine(
+      Offset(centerX - centerMarkSize, centerY),
+      Offset(centerX + centerMarkSize, centerY),
+      centerPaint,
+    );
+    canvas.drawLine(
+      Offset(centerX, centerY - centerMarkSize),
+      Offset(centerX, centerY + centerMarkSize),
+      centerPaint,
+    );
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -107,9 +107,38 @@ class CategoryDropdown extends StatelessWidget {
       );
     }
 
+    final dropdownItems = _buildDropdownItems();
+
+    // If items is null or empty, show error state
+    if (dropdownItems == null || dropdownItems.isEmpty) {
+      return Container(
+        height: 48,
+        child: Row(
+          children: [
+            Icon(
+              Icons.error_outline,
+              color: Colors.red[400],
+              size: 24,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Error loading categories',
+              style: GoogleFonts.poppins(
+                color: Colors.red[600],
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Validate that selected value exists in items
+    final validSelectedValue = _getValidSelectedValue(dropdownItems);
+
     return DropdownButtonHideUnderline(
       child: DropdownButton<int>(
-        value: selectedCategoryId == 0 ? null : selectedCategoryId,
+        value: validSelectedValue,
         isExpanded: true,
         icon: Icon(
           Icons.keyboard_arrow_down,
@@ -137,7 +166,7 @@ class CategoryDropdown extends StatelessWidget {
             ),
           ],
         ),
-        items: _buildDropdownItems(),
+        items: dropdownItems,
         onChanged: (value) {
           onCategoryChanged(value ?? 0);
         },
@@ -145,76 +174,129 @@ class CategoryDropdown extends StatelessWidget {
     );
   }
 
-  List<DropdownMenuItem<int>> _buildDropdownItems() {
-    final items = <DropdownMenuItem<int>>[
-      DropdownMenuItem<int>(
-        value: 0,
-        child: Row(
-          children: [
-            Icon(
-              Icons.all_inclusive,
-              color: AppColorss.textSecondary,
-              size: 20,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              'All Categories',
-              style: GoogleFonts.poppins(
-                fontSize: 16,
-                color: AppColorss.textPrimary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    ];
+  int? _getValidSelectedValue(List<DropdownMenuItem<int>> items) {
+    if (selectedCategoryId == 0) return null;
 
-    items.addAll(
-      categories.map((category) => DropdownMenuItem<int>(
-        value: category.id,
-        child: Row(
-          children: [
-            Icon(
-              _getCategoryIcon(category.type),
-              color: _getCategoryColor(category.type),
-              size: 20,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                category.name,
+    // Check if the selected value exists in the dropdown items
+    final hasSelectedValue = items.any((item) => item.value == selectedCategoryId);
+
+    return hasSelectedValue ? selectedCategoryId : null;
+  }
+
+  List<DropdownMenuItem<int>>? _buildDropdownItems() {
+    // Add null and empty checks
+    if (categories.isEmpty) {
+      return null;
+    }
+
+    try {
+      // Remove duplicates and invalid categories first
+      final validCategories = _getUniqueValidCategories();
+
+      if (validCategories.isEmpty) {
+        return null;
+      }
+
+      final items = <DropdownMenuItem<int>>[
+        DropdownMenuItem<int>(
+          value: 0,
+          child: Row(
+            children: [
+              Icon(
+                Icons.all_inclusive,
+                color: AppColorss.textSecondary,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'All Categories',
                 style: GoogleFonts.poppins(
                   fontSize: 16,
                   color: AppColorss.textPrimary,
                 ),
-                overflow: TextOverflow.ellipsis,
               ),
-            ),
-            if (category.type == 'both')
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 6,
-                  vertical: 2,
+            ],
+          ),
+        ),
+      ];
+
+      // Add categories to dropdown
+      for (final category in validCategories) {
+        items.add(
+          DropdownMenuItem<int>(
+            value: category.id,
+            child: Row(
+              children: [
+                Icon(
+                  _getCategoryIcon(category.type ?? ''),
+                  color: _getCategoryColor(category.type ?? ''),
+                  size: 20,
                 ),
-                decoration: BoxDecoration(
-                  color: AppColorss.info.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  'Both',
-                  style: GoogleFonts.poppins(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
-                    color: AppColorss.info,
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    category.name,
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      color: AppColorss.textPrimary,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-              ),
-          ],
-        ),
-      )),
-    );
+                if (category.type == 'both')
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColorss.info.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'Both',
+                      style: GoogleFonts.poppins(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                        color: AppColorss.info,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      }
 
-    return items;
+      return items;
+    } catch (e) {
+      print('Error building dropdown items: $e');
+      return null;
+    }
+  }
+
+  List<Category> _getUniqueValidCategories() {
+    final uniqueCategories = <int, Category>{};
+
+    for (final category in categories) {
+      // Skip null categories
+      if (category == null) continue;
+
+      // Skip categories with invalid data
+      if (category.id <= 0 || category.name.isEmpty) {
+        print('Skipping invalid category: ID=${category.id}, Name="${category.name}"');
+        continue;
+      }
+
+      // Add to map (this automatically handles duplicates by ID)
+      uniqueCategories[category.id] = category;
+    }
+
+    // Convert back to list and sort by name
+    final result = uniqueCategories.values.toList();
+    result.sort((a, b) => a.name.compareTo(b.name));
+
+    return result;
   }
 
   IconData _getCategoryIcon(String type) {
@@ -265,83 +347,45 @@ class CategoryDropdownForUpload extends StatelessWidget {
   Widget build(BuildContext context) {
     // Add comprehensive null checks
     if (categories.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 8,
-          vertical: 8,
-        ),
-        decoration: BoxDecoration(
-          border: Border.all(color: AppColorss.borderLight),
-          borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-          color: Colors.grey[50],
-        ),
-        child: Row(
-          children: [
-            Icon(
-              Icons.category,
-              color: Colors.grey[400],
-              size: 24,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                'Loading categories...',
-                style: GoogleFonts.poppins(
-                  color: Colors.grey[600],
-                  fontSize: 16,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
+      return _buildErrorState('Loading categories...');
     }
 
-    // Fixed filtering logic with proper null checks
-    final filteredCategories = categories.where((category) {
-      // Check if category is null first
-      if (category == null) return false;
-
-      // Then check if type is null
-      if (category.type == null) return false;
-
-      // Finally check the type
-      return category.type == contentType || category.type == 'both';
+    // Get unique valid categories first, then filter by type
+    final uniqueCategories = _getUniqueValidCategories();
+    final filteredCategories = uniqueCategories.where((category) {
+      final categoryType = category.type ?? 'both';
+      return categoryType == contentType || categoryType == 'both';
     }).toList();
 
     // Check if filtered categories is empty
     if (filteredCategories.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 8,
-          vertical: 8,
-        ),
-        decoration: BoxDecoration(
-          border: Border.all(color: AppColorss.borderLight),
-          borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-          color: Colors.grey[50],
-        ),
-        child: Row(
-          children: [
-            Icon(
-              Icons.category,
-              color: Colors.grey[400],
-              size: 24,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                'No categories available for ${contentType}s',
-                style: GoogleFonts.poppins(
-                  color: Colors.grey[600],
-                  fontSize: 16,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
+      return _buildErrorState('No categories available for ${contentType}s');
     }
+
+    // Build dropdown items with null safety
+    List<DropdownMenuItem<int>>? dropdownItems;
+    try {
+      dropdownItems = filteredCategories.map((category) {
+        return DropdownMenuItem<int>(
+          value: category.id,
+          child: Text(
+            category.name,
+            style: GoogleFonts.poppins(fontSize: 16),
+          ),
+        );
+      }).toList();
+    } catch (e) {
+      print('Error building dropdown items: $e');
+      return _buildErrorState('Error loading categories');
+    }
+
+    // Final check for items
+    if (dropdownItems == null || dropdownItems.isEmpty) {
+      return _buildErrorState('No valid categories found');
+    }
+
+    // Validate selected value
+    final validSelectedValue = _getValidSelectedValue(dropdownItems);
 
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -364,7 +408,7 @@ class CategoryDropdownForUpload extends StatelessWidget {
           Expanded(
             child: DropdownButtonHideUnderline(
               child: DropdownButton<int>(
-                value: selectedCategoryId == 0 ? null : selectedCategoryId,
+                value: validSelectedValue,
                 hint: Text(
                   'Select Category${isRequired ? ' *' : ''}',
                   style: GoogleFonts.poppins(
@@ -376,18 +420,76 @@ class CategoryDropdownForUpload extends StatelessWidget {
                   color: AppColorss.textPrimary,
                   fontSize: 16,
                 ),
-                items: filteredCategories.map((category) {
-                  return DropdownMenuItem<int>(
-                    value: category.id,
-                    child: Text(
-                      category.name ?? 'Unknown Category',
-                      style: GoogleFonts.poppins(fontSize: 16),
-                    ),
-                  );
-                }).toList(),
+                items: dropdownItems,
                 onChanged: (value) {
                   onCategoryChanged(value ?? 0);
                 },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  int? _getValidSelectedValue(List<DropdownMenuItem<int>> items) {
+    if (selectedCategoryId == 0) return null;
+
+    // Check if the selected value exists in the dropdown items
+    final hasSelectedValue = items.any((item) => item.value == selectedCategoryId);
+
+    return hasSelectedValue ? selectedCategoryId : null;
+  }
+
+  List<Category> _getUniqueValidCategories() {
+    final uniqueCategories = <int, Category>{};
+
+    for (final category in categories) {
+      // Skip null categories
+      if (category == null) continue;
+
+      // Skip categories with invalid data
+      if (category.id <= 0 || category.name.isEmpty) {
+        print('Skipping invalid category: ID=${category.id}, Name="${category.name}"');
+        continue;
+      }
+
+      // Add to map (this automatically handles duplicates by ID)
+      uniqueCategories[category.id] = category;
+    }
+
+    // Convert back to list and sort by name
+    final result = uniqueCategories.values.toList();
+    result.sort((a, b) => a.name.compareTo(b.name));
+
+    return result;
+  }
+
+  Widget _buildErrorState(String message) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8,
+        vertical: 8,
+      ),
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColorss.borderLight),
+        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+        color: Colors.grey[50],
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.category,
+            color: Colors.grey[400],
+            size: 24,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              message,
+              style: GoogleFonts.poppins(
+                color: Colors.grey[600],
+                fontSize: 16,
               ),
             ),
           ),

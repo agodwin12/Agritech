@@ -324,13 +324,17 @@ class ApiService {
       rethrow;
     }
   }
+
+
+
+
   static const String baseUrlImage = 'http://10.0.2.2:3000';
 
   static String getFullUrl(String? path) {
     print('🔍 ApiService.getFullUrl called with: "$path"');
 
-    if (path == null || path.isEmpty) {
-      print(' Path is null or empty, returning empty string');
+    if (path == null || path.trim().isEmpty) {
+      print('⚠️ Path is null or empty, returning empty string');
       return '';
     }
 
@@ -340,19 +344,18 @@ class ApiService {
       return path;
     }
 
-    // Convert backslashes to forward slashes for URL
-    String normalizedPath = path.replaceAll('\\', '/');
-    print('🔄 Normalized path: "$normalizedPath"');
+    // Normalize: replace backslashes with slashes and remove multiple slashes
+    String normalizedPath = path
+        .replaceAll('\\', '/')
+        .replaceAll(RegExp(r'^/+'), '')      // remove leading slashes
+        .replaceAll(RegExp(r'/+'), '/');     // collapse multiple slashes
 
-    // Ensure path doesn't start with '/'
-    if (normalizedPath.startsWith('/')) {
-      normalizedPath = normalizedPath.substring(1);
-      print(' Removed leading slash: "$normalizedPath"');
-    }
+    print('🔄 Normalized path: "$normalizedPath"');
 
     String fullUrl = '$baseUrlImage/$normalizedPath';
     print('🌐 Final URL: "$fullUrl"');
 
     return fullUrl;
   }
+
 }
