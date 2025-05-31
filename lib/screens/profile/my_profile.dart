@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:agritech/screens/advisory/advisory.dart';
 import 'package:agritech/screens/ebooks/ebooks.dart';
 import 'package:agritech/screens/educational%20library/EducationalLibraryScreen.dart';
 import 'package:agritech/screens/video/videoTips.dart';
@@ -1016,6 +1017,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => UserWebinarScreen(
+                            userData: userData!,
+                            token: widget.token,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+
+                  // Webinars Menu
+                  _buildSettingsTile(
+                    icon: Icons.fact_check,
+                    iconColor: primaryColor,
+                    title: 'Advisory',
+                    isDarkMode: isDarkMode,
+                    textColor: textColor,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AdvisoryScreen(
                             userData: userData!,
                             token: widget.token,
                           ),
