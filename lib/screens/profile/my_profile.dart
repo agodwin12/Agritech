@@ -14,6 +14,7 @@ import '../my Products/my_products_screen.dart';
 import '../my Products/userProductDetailScreen.dart';
 import '../navigation bar/navigation_bar.dart';
 import '../users orders/my_orders.dart';
+import '../webinar/user_webinar_screen.dart';
 import 'edit_profile.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -996,6 +997,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => ForumScreen(
+                            userData: userData!,
+                            token: widget.token,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  // Webinars Menu
+                  _buildSettingsTile(
+                    icon: Icons.meeting_room_sharp,
+                    iconColor: primaryColor,
+                    title: 'Webinars',
+                    isDarkMode: isDarkMode,
+                    textColor: textColor,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => UserWebinarScreen(
                             userData: userData!,
                             token: widget.token,
                           ),

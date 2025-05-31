@@ -3,6 +3,7 @@ import 'package:agritech/Admin/screens/admin%20product/AdminProductScreen.dart';
 import 'package:agritech/Admin/screens/admin%20users/AdminUserScreen.dart';
 import 'package:agritech/Admin/screens/categories%20management/categoryManagement.dart';
 import 'package:agritech/Admin/screens/process%20orders/AdminOrderEditScreen.dart';
+import 'package:agritech/Admin/screens/webinar/admin_webinar_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Import for session management
 import 'admin ebooks/educational_section_management.dart';
@@ -124,6 +125,18 @@ class AdminDashboardScreen extends StatelessWidget {
             MaterialPageRoute(
               builder: (_) => AdminEbookModerationScreen(token: token),
             ),
+          );
+        }
+      },
+      {
+        'title': 'Webinars',
+        'icon': Icons.meeting_room,
+        'description': 'Create and manage webinars',
+        'onTap': () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => AdminWebinarManagementScreen(token: token, userData: userData,),            ),
           );
         }
       },
