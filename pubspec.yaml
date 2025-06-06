@@ -43,7 +43,7 @@ dependencies:
   flutter_feather_icons: ^2.0.0+1
   pull_to_refresh: ^2.0.0
   firebase_core: ^2.28.0
-  firebase_auth: ^4.17.3
+  firebase_auth: 4.16.0
   google_sign_in: ^6.1.5
   permission_handler: ^11.3.1
   weather_icons: ^3.0.0
@@ -51,6 +51,7 @@ dependencies:
   video_player: ^2.7.0
   flutter_speed_dial: ^7.0.0
   file_picker: ^8.0.7
+  speech_to_text: ^7.0.0
 
 
 

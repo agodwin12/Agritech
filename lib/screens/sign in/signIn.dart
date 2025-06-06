@@ -179,7 +179,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
         if (response.statusCode == 200) {
           final responseData = jsonDecode(response.body);
           final token = responseData['token'];
-          final user = responseData['user']; // ✅ Moved here
+          final user = responseData['user'];
 
           print('✅ Login successful. Token: $token');
 

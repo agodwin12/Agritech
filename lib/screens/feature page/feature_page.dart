@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../chat forum/forum.dart';
 import '../market 2/market.dart';
 import '../navigation bar/navigation_bar.dart';
@@ -13,10 +13,12 @@ class HomeScreen extends StatefulWidget {
   final Map<String, dynamic> userData;
   final String token;
 
+
   const HomeScreen({
     Key? key,
     required this.userData,
     required this.token,
+
   }) : super(key: key);
 
   @override
@@ -33,6 +35,12 @@ class _HomeScreenState extends State<HomeScreen> {
   String _weatherCondition = '';
   String _marketDemand = '';
   Map<String, dynamic>? _randomVideo;
+  late stt.SpeechToText _speech;
+  bool _isListening = false;
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _weatherKey = GlobalKey();
+  final GlobalKey _helpKey = GlobalKey();
+
 
   final String _weatherApiKey = 'e1aec962217269cb21622d157c043f5f';
 
@@ -53,7 +61,110 @@ class _HomeScreenState extends State<HomeScreen> {
     _fetchTopCrops();
     _fetchMarketDemand();
     _fetchRandomVideo();
+    _speech = stt.SpeechToText();
+
   }
+
+  void _scrollToWeatherSection() {
+    Scrollable.ensureVisible(
+      _weatherKey.currentContext!,
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void _scrollToHelpSection() {
+    Scrollable.ensureVisible(
+      _helpKey.currentContext!,
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.easeInOut,
+    );
+  }
+
+
+  void _startListening() async {
+    bool available = await _speech.initialize(
+      onStatus: (val) => print('🟡 Status: $val'),
+      onError: (val) => print('🔴 Error: $val'),
+    );
+
+    if (available) {
+      setState(() => _isListening = true);
+      _speech.listen(
+        onResult: (val) {
+          final text = val.recognizedWords;
+          setState(() {
+            _searchText = text;
+          });
+          _handleVoiceCommand(text.toLowerCase());
+        },
+      );
+    }
+  }
+
+
+  void _handleVoiceCommand(String command) {
+    command = command.toLowerCase();
+
+    // MARKETPLACE
+    if (command.contains("market") || command.contains("shop") || command.contains("buy") || command.contains("product")) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => MarketplaceScreen(
+            userData: widget.userData,
+            token: widget.token,
+            categoryId: 0,
+          ),
+        ),
+      );
+      return;
+    }
+
+    // FORUM
+    if (command.contains("forum") || command.contains("community") || command.contains("connect") || command.contains("talk to farmers")) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ForumScreen(
+            userData: widget.userData,
+            token: widget.token,
+          ),
+        ),
+      );
+      return;
+    }
+
+    // WEATHER
+    if (command.contains("weather") || command.contains("temperature") || command.contains("forecast") || command.contains("humidity")) {
+      _scrollToWeatherSection();
+      return;
+    }
+
+    // HELP
+    if (command.contains("help") || command.contains("support") || command.contains("assist") || command.contains("assistance")) {
+      _scrollToHelpSection();
+      return;
+    }
+
+    // SEARCH
+    if (command.startsWith("search ")) {
+      final query = command.replaceFirst("search", "").trim();
+      setState(() {
+        _searchText = query;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("🔍 Searching for \"$query\"...")),
+      );
+      return;
+    }
+
+    // Default fallback
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("⚠️ Sorry, I didn’t understand: \"$command\"")),
+    );
+  }
+
 
   Future<void> _determinePosition() async {
     Position position = await Geolocator.getCurrentPosition(
@@ -293,16 +404,24 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.all(12),
             child: Icon(Icons.search, color: primaryGreen, size: 24),
           ),
-          suffixIcon: Container(
-            padding: const EdgeInsets.all(8),
-            child: Container(
-              decoration: BoxDecoration(
-                color: primaryGreen,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.tune, color: Colors.white, size: 20),
+            suffixIcon: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.mic, color: primaryGreen),
+                  onPressed: _startListening,
+                ),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: primaryGreen,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.tune, color: Colors.white, size: 20),
+                ),
+              ],
             ),
-          ),
+
           filled: true,
           fillColor: Colors.white,
           border: OutlineInputBorder(
@@ -317,6 +436,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildWeatherSection() {
     return Container(
+      key: _weatherKey,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -777,6 +897,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildHelpSupport() {
     return Container(
+      key: _helpKey,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,

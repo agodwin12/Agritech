@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:agritech/screens/advisory/advisory.dart';
+import 'package:agritech/screens/contact%20us/contact%20us.dart';
 import 'package:agritech/screens/ebooks/ebooks.dart';
 import 'package:agritech/screens/educational%20library/EducationalLibraryScreen.dart';
 import 'package:agritech/screens/video/videoTips.dart';
@@ -14,6 +15,7 @@ import '../disease detection/CameraCaptureScreen.dart';
 import '../my Products/my_products_screen.dart';
 import '../my Products/userProductDetailScreen.dart';
 import '../navigation bar/navigation_bar.dart';
+import '../privacy policy/privacyscreen.dart';
 import '../users orders/my_orders.dart';
 import '../webinar/user_webinar_screen.dart';
 import 'edit_profile.dart';
@@ -557,17 +559,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             color: textColor,
           ),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              Icons.settings_outlined,
-              color: textColor,
-            ),
-            onPressed: () {
-              // Navigate to settings page
-            },
-          ),
-        ],
+
       ),
       body: RefreshIndicator(
         color: primaryColor,
@@ -1005,47 +997,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       );
                     },
                   ),
-                  // Webinars Menu
+                  // Privacy Policy
                   _buildSettingsTile(
-                    icon: Icons.meeting_room_sharp,
+                    icon: Icons.phone_android_outlined,
                     iconColor: primaryColor,
-                    title: 'Webinars',
+                    title: 'Contact Us',
                     isDarkMode: isDarkMode,
                     textColor: textColor,
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => UserWebinarScreen(
-                            userData: userData!,
-                            token: widget.token,
-                          ),
-                        ),
+                        MaterialPageRoute(builder: (context) => const ContactUsScreen()),
                       );
                     },
+
                   ),
-
-                  // Webinars Menu
-                  _buildSettingsTile(
-                    icon: Icons.fact_check,
-                    iconColor: primaryColor,
-                    title: 'Advisory',
-                    isDarkMode: isDarkMode,
-                    textColor: textColor,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AdvisoryScreen(
-                            userData: userData!,
-                            token: widget.token,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-
-
 
                   // Privacy Policy
                   _buildSettingsTile(
@@ -1055,8 +1021,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     isDarkMode: isDarkMode,
                     textColor: textColor,
                     onTap: () {
-                      // Navigate to privacy policy
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const PrivacyPolicyScreen()),
+                      );
                     },
+
                   ),
 
 
