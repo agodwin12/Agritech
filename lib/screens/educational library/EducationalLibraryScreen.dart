@@ -32,9 +32,14 @@ class EducationalLibraryScreen extends StatefulWidget {
   State<EducationalLibraryScreen> createState() => _EducationalLibraryScreenState();
 }
 
-class _EducationalLibraryScreenState extends State<EducationalLibraryScreen> {
+class _EducationalLibraryScreenState extends State<EducationalLibraryScreen>
+    with TickerProviderStateMixin {
   // Controllers and Animation
   late ApiService _apiService;
+  late AnimationController _sidebarAnimationController;
+  late AnimationController _fadeAnimationController;
+  late Animation<double> _sidebarAnimation;
+  late Animation<double> _fadeAnimation;
 
   // Data Lists
   List<Ebook> _ebooks = [];
@@ -47,16 +52,72 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen> {
   bool _isCategoriesLoading = false;
   String? _errorMessage;
   MenuItem _selectedMenuItem = MenuItem.ebooks;
-  bool _isSidebarCollapsed = false;
+  bool _isSidebarCollapsed = true; // Always start collapsed
+  bool _showCategoriesInSidebar = false;
+
+  // Responsive breakpoints
+  static const double mobileBreakpoint = 600;
+  static const double tabletBreakpoint = 900;
+  static const double desktopBreakpoint = 1200;
 
   @override
   void initState() {
     super.initState();
     _apiService = ApiService(token: widget.token);
+
+    // Initialize animations
+    _sidebarAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+
+    _fadeAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+
+    _sidebarAnimation = CurvedAnimation(
+      parent: _sidebarAnimationController,
+      curve: Curves.easeInOutCubic,
+    );
+
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeAnimationController,
+      curve: Curves.easeInOut,
+    );
+
     _initializeData();
   }
 
+  @override
+  void dispose() {
+    _sidebarAnimationController.dispose();
+    _fadeAnimationController.dispose();
+    super.dispose();
+  }
+
+  // Get responsive dimensions
+  bool get isMobile => MediaQuery.of(context).size.width < mobileBreakpoint;
+  bool get isTablet => MediaQuery.of(context).size.width >= mobileBreakpoint &&
+      MediaQuery.of(context).size.width < tabletBreakpoint;
+  bool get isDesktop => MediaQuery.of(context).size.width >= desktopBreakpoint;
+
+  double get screenWidth => MediaQuery.of(context).size.width;
+  double get screenHeight => MediaQuery.of(context).size.height;
+
+  double get sidebarExpandedWidth {
+    if (isMobile) return screenWidth * 0.8;
+    if (isTablet) return 280;
+    return 320;
+  }
+
+  double get sidebarCollapsedWidth {
+    if (isMobile) return 0;
+    return 72;
+  }
+
   Future<void> _initializeData() async {
+    _fadeAnimationController.forward();
     await Future.wait([
       _fetchCategories(),
       _fetchContent(),
@@ -95,7 +156,6 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen> {
     });
 
     try {
-      // Determine category ID for API calls
       final categoryId = _selectedCategoryId == 0 ? null : _selectedCategoryId;
 
       final futures = await Future.wait([
@@ -132,6 +192,61 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen> {
     await _fetchContent();
   }
 
+  void _toggleSidebar() {
+    setState(() {
+      _isSidebarCollapsed = !_isSidebarCollapsed;
+    });
+
+    if (_isSidebarCollapsed) {
+      _sidebarAnimationController.reverse();
+    } else {
+      _sidebarAnimationController.forward();
+    }
+  }
+
+  void _onMenuItemTap(MenuItem menuItem) {
+    // Handle navigation for webinars and advisory
+    if (menuItem == MenuItem.webinars) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => UserWebinarScreen(
+            userData: widget.userData,
+            token: widget.token,
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (menuItem == MenuItem.advisory) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AdvisoryScreen(
+            userData: widget.userData,
+            token: widget.token,
+          ),
+        ),
+      );
+      return;
+    }
+
+    // Handle local navigation for ebooks and videos
+    setState(() {
+      _selectedMenuItem = menuItem;
+      _showCategoriesInSidebar = true;
+    });
+
+    // Fetch content and close sidebar on mobile
+    if (menuItem == MenuItem.ebooks || menuItem == MenuItem.videos) {
+      _fetchContent();
+      if (isMobile && !_isSidebarCollapsed) {
+        _toggleSidebar();
+      }
+    }
+  }
+
   void _onEbookTap(Ebook ebook) {
     showDialog(
       context: context,
@@ -160,7 +275,7 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen> {
       final success = await _apiService.purchaseEbook(ebook.id);
 
       if (mounted) {
-        Navigator.of(context).pop(); // Close loading dialog
+        Navigator.of(context).pop();
 
         if (success) {
           _showSuccessSnackBar(AppConstants.purchaseSuccess);
@@ -168,7 +283,7 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen> {
       }
     } catch (e) {
       if (mounted) {
-        Navigator.of(context).pop(); // Close loading dialog
+        Navigator.of(context).pop();
         _showErrorSnackBar('Purchase failed: ${e.toString()}');
       }
     }
@@ -196,14 +311,20 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
         content: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            const CircularProgressIndicator(),
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(AppColorss.primary),
+            ),
             const SizedBox(width: 16),
             Expanded(
               child: Text(
                 message,
-                style: GoogleFonts.poppins(),
+                style: GoogleFonts.poppins(fontSize: 16),
               ),
             ),
           ],
@@ -215,16 +336,29 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen> {
   void _showSuccessSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          message,
-          style: GoogleFonts.poppins(color: Colors.white),
+        content: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.check_circle, color: Colors.white, size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
         ),
         backgroundColor: AppColorss.success,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+          borderRadius: BorderRadius.circular(12),
         ),
-        margin: const EdgeInsets.all(AppConstants.defaultPadding),
+        margin: EdgeInsets.all(isMobile ? 12 : 16),
+        duration: const Duration(seconds: 3),
       ),
     );
   }
@@ -232,16 +366,28 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen> {
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          message,
-          style: GoogleFonts.poppins(color: Colors.white),
+        content: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.error, color: Colors.white, size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
         ),
         backgroundColor: AppColorss.error,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+          borderRadius: BorderRadius.circular(12),
         ),
-        margin: const EdgeInsets.all(AppConstants.defaultPadding),
+        margin: EdgeInsets.all(isMobile ? 12 : 16),
         action: SnackBarAction(
           label: 'Retry',
           textColor: Colors.white,
@@ -254,123 +400,31 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen> {
   String _getSelectedMenuTitle() {
     switch (_selectedMenuItem) {
       case MenuItem.ebooks:
-        return 'Ebooks';
+        return 'Digital Library - Ebooks';
       case MenuItem.videos:
-        return 'Videos';
+        return 'Video Library';
       case MenuItem.webinars:
-        return 'Webinars';
+        return 'Live Webinars';
       case MenuItem.advisory:
-        return 'Advisory';
+        return 'Expert Advisory';
     }
   }
 
-  Widget _buildMainContent() {
-    if (_errorMessage != null) {
-      return _buildErrorState();
-    }
-
+  IconData _getSelectedMenuIcon() {
     switch (_selectedMenuItem) {
       case MenuItem.ebooks:
-        return Column(
-          children: [
-            CategoryDropdown(
-              categories: _categories,
-              selectedCategoryId: _selectedCategoryId,
-              onCategoryChanged: _onCategoryChanged,
-              isLoading: _isCategoriesLoading,
-            ),
-            Expanded(
-              child: EbookGrid(
-                ebooks: _ebooks,
-                isLoading: _isLoading,
-                onRefresh: _onRefresh,
-                onEbookTap: _onEbookTap,
-                onPurchase: _purchaseEbook,
-              ),
-            ),
-          ],
-        );
+        return Icons.auto_stories;
       case MenuItem.videos:
-        return Column(
-          children: [
-            CategoryDropdown(
-              categories: _categories,
-              selectedCategoryId: _selectedCategoryId,
-              onCategoryChanged: _onCategoryChanged,
-              isLoading: _isCategoriesLoading,
-            ),
-            Expanded(
-              child: VideoGrid(
-                videos: _videos,
-                isLoading: _isLoading,
-                onRefresh: _onRefresh,
-                onVideoTap: _onVideoTap,
-              ),
-            ),
-          ],
-        );
+        return Icons.play_circle_filled;
       case MenuItem.webinars:
+        return Icons.video_call;
       case MenuItem.advisory:
-      // These are handled by navigation, so return empty content
-        return const SizedBox.shrink();
+        return Icons.support_agent;
     }
-  }
-
-  Widget _buildComingSoonContent(String title, IconData icon) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppConstants.defaultPadding),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: AppColorss.primary.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                size: 64,
-                color: AppColorss.primary,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              title,
-              style: GoogleFonts.poppins(
-                fontSize: 24,
-                fontWeight: FontWeight.w600,
-                color: AppColorss.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Coming Soon!',
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-                color: AppColorss.primary,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'We\'re working hard to bring you this feature. Stay tuned for updates!',
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                color: AppColorss.textSecondary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    // Get theme colors - you can adjust these based on your app's theme
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final darkBackgroundColor = Colors.grey[900] ?? Colors.black;
     final primaryColor = AppColorss.primary;
@@ -379,20 +433,59 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColorss.background,
-        body: Row(
-          children: [
-            // Sidebar
-            _buildSidebar(),
-            // Main Content
-            Expanded(
-              child: Column(
-                children: [
-                  _buildMainAppBar(),
-                  Expanded(child: _buildMainContent()),
-                ],
-              ),
-            ),
-          ],
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            return Stack(
+              children: [
+                // Main Content
+                Row(
+                  children: [
+                    // Sidebar space on desktop/tablet
+                    if (!isMobile)
+                      AnimatedBuilder(
+                        animation: _sidebarAnimation,
+                        builder: (context, child) {
+                          return SizedBox(
+                            width: _isSidebarCollapsed
+                                ? sidebarCollapsedWidth
+                                : sidebarExpandedWidth * _sidebarAnimation.value +
+                                sidebarCollapsedWidth * (1 - _sidebarAnimation.value),
+                          );
+                        },
+                      ),
+                    // Main Content Area
+                    Expanded(
+                      child: Column(
+                        children: [
+                          _buildMainAppBar(),
+                          Expanded(
+                            child: FadeTransition(
+                              opacity: _fadeAnimation,
+                              child: _buildMainContent(),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Sidebar Overlay
+                _buildSidebar(),
+
+                // Mobile overlay when sidebar is open
+                if (isMobile && !_isSidebarCollapsed)
+                  GestureDetector(
+                    onTap: _toggleSidebar,
+                    child: Container(
+                      color: Colors.black54,
+                      width: double.infinity,
+                      height: double.infinity,
+                    ),
+                  ),
+              ],
+            );
+          },
         ),
         bottomNavigationBar: FarmConnectNavBar(
           isDarkMode: isDarkMode,
@@ -403,7 +496,8 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen> {
           userData: widget.userData,
           token: widget.token,
         ),
-        floatingActionButton: _selectedMenuItem == MenuItem.ebooks || _selectedMenuItem == MenuItem.videos
+        floatingActionButton: (_selectedMenuItem == MenuItem.ebooks ||
+            _selectedMenuItem == MenuItem.videos)
             ? _buildFloatingActionButton()
             : null,
       ),
@@ -411,391 +505,783 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen> {
   }
 
   Widget _buildSidebar() {
-    final isWideScreen = MediaQuery.of(context).size.width > 768;
-    final sidebarWidth = _isSidebarCollapsed ? 46.0 : (isWideScreen ? 200.0 : 160.0);
+    return AnimatedBuilder(
+      animation: _sidebarAnimation,
+      builder: (context, child) {
+        final sidebarWidth = _isSidebarCollapsed
+            ? sidebarCollapsedWidth
+            : isMobile
+            ? sidebarExpandedWidth
+            : sidebarExpandedWidth * _sidebarAnimation.value +
+            sidebarCollapsedWidth * (1 - _sidebarAnimation.value);
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 250),
-      curve: Curves.easeInOut,
-      width: sidebarWidth,
+        return Positioned(
+          left: 0,
+          top: 0,
+          bottom: 0,
+          child: Container(
+            width: sidebarWidth,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppColorss.primary,
+                  AppColorss.primary.withOpacity(0.8),
+                ],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.15),
+                  blurRadius: 20,
+                  offset: const Offset(4, 0),
+                ),
+              ],
+            ),
+            child: _isSidebarCollapsed && !isMobile
+                ? _buildCollapsedSidebar()
+                : _buildExpandedSidebar(),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCollapsedSidebar() {
+    return Column(
+      children: [
+        const SizedBox(height: 20),
+        // Logo/Icon
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Icon(
+            Icons.school_rounded,
+            color: Colors.white,
+            size: 24,
+          ),
+        ),
+        const SizedBox(height: 32),
+
+        // Menu Items
+        Expanded(
+          child: Column(
+            children: [
+              _buildCollapsedMenuItem(Icons.auto_stories, MenuItem.ebooks),
+              const SizedBox(height: 16),
+              _buildCollapsedMenuItem(Icons.play_circle_filled, MenuItem.videos),
+              const SizedBox(height: 16),
+              _buildCollapsedMenuItem(Icons.video_call, MenuItem.webinars),
+              const SizedBox(height: 16),
+              _buildCollapsedMenuItem(Icons.support_agent, MenuItem.advisory),
+            ],
+          ),
+        ),
+
+        // Expand Button
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: InkWell(
+            onTap: _toggleSidebar,
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.chevron_right,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCollapsedMenuItem(IconData icon, MenuItem menuItem) {
+    final isSelected = _selectedMenuItem == menuItem;
+
+    return Tooltip(
+      message: _getMenuItemTitle(menuItem),
+      preferBelow: false,
+      child: InkWell(
+        onTap: () => _onMenuItemTap(menuItem),
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: isSelected
+                ? Colors.white.withOpacity(0.3)
+                : Colors.white.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+            border: isSelected
+                ? Border.all(color: Colors.white.withOpacity(0.5))
+                : null,
+          ),
+          child: Icon(
+            icon,
+            color: Colors.white,
+            size: 20,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildExpandedSidebar() {
+    return Column(
+      children: [
+        // Header
+        Container(
+          padding: EdgeInsets.all(isMobile ? 16 : 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.school_rounded,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                  const Spacer(),
+                  InkWell(
+                    onTap: _toggleSidebar,
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        isMobile ? Icons.close : Icons.chevron_left,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'AgriTech',
+                style: GoogleFonts.poppins(
+                  fontSize: isMobile ? 20 : 22,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              Text(
+                'Educational Library',
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.white.withOpacity(0.8),
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+
+        // Navigation Menu
+        Expanded(
+          child: SingleChildScrollView(
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'LIBRARY',
+                    style: GoogleFonts.poppins(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white.withOpacity(0.7),
+                      letterSpacing: 1.0,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  _buildExpandedMenuItem(
+                    Icons.auto_stories,
+                    'Ebooks',
+                    MenuItem.ebooks,
+                    'Discover digital books',
+                  ),
+                  const SizedBox(height: 6),
+
+                  _buildExpandedMenuItem(
+                    Icons.play_circle_filled,
+                    'Videos',
+                    MenuItem.videos,
+                    'Watch educational content',
+                  ),
+                  const SizedBox(height: 6),
+
+                  _buildExpandedMenuItem(
+                    Icons.video_call,
+                    'Webinars',
+                    MenuItem.webinars,
+                    'Join live sessions',
+                  ),
+                  const SizedBox(height: 6),
+
+                  _buildExpandedMenuItem(
+                    Icons.support_agent,
+                    'Advisory',
+                    MenuItem.advisory,
+                    'Get expert advice',
+                  ),
+
+                  // Categories Section (shown when menu item is selected)
+                  if (_showCategoriesInSidebar &&
+                      (_selectedMenuItem == MenuItem.ebooks || _selectedMenuItem == MenuItem.videos))
+                    _buildCategoriesSection(),
+
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        // User Info
+        Container(
+          margin: EdgeInsets.all(isMobile ? 16 : 12),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.2),
+            ),
+          ),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 16,
+                backgroundColor: Colors.white.withOpacity(0.2),
+                child: Text(
+                  (widget.userData['name'] ?? 'U')[0].toUpperCase(),
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      widget.userData['name'] ?? 'User',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                    Text(
+                      'Premium Member',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white.withOpacity(0.8),
+                        fontSize: 10,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildExpandedMenuItem(
+      IconData icon,
+      String title,
+      MenuItem menuItem,
+      String subtitle,
+      ) {
+    final isSelected = _selectedMenuItem == menuItem;
+
+    return InkWell(
+      onTap: () => _onMenuItemTap(menuItem),
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Colors.white.withOpacity(0.2)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          border: isSelected
+              ? Border.all(color: Colors.white.withOpacity(0.3))
+              : null,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? Colors.white.withOpacity(0.3)
+                    : Colors.white.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                icon,
+                color: Colors.white,
+                size: 16,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.poppins(
+                      color: Colors.white.withOpacity(0.8),
+                      fontSize: 11,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ],
+              ),
+            ),
+            if (isSelected)
+              Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.white,
+                size: 12,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoriesSection() {
+    return Container(
+      margin: const EdgeInsets.only(top: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'CATEGORIES',
+            style: GoogleFonts.poppins(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: Colors.white.withOpacity(0.7),
+              letterSpacing: 1.0,
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          if (_isCategoriesLoading)
+            Container(
+              padding: const EdgeInsets.all(12),
+              child: Center(
+                child: SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+              ),
+            )
+          else
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.3,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildCategoryItem('All Categories', 0),
+                    ..._categories.map((category) =>
+                        _buildCategoryItem(category.name, category.id)),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryItem(String name, int categoryId) {
+    final isSelected = _selectedCategoryId == categoryId;
+
+    return InkWell(
+      onTap: () => _onCategoryChanged(categoryId),
+      borderRadius: BorderRadius.circular(6),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        margin: const EdgeInsets.only(bottom: 2),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Colors.white.withOpacity(0.2)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 4,
+              height: 4,
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? Colors.white
+                    : Colors.white.withOpacity(0.5),
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                name,
+                style: GoogleFonts.poppins(
+                  color: isSelected
+                      ? Colors.white
+                      : Colors.white.withOpacity(0.8),
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  fontSize: 12,
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _getMenuItemTitle(MenuItem menuItem) {
+    switch (menuItem) {
+      case MenuItem.ebooks:
+        return 'Ebooks';
+      case MenuItem.videos:
+        return 'Videos';
+      case MenuItem.webinars:
+        return 'Webinars';
+      case MenuItem.advisory:
+        return 'Advisory';
+    }
+  }
+
+  Widget _buildMainAppBar() {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 16 : 24,
+        vertical: 16,
+      ),
       decoration: BoxDecoration(
         color: AppColorss.surface,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
-            offset: const Offset(2, 0),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: Column(
+      child: Row(
         children: [
-          // App Header with single toggle
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(
-              horizontal: _isSidebarCollapsed ? 3 : 8,
-              vertical: _isSidebarCollapsed ? 4 : 8,
-            ),
-            decoration: BoxDecoration(
-              color: AppColorss.primary,
-              borderRadius: const BorderRadius.only(
-                bottomRight: Radius.circular(12),
-              ),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (!_isSidebarCollapsed) ...[
-                  // Full header when expanded
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      return Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(3),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: const Icon(
-                              Icons.school,
-                              color: Colors.white,
-                              size: 14,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              'AgriTech\nLibrary',
-                              style: GoogleFonts.poppins(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                                height: 1.0,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 6),
-                ] else ...[
-                  // Collapsed header - just icon
-                  Container(
-                    padding: const EdgeInsets.all(3),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(3),
-                    ),
-                    child: const Icon(
-                      Icons.school,
-                      color: Colors.white,
-                      size: 12,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                ],
-                // Single toggle button
-                InkWell(
-                  onTap: () {
-                    setState(() {
-                      _isSidebarCollapsed = !_isSidebarCollapsed;
-                    });
-                  },
-                  borderRadius: BorderRadius.circular(3),
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(3),
-                    ),
-                    child: Icon(
-                      _isSidebarCollapsed ? Icons.chevron_right : Icons.chevron_left,
-                      color: Colors.white,
-                      size: 12,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 6),
-
-          // Menu Items
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: _isSidebarCollapsed ? 2 : 4),
-              child: Column(
-                children: [
-                  _buildMenuItem(
-                    icon: Icons.book,
-                    title: 'Ebooks',
-                    menuItem: MenuItem.ebooks,
-                    isSelected: _selectedMenuItem == MenuItem.ebooks,
-                  ),
-                  const SizedBox(height: 2),
-                  _buildMenuItem(
-                    icon: Icons.play_circle_outline,
-                    title: 'Videos',
-                    menuItem: MenuItem.videos,
-                    isSelected: _selectedMenuItem == MenuItem.videos,
-                  ),
-                  const SizedBox(height: 2),
-                  _buildMenuItem(
-                    icon: Icons.meeting_room_sharp,
-                    title: 'Webinars',
-                    menuItem: MenuItem.webinars,
-                    isSelected: false,
-                  ),
-                  const SizedBox(height: 2),
-                  _buildMenuItem(
-                    icon: Icons.fact_check,
-                    title: 'Advisory',
-                    menuItem: MenuItem.advisory,
-                    isSelected: false,
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // User Info Section (only when expanded)
-          if (!_isSidebarCollapsed)
-            Container(
-              margin: const EdgeInsets.all(4),
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: AppColorss.background,
-                borderRadius: BorderRadius.circular(4),
-                border: Border.all(
+          // Menu button for mobile
+          if (isMobile) ...[
+            InkWell(
+              onTap: _toggleSidebar,
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
                   color: AppColorss.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.menu,
+                  color: AppColorss.primary,
+                  size: 20,
                 ),
               ),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 8,
-                        backgroundColor: AppColorss.primary.withOpacity(0.1),
-                        child: Icon(
-                          Icons.person,
-                          color: AppColorss.primary,
-                          size: 8,
-                        ),
-                      ),
-                      const SizedBox(width: 3),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              widget.userData['name'] ?? 'User',
-                              style: GoogleFonts.poppins(
-                                fontSize: 8,
-                                fontWeight: FontWeight.w600,
-                                color: AppColorss.textPrimary,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
             ),
-        ],
-      ),
-    );
-  }
+            const SizedBox(width: 12),
+          ],
 
-  Widget _buildMenuItem({
-    required IconData icon,
-    required String title,
-    required MenuItem menuItem,
-    required bool isSelected,
-  }) {
-    return InkWell(
-      onTap: () {
-        // Handle navigation for webinars and advisory
-        if (menuItem == MenuItem.webinars) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => UserWebinarScreen(
-                userData: widget.userData,
-                token: widget.token,
-              ),
+          // Title and Icon
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColorss.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
             ),
-          );
-          return;
-        }
-
-        if (menuItem == MenuItem.advisory) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AdvisoryScreen(
-                userData: widget.userData,
-                token: widget.token,
-              ),
+            child: Icon(
+              _getSelectedMenuIcon(),
+              color: AppColorss.primary,
+              size: isMobile ? 20 : 24,
             ),
-          );
-          return;
-        }
+          ),
+          const SizedBox(width: 12),
 
-        // Handle local navigation for ebooks and videos
-        setState(() {
-          _selectedMenuItem = menuItem;
-        });
-
-        // Fetch content if switching to ebooks or videos
-        if (menuItem == MenuItem.ebooks || menuItem == MenuItem.videos) {
-          _fetchContent();
-        }
-      },
-      borderRadius: BorderRadius.circular(4),
-      child: Container(
-        width: double.infinity,
-        constraints: BoxConstraints(
-          minHeight: _isSidebarCollapsed ? 26 : 22,
-        ),
-        padding: EdgeInsets.all(_isSidebarCollapsed ? 3 : 4),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColorss.primary.withOpacity(0.1) : Colors.transparent,
-          borderRadius: BorderRadius.circular(4),
-          border: isSelected
-              ? Border.all(color: AppColorss.primary.withOpacity(0.3))
-              : null,
-        ),
-        child: _isSidebarCollapsed
-            ? Icon(
-          icon,
-          color: isSelected ? AppColorss.primary : AppColorss.textSecondary,
-          size: 10,
-        )
-            : LayoutBuilder(
-          builder: (context, constraints) {
-            return Row(
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  icon,
-                  color: isSelected ? AppColorss.primary : AppColorss.textSecondary,
-                  size: 10,
+                Text(
+                  _getSelectedMenuTitle(),
+                  style: GoogleFonts.poppins(
+                    fontSize: isMobile ? 16 : 20,
+                    fontWeight: FontWeight.w700,
+                    color: AppColorss.textPrimary,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 ),
-                const SizedBox(width: 3),
-                Expanded(
-                  child: Text(
-                    title,
+                if (!isMobile)
+                  Text(
+                    'Explore our educational resources',
                     style: GoogleFonts.poppins(
-                      fontSize: 9,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                      color: isSelected ? AppColorss.primary : AppColorss.textSecondary,
+                      fontSize: 12,
+                      color: AppColorss.textSecondary,
                     ),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                   ),
-                ),
               ],
-            );
-          },
-        ),
+            ),
+          ),
+
+          // Action buttons
+          if (!isMobile) ...[
+            if (_selectedMenuItem == MenuItem.ebooks || _selectedMenuItem == MenuItem.videos) ...[
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColorss.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: IconButton(
+                  onPressed: _showUploadDialog,
+                  icon: Icon(
+                    Icons.add,
+                    color: AppColorss.primary,
+                    size: 20,
+                  ),
+                  tooltip: 'Upload Content',
+                  constraints: const BoxConstraints(
+                    minWidth: 36,
+                    minHeight: 36,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 6),
+            ],
+            Container(
+              decoration: BoxDecoration(
+                color: AppColorss.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: IconButton(
+                onPressed: _onRefresh,
+                icon: Icon(
+                  Icons.refresh,
+                  color: AppColorss.primary,
+                  size: 20,
+                ),
+                tooltip: 'Refresh',
+                constraints: const BoxConstraints(
+                  minWidth: 36,
+                  minHeight: 36,
+                ),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
 
-  Widget _buildMainAppBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: BoxDecoration(
-        color: AppColorss.surface,
-        border: Border(
-          bottom: BorderSide(
-            color: AppColorss.primary.withOpacity(0.1),
-            width: 1,
+  Widget _buildMainContent() {
+    if (_errorMessage != null) {
+      return _buildErrorState();
+    }
+
+    switch (_selectedMenuItem) {
+      case MenuItem.ebooks:
+        return _buildContentWithCategories(
+          child: EbookGrid(
+            ebooks: _ebooks,
+            isLoading: _isLoading,
+            onRefresh: _onRefresh,
+            onEbookTap: _onEbookTap,
+            onPurchase: _purchaseEbook,
           ),
-        ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              _getSelectedMenuTitle(),
-              style: GoogleFonts.poppins(
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-                color: AppColorss.textPrimary,
-              ),
-              overflow: TextOverflow.ellipsis,
+        );
+      case MenuItem.videos:
+        return _buildContentWithCategories(
+          child: VideoGrid(
+            videos: _videos,
+            isLoading: _isLoading,
+            onRefresh: _onRefresh,
+            onVideoTap: _onVideoTap,
+          ),
+        );
+      case MenuItem.webinars:
+      case MenuItem.advisory:
+      // Directly navigate - no content shown here
+        return Container();
+    }
+  }
+
+  Widget _buildContentWithCategories({required Widget child}) {
+    return Column(
+      children: [
+        // Categories dropdown for main content (only on mobile/when sidebar is closed)
+        if (isMobile || _isSidebarCollapsed)
+          Container(
+            padding: EdgeInsets.all(isMobile ? 16 : 20),
+            child: CategoryDropdown(
+              categories: _categories,
+              selectedCategoryId: _selectedCategoryId,
+              onCategoryChanged: _onCategoryChanged,
+              isLoading: _isCategoriesLoading,
             ),
           ),
-          // Optional: Add search or filter buttons here
-        ],
-      ),
+
+        Expanded(child: child),
+      ],
     );
   }
 
   Widget _buildErrorState() {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(AppConstants.defaultPadding),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: AppColorss.error,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Something went wrong',
-              style: GoogleFonts.poppins(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: AppColorss.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _errorMessage ?? 'An unknown error occurred',
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                color: AppColorss.textSecondary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: _initializeData,
-              icon: const Icon(Icons.refresh),
-              label: Text(
-                'Try Again',
-                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColorss.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
+        padding: EdgeInsets.all(isMobile ? 24 : 32),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: isMobile ? 100 : 120,
+                height: isMobile ? 100 : 120,
+                decoration: BoxDecoration(
+                  color: AppColorss.error.withOpacity(0.1),
+                  shape: BoxShape.circle,
                 ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                child: Icon(
+                  Icons.error_outline,
+                  size: isMobile ? 48 : 64,
+                  color: AppColorss.error,
                 ),
               ),
-            ),
-          ],
+              SizedBox(height: isMobile ? 24 : 32),
+
+              Text(
+                'Oops! Something went wrong',
+                style: GoogleFonts.poppins(
+                  fontSize: isMobile ? 18 : 24,
+                  fontWeight: FontWeight.w700,
+                  color: AppColorss.textPrimary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  _errorMessage ?? 'An unexpected error occurred',
+                  style: GoogleFonts.poppins(
+                    fontSize: isMobile ? 14 : 16,
+                    color: AppColorss.textSecondary,
+                    height: 1.5,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+
+              SizedBox(height: isMobile ? 24 : 32),
+
+              ElevatedButton.icon(
+                onPressed: _initializeData,
+                icon: const Icon(Icons.refresh),
+                label: Text(
+                  'Try Again',
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColorss.primary,
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isMobile ? 24 : 32,
+                    vertical: isMobile ? 12 : 16,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 0,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -806,11 +1292,14 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen> {
       onPressed: _showUploadDialog,
       backgroundColor: AppColorss.primary,
       foregroundColor: Colors.white,
-      elevation: 4,
+      elevation: 8,
       icon: const Icon(Icons.add),
       label: Text(
-        'Upload',
+        isMobile ? 'Upload' : 'Upload Content',
         style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
       ),
     );
   }

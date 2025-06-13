@@ -56,8 +56,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
 
     setState(() {
-      userData = widget.userData;
-      isLoading = false;
+      super.initState();
+      fetchUserProfile();
     });
   }
 
