@@ -1,16 +1,18 @@
-// lib/widgets/ebook_viewer_dialog.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../model/ebook_model.dart';
+import '../payment_checkout_screen.dart';
 import '../services/api_service.dart';
+import '../services/cart_service.dart';
 import '../utils/constants.dart';
 
-class EbookViewerDialog extends StatelessWidget {
+class EbookViewerDialog extends StatefulWidget {
   final Ebook ebook;
   final String baseUrl;
   final VoidCallback? onPurchase;
   final VoidCallback? onPreview;
+  final VoidCallback? onCartUpdate;
 
   const EbookViewerDialog({
     Key? key,
@@ -18,7 +20,71 @@ class EbookViewerDialog extends StatelessWidget {
     required this.baseUrl,
     this.onPurchase,
     this.onPreview,
+    this.onCartUpdate,
   }) : super(key: key);
+
+  @override
+  State<EbookViewerDialog> createState() => _EbookViewerDialogState();
+}
+
+class _EbookViewerDialogState extends State<EbookViewerDialog> {
+  bool _isInCart = false;
+  bool _isAddingToCart = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkCartStatus();
+  }
+
+  void _checkCartStatus() {
+    setState(() {
+      _isInCart = CartService.instance.isInCart(widget.ebook.id.toString());
+    });
+  }
+
+  Future<void> _toggleCart() async {
+    if (_isAddingToCart) return;
+
+    setState(() {
+      _isAddingToCart = true;
+    });
+
+    try {
+      bool success;
+      String message;
+      Color snackBarColor;
+
+      if (_isInCart) {
+        // Remove from cart
+        success = await CartService.instance.removeFromCart(widget.ebook.id.toString());
+        message = success ? 'Removed from cart' : 'Failed to remove from cart';
+        snackBarColor = success ? Colors.orange : Colors.red;
+      } else {
+        // Add to cart
+        success = await CartService.instance.addToCart(widget.ebook);
+        message = success ? 'Added to cart!' : 'Already in cart';
+        snackBarColor = success ? Colors.green : Colors.orange;
+      }
+
+      if (success) {
+        setState(() {
+          _isInCart = !_isInCart;
+        });
+
+        // Notify parent about cart update
+        if (widget.onCartUpdate != null) {
+          widget.onCartUpdate!();
+        }
+      }
+
+      _showSnackBar(context, message, snackBarColor);
+    } finally {
+      setState(() {
+        _isAddingToCart = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +128,7 @@ class EbookViewerDialog extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              ebook.title,
+              widget.ebook.title,
               style: GoogleFonts.poppins(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -72,6 +138,35 @@ class EbookViewerDialog extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          // Cart status indicator
+          if (_isInCart)
+            Container(
+              margin: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.shopping_cart,
+                    color: Colors.white,
+                    size: 12,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'In Cart',
+                    style: GoogleFonts.poppins(
+                      fontSize: 10,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           IconButton(
             onPressed: () => Navigator.pop(context),
             icon: const Icon(Icons.close, color: Colors.white),
@@ -99,8 +194,8 @@ class EbookViewerDialog extends StatelessWidget {
   }
 
   Widget _buildEbookPreview() {
-    final coverImageUrl = ebook.coverImage != null
-        ? ApiService.getFullUrl(ebook.coverImage!)
+    final coverImageUrl = widget.ebook.coverImage != null
+        ? ApiService.getFullUrl(widget.ebook.coverImage!)
         : null;
 
     return Row(
@@ -147,7 +242,7 @@ class EbookViewerDialog extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (ebook.categoryName != null) ...[
+              if (widget.ebook.categoryName != null) ...[
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
@@ -155,7 +250,7 @@ class EbookViewerDialog extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    ebook.categoryName!,
+                    widget.ebook.categoryName!,
                     style: GoogleFonts.poppins(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -183,7 +278,7 @@ class EbookViewerDialog extends StatelessWidget {
                       color: Colors.green[700],
                     ),
                     Text(
-                      'XAF ${ebook.price}',
+                      'XAF ${widget.ebook.price}',
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -199,7 +294,7 @@ class EbookViewerDialog extends StatelessWidget {
               // Status badges
               Row(
                 children: [
-                  if (ebook.isApproved)
+                  if (widget.ebook.isApproved)
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
@@ -278,8 +373,8 @@ class EbookViewerDialog extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          ebook.description.isNotEmpty
-              ? ebook.description
+          widget.ebook.description.isNotEmpty
+              ? widget.ebook.description
               : 'No description available.',
           style: GoogleFonts.poppins(
             fontSize: 14,
@@ -288,7 +383,7 @@ class EbookViewerDialog extends StatelessWidget {
           ),
         ),
 
-        if (ebook.createdAt != null) ...[
+        if (widget.ebook.createdAt != null) ...[
           const SizedBox(height: 16),
           Row(
             children: [
@@ -299,7 +394,7 @@ class EbookViewerDialog extends StatelessWidget {
               ),
               const SizedBox(width: 4),
               Text(
-                'Published ${_formatDate(ebook.createdAt!)}',
+                'Published ${_formatDate(widget.ebook.createdAt!)}',
                 style: GoogleFonts.poppins(
                   fontSize: 12,
                   color: AppColorss.textSecondary,
@@ -309,7 +404,7 @@ class EbookViewerDialog extends StatelessWidget {
           ),
         ],
 
-        if (ebook.fileUrl != null && ebook.fileUrl!.isNotEmpty) ...[
+        if (widget.ebook.fileUrl != null && widget.ebook.fileUrl!.isNotEmpty) ...[
           const SizedBox(height: 12),
           Row(
             children: [
@@ -337,54 +432,99 @@ class EbookViewerDialog extends StatelessWidget {
   Widget _buildActionButtons(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16),
-      child: Row(
+      child: Column(
         children: [
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: () {
-                if (onPreview != null) {
-                  onPreview!();
-                } else {
-                  _showSnackBar(
-                    context,
-                    'Preview: ${ebook.title}',
-                    Colors.blue,
-                  );
-                }
-              },
-              icon: const Icon(Icons.preview),
-              label: Text(
-                'Preview',
-                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-              ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.blue,
-                side: const BorderSide(color: Colors.blue),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+          // First row: Preview and Add to Cart
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    if (widget.onPreview != null) {
+                      widget.onPreview!();
+                    } else {
+                      _showSnackBar(
+                        context,
+                        'Preview: ${widget.ebook.title}',
+                        Colors.blue,
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.preview),
+                  label: Text(
+                    'Preview',
+                    style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.blue,
+                    side: const BorderSide(color: Colors.blue),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                    ),
+                  ),
                 ),
               ),
-            ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _isAddingToCart ? null : _toggleCart,
+                  icon: _isAddingToCart
+                      ? SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                      : Icon(_isInCart ? Icons.remove_shopping_cart : Icons.add_shopping_cart),
+                  label: Text(
+                    _isInCart ? 'Remove from Cart' : 'Add to Cart',
+                    style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _isInCart ? Colors.orange : Colors.blue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(
+
+          const SizedBox(height: 12),
+
+          // Second row: Buy Now (full width)
+          SizedBox(
+            width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.pop(context);
-                if (onPurchase != null) {
-                  onPurchase!();
+
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PaymentCheckoutScreen.singleEbook(ebook: widget.ebook),
+                  ),
+                );
+
+                if (result == true && widget.onPurchase != null) {
+                  widget.onPurchase!(); // reload state
                 }
               },
-              icon: const Icon(Icons.shopping_cart),
+              icon: const Icon(Icons.shopping_cart_checkout),
               label: Text(
-                'Purchase',
+                'Buy Now - XAF ${widget.ebook.price}',
                 style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppConstants.borderRadius),
                 ),

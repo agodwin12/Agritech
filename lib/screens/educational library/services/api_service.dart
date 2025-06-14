@@ -358,4 +358,37 @@ class ApiService {
     return fullUrl;
   }
 
+
+  Future<bool> submitPurchaseForm({
+    required String ebookId,
+    required String address,
+    required String phone,
+    String? note,
+  }) async {
+    final url = Uri.parse('$baseUrl/ebooks/$ebookId/purchase');
+    final token = _token;
+    if (token == null) throw Exception('Missing auth token');
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'address': address,
+        'phone': phone,
+        'note': note ?? '',
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      print('❌ Purchase form failed: ${response.body}');
+      return false;
+    }
+  }
+
+
 }

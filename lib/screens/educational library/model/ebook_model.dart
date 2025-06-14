@@ -1,4 +1,3 @@
-// lib/models/ebook_model.dart
 class Ebook {
   final int id;
   final String title;
@@ -9,8 +8,10 @@ class Ebook {
   final int categoryId;
   final String? categoryName;
   final bool isApproved;
+  final bool isPurchased;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final DateTime? purchaseDate;
 
   Ebook({
     required this.id,
@@ -22,8 +23,10 @@ class Ebook {
     required this.categoryId,
     this.categoryName,
     this.isApproved = false,
+    this.isPurchased = false,
     this.createdAt,
     this.updatedAt,
+    this.purchaseDate,
   });
 
   factory Ebook.fromJson(Map<String, dynamic> json) {
@@ -37,6 +40,10 @@ class Ebook {
       categoryId: json['category_id'] ?? 0,
       categoryName: json['category_name'],
       isApproved: json['approved'] ?? false,
+      isPurchased: json['isPurchased'] ?? false,
+      purchaseDate: json['purchaseDate'] != null
+          ? DateTime.tryParse(json['purchaseDate'])
+          : null,
       createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'])
           : null,
@@ -57,13 +64,15 @@ class Ebook {
       'category_id': categoryId,
       if (categoryName != null) 'category_name': categoryName,
       'approved': isApproved,
+      'isPurchased': isPurchased,
+      if (purchaseDate != null) 'purchaseDate': purchaseDate!.toIso8601String(),
       if (createdAt != null) 'created_at': createdAt!.toIso8601String(),
       if (updatedAt != null) 'updated_at': updatedAt!.toIso8601String(),
     };
   }
 
-  String get fullCoverImageUrl => coverImage != null ? coverImage! : '';
-  String get fullFileUrl => fileUrl != null ? fileUrl! : '';
+  String get fullCoverImageUrl => coverImage ?? '';
+  String get fullFileUrl => fileUrl ?? '';
   double get priceAsDouble => double.tryParse(price) ?? 0.0;
 
   @override
@@ -72,10 +81,8 @@ class Ebook {
   }
 
   @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is Ebook && other.id == id;
-  }
+  bool operator ==(Object other) =>
+      identical(this, other) || (other is Ebook && other.id == id);
 
   @override
   int get hashCode => id.hashCode;
