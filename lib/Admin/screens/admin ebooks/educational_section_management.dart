@@ -11,15 +11,80 @@ class AdminEbookModerationScreen extends StatefulWidget {
   State<AdminEbookModerationScreen> createState() => _AdminEbookModerationScreenState();
 }
 
-class _AdminEbookModerationScreenState extends State<AdminEbookModerationScreen> {
+class _AdminEbookModerationScreenState extends State<AdminEbookModerationScreen>
+    with TickerProviderStateMixin {
   final String baseUrl = 'http://10.0.2.2:3000/api';
   List<dynamic> pendingEbooks = [];
   bool isLoading = true;
+  late AnimationController _fadeController;
+  late AnimationController _slideController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  // Agriculture-themed colors
+  static const Color primaryGreen = Color(0xFF4CAF50);
+  static const Color darkGreen = Color(0xFF2E7D32);
+  static const Color lightGreen = Color(0xFFE8F5E8);
+  static const Color accentOrange = Color(0xFFFF8F00);
+  static const Color backgroundGray = Color(0xFFF8F9FA);
+  static const Color cardWhite = Color(0xFFFFFFFF);
+  static const Color textPrimary = Color(0xFF1A1A1A);
+  static const Color textSecondary = Color(0xFF6B7280);
+  static const Color errorRed = Color(0xFFE53E3E);
 
   @override
   void initState() {
     super.initState();
+    _initAnimations();
     fetchPendingEbooks();
+  }
+
+  String? getImageUrl(dynamic ebook) {
+    if (ebook['cover_image'] != null && ebook['cover_image'].toString().isNotEmpty) {
+      String rawUrl = ebook['cover_image'];
+
+      // Add slash if missing
+      if (!rawUrl.startsWith('/')) {
+        rawUrl = '/$rawUrl';
+      }
+
+      final fullUrl = rawUrl.startsWith('http')
+          ? rawUrl
+          : '$baseUrl$rawUrl';
+
+      debugPrint('Ebook image URL: $fullUrl'); // 👈 Log for debugging
+
+      return fullUrl;
+    }
+    return null;
+  }
+
+
+  void _initAnimations() {
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _slideController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic));
+  }
+
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    _slideController.dispose();
+    super.dispose();
   }
 
   Future<void> fetchPendingEbooks() async {
@@ -31,44 +96,76 @@ class _AdminEbookModerationScreenState extends State<AdminEbookModerationScreen>
           pendingEbooks = jsonDecode(response.body);
           isLoading = false;
         });
+        _fadeController.forward();
+        _slideController.forward();
       } else {
         setState(() => isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load ebooks')),
-        );
+        _showSnackBar('Failed to load ebooks', isError: true);
       }
     } catch (e) {
       setState(() => isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
+      _showSnackBar('Error: ${e.toString()}', isError: true);
     }
   }
 
   Future<void> approveEbook(int id) async {
-    final res = await http.put(
-      Uri.parse('$baseUrl/ebooks/$id/approve'),
-      headers: {'Authorization': 'Bearer ${widget.token}'},
-    );
-    if (res.statusCode == 200) {
-      fetchPendingEbooks();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ebook approved')),
+    try {
+      final res = await http.put(
+        Uri.parse('$baseUrl/ebooks/$id/approve'),
+        headers: {'Authorization': 'Bearer ${widget.token}'},
       );
+      if (res.statusCode == 200) {
+        fetchPendingEbooks();
+        _showSnackBar('Ebook approved successfully! 🌱', isSuccess: true);
+      }
+    } catch (e) {
+      _showSnackBar('Failed to approve ebook', isError: true);
     }
   }
 
   Future<void> rejectEbook(int id) async {
-    final res = await http.delete(
-      Uri.parse('$baseUrl/ebooks/$id'),
-      headers: {'Authorization': 'Bearer ${widget.token}'},
-    );
-    if (res.statusCode == 200) {
-      fetchPendingEbooks();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ebook rejected')),
+    try {
+      final res = await http.delete(
+        Uri.parse('$baseUrl/ebooks/$id'),
+        headers: {'Authorization': 'Bearer ${widget.token}'},
       );
+      if (res.statusCode == 200) {
+        fetchPendingEbooks();
+        _showSnackBar('Ebook rejected', isError: true);
+      }
+    } catch (e) {
+      _showSnackBar('Failed to reject ebook', isError: true);
     }
+  }
+
+  void _showSnackBar(String message, {bool isError = false, bool isSuccess = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              isSuccess ? Icons.check_circle : (isError ? Icons.error : Icons.info),
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: isSuccess ? primaryGreen : (isError ? errorRed : darkGreen),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
+      ),
+    );
   }
 
   String formatDate(String date) {
@@ -79,302 +176,463 @@ class _AdminEbookModerationScreenState extends State<AdminEbookModerationScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text('Pending Ebook Moderation'),
-        ),
-        elevation: 2,
-      ),
+      backgroundColor: backgroundGray,
+      appBar: _buildModernAppBar(),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? _buildLoadingState()
           : pendingEbooks.isEmpty
-          ? Center(
+          ? _buildEmptyState()
+          : _buildEbooksList(),
+    );
+  }
+
+  PreferredSizeWidget _buildModernAppBar() {
+    return AppBar(
+      elevation: 0,
+      backgroundColor: cardWhite,
+      foregroundColor: textPrimary,
+      title: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: lightGreen,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.eco,
+              color: primaryGreen,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 12),
+          const Expanded(
+            child: Text(
+              'Ebook Moderation',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: textPrimary,
+              ),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        Container(
+          margin: const EdgeInsets.only(right: 16),
+          child: IconButton(
+            onPressed: fetchPendingEbooks,
+            icon: const Icon(Icons.refresh_rounded),
+            style: IconButton.styleFrom(
+              backgroundColor: lightGreen,
+              foregroundColor: primaryGreen,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: cardWhite,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 20,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: const CircularProgressIndicator(
+              color: primaryGreen,
+              strokeWidth: 3,
+            ),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            'Loading ebooks...',
+            style: TextStyle(
+              fontSize: 16,
+              color: textSecondary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: FadeTransition(
+        opacity: _fadeAnimation,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.book_outlined, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
-            Text(
-              'No pending ebooks found.',
-              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+            Container(
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: lightGreen,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.menu_book_rounded,
+                size: 64,
+                color: primaryGreen,
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'All caught up! 🌱',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: textPrimary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'No pending ebooks to review',
+              style: TextStyle(
+                fontSize: 16,
+                color: textSecondary,
+              ),
             ),
           ],
         ),
-      )
-          : LayoutBuilder(
-        builder: (context, constraints) {
-          // Determine layout based on screen width
-          final isTablet = constraints.maxWidth > 600;
-          final isDesktop = constraints.maxWidth > 900;
-
-          // Calculate number of columns for grid
-          int crossAxisCount = 1;
-          if (isDesktop) {
-            crossAxisCount = 3;
-          } else if (isTablet) {
-            crossAxisCount = 2;
-          }
-
-          // Use GridView for larger screens, ListView for mobile
-          if (isTablet || isDesktop) {
-            return GridView.builder(
-              padding: EdgeInsets.all(16),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: crossAxisCount,
-                childAspectRatio: 0.7,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-              ),
-              itemCount: pendingEbooks.length,
-              itemBuilder: (context, index) => _buildEbookCard(
-                pendingEbooks[index],
-                constraints,
-              ),
-            );
-          }
-
-          // ListView for mobile
-          return ListView.builder(
-            padding: EdgeInsets.symmetric(
-              horizontal: constraints.maxWidth > 400 ? 16 : 12,
-              vertical: 12,
-            ),
-            itemCount: pendingEbooks.length,
-            itemBuilder: (context, index) => Padding(
-              padding: EdgeInsets.only(bottom: 12),
-              child: _buildEbookCard(pendingEbooks[index], constraints),
-            ),
-          );
-        },
       ),
     );
   }
 
-  Widget _buildEbookCard(dynamic ebook, BoxConstraints constraints) {
-    final screenWidth = constraints.maxWidth;
-    final isSmallScreen = screenWidth < 400;
-    final isMediumScreen = screenWidth >= 400 && screenWidth < 600;
+  Widget _buildEbooksList() {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isTablet = constraints.maxWidth > 600;
+            final isDesktop = constraints.maxWidth > 900;
 
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+            int crossAxisCount = 1;
+            if (isDesktop) {
+              crossAxisCount = 3;
+            } else if (isTablet) {
+              crossAxisCount = 2;
+            }
+
+            if (isTablet || isDesktop) {
+              return GridView.builder(
+                padding: const EdgeInsets.all(20),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+                  childAspectRatio: 0.75,
+                  crossAxisSpacing: 20,
+                  mainAxisSpacing: 20,
+                ),
+                itemCount: pendingEbooks.length,
+                itemBuilder: (context, index) => _buildModernEbookCard(
+                  pendingEbooks[index],
+                  index,
+                ),
+              );
+            }
+
+            return ListView.builder(
+              padding: const EdgeInsets.all(20),
+              itemCount: pendingEbooks.length,
+              itemBuilder: (context, index) => Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: _buildModernEbookCard(pendingEbooks[index], index),
+              ),
+            );
+          },
+        ),
       ),
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Cover Image
-              if (ebook['cover_image'] != null)
-                Center(
-                  child: Container(
-                    constraints: BoxConstraints(
-                      maxHeight: isSmallScreen ? 120 : 150,
-                      maxWidth: isSmallScreen ? 120 : 150,
-                    ),
-                    child: AspectRatio(
-                      aspectRatio: 1,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          ebook['cover_image'],
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
-                            color: Colors.grey[200],
-                            child: Icon(
-                              Icons.image_not_supported,
-                              size: isSmallScreen ? 40 : 50,
-                              color: Colors.grey[400],
-                            ),
-                          ),
+    );
+  }
+
+  Widget _buildModernEbookCard(dynamic ebook, int index) {
+    return TweenAnimationBuilder<double>(
+      duration: Duration(milliseconds: 300 + (index * 100)),
+      tween: Tween(begin: 0.0, end: 1.0),
+      builder: (context, value, child) {
+        return Transform.translate(
+          offset: Offset(0, 20 * (1 - value)),
+          child: Opacity(
+            opacity: value,
+            child: Container(
+              decoration: BoxDecoration(
+                color: cardWhite,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 20,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildEbookHeader(ebook),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildEbookTitle(ebook),
+                            const SizedBox(height: 12),
+                            _buildEbookDescription(ebook),
+                            const SizedBox(height: 16),
+                            Expanded(child: _buildEbookInfo(ebook)),
+                            const SizedBox(height: 16),
+                            _buildActionButtons(ebook),
+                          ],
                         ),
                       ),
                     ),
-                  ),
-                ),
-              SizedBox(height: isSmallScreen ? 12 : 16),
-
-              // Title
-              Text(
-                ebook['title'] ?? 'Untitled',
-                style: TextStyle(
-                  fontSize: isSmallScreen ? 16 : 18,
-                  fontWeight: FontWeight.bold,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              SizedBox(height: 8),
-
-              // Description
-              Text(
-                ebook['description'] ?? 'No description',
-                style: TextStyle(
-                  fontSize: isSmallScreen ? 14 : 15,
-                  color: Colors.grey[700],
-                ),
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ),
-              SizedBox(height: 12),
-
-              // Info Grid
-              _buildInfoSection(ebook, isSmallScreen),
-
-              SizedBox(height: 16),
-
-              // Action Buttons
-              _buildActionButtons(ebook, isSmallScreen, constraints),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoSection(dynamic ebook, bool isSmallScreen) {
-    final infoStyle = TextStyle(
-      fontSize: isSmallScreen ? 13 : 14,
-      height: 1.5,
-    );
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildInfoRow('💰', 'Price', '${ebook['price']}', infoStyle),
-        SizedBox(height: 4),
-        GestureDetector(
-          onTap: () {
-            // Handle file URL tap
-          },
-          child: Row(
-            children: [
-              Text('📎 ', style: infoStyle),
-              Expanded(
-                child: Text(
-                  'File: ${ebook['file_url']}',
-                  style: infoStyle.copyWith(
-                    color: Colors.blue,
-                    decoration: TextDecoration.underline,
-                  ),
-                  overflow: TextOverflow.ellipsis,
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
-        SizedBox(height: 4),
-        _buildInfoRow('👤', 'Author', ebook['User']?['full_name'] ?? 'N/A', infoStyle),
-        SizedBox(height: 4),
-        _buildInfoRow('📞', 'Phone', ebook['User']?['phone'] ?? 'N/A', infoStyle),
-        SizedBox(height: 4),
-        _buildInfoRow('📚', 'Category', ebook['EbookCategory']?['name'] ?? 'N/A', infoStyle),
-        SizedBox(height: 4),
-        _buildInfoRow('🗓️', 'Submitted', formatDate(ebook['createdAt']), infoStyle),
-      ],
-    );
-  }
-
-  Widget _buildInfoRow(String icon, String label, String value, TextStyle style) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(icon + ' ', style: style),
-        Expanded(
-          child: RichText(
-            text: TextSpan(
-              style: style.copyWith(color: Colors.black87),
-              children: [
-                TextSpan(
-                  text: '$label: ',
-                  style: TextStyle(fontWeight: FontWeight.w500),
-                ),
-                TextSpan(text: value),
-              ],
             ),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 
-  Widget _buildActionButtons(dynamic ebook, bool isSmallScreen, BoxConstraints constraints) {
-    final buttonStyle = ElevatedButton.styleFrom(
-      padding: EdgeInsets.symmetric(
-        horizontal: isSmallScreen ? 12 : 16,
-        vertical: isSmallScreen ? 8 : 10,
+  Widget _buildEbookHeader(dynamic ebook) {
+    return Container(
+      height: 200,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            primaryGreen.withOpacity(0.1),
+            accentOrange.withOpacity(0.1),
+          ],
+        ),
       ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-    );
-
-    // Stack buttons vertically on very small screens
-    if (constraints.maxWidth < 350) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: Stack(
         children: [
-          ElevatedButton.icon(
-            icon: Icon(Icons.check, size: isSmallScreen ? 18 : 20),
-            label: Text(
-              'Approve',
-              style: TextStyle(fontSize: isSmallScreen ? 14 : 15),
+          if (ebook['cover_image'] != null)
+            Center(
+              child: Container(
+                width: 120,
+                height: 160,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.15),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      getImageUrl(ebook) ?? '',
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        color: lightGreen,
+                        child: const Icon(
+                          Icons.menu_book_rounded,
+                          size: 48,
+                          color: primaryGreen,
+                        ),
+                      ),
+                    ),
+
+                ),
+              ),
+            )
+          else
+            Center(
+              child: Container(
+                width: 120,
+                height: 160,
+                decoration: BoxDecoration(
+                  color: lightGreen,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.15),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.menu_book_rounded,
+                  size: 48,
+                  color: primaryGreen,
+                ),
+              ),
             ),
-            style: buttonStyle.copyWith(
-              backgroundColor: MaterialStateProperty.all(Colors.green),
+          Positioned(
+            top: 12,
+            right: 12,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: accentOrange,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Text(
+                'PENDING',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                ),
+              ),
             ),
-            onPressed: () => approveEbook(ebook['id']),
-          ),
-          SizedBox(height: 8),
-          ElevatedButton.icon(
-            icon: Icon(Icons.close, size: isSmallScreen ? 18 : 20),
-            label: Text(
-              'Reject',
-              style: TextStyle(fontSize: isSmallScreen ? 14 : 15),
-            ),
-            style: buttonStyle.copyWith(
-              backgroundColor: MaterialStateProperty.all(Colors.red),
-            ),
-            onPressed: () => rejectEbook(ebook['id']),
           ),
         ],
-      );
-    }
+      ),
+    );
+  }
 
-    // Side by side buttons for larger screens
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
+  Widget _buildEbookTitle(dynamic ebook) {
+    return Text(
+      ebook['title'] ?? 'Untitled',
+      style: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: textPrimary,
+        height: 1.3,
+      ),
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  Widget _buildEbookDescription(dynamic ebook) {
+    return Text(
+      ebook['description'] ?? 'No description available',
+      style: const TextStyle(
+        fontSize: 14,
+        color: textSecondary,
+        height: 1.4,
+      ),
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  Widget _buildEbookInfo(dynamic ebook) {
+    return Column(
       children: [
-        Flexible(
+        _buildInfoItem(
+          Icons.attach_money_rounded,
+          'Price',
+          '\$${ebook['price']}',
+          primaryGreen,
+        ),
+        _buildInfoItem(
+          Icons.person_rounded,
+          'Author',
+          ebook['User']?['full_name'] ?? 'Unknown',
+          darkGreen,
+        ),
+        _buildInfoItem(
+          Icons.category_rounded,
+          'Category',
+          ebook['EbookCategory']?['name'] ?? 'Uncategorized',
+          accentOrange,
+        ),
+        _buildInfoItem(
+          Icons.access_time_rounded,
+          'Submitted',
+          formatDate(ebook['createdAt']),
+          textSecondary,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoItem(IconData icon, String label, String value, Color color) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: color),
+          const SizedBox(width: 8),
+          Text(
+            '$label: ',
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: textSecondary,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 13,
+                color: textPrimary,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButtons(dynamic ebook) {
+    return Row(
+      children: [
+        Expanded(
           child: ElevatedButton.icon(
-            icon: Icon(Icons.check, size: isSmallScreen ? 18 : 20),
-            label: Text(
-              'Approve',
-              style: TextStyle(fontSize: isSmallScreen ? 14 : 15),
-            ),
-            style: buttonStyle.copyWith(
-              backgroundColor: MaterialStateProperty.all(Colors.green),
-            ),
             onPressed: () => approveEbook(ebook['id']),
+            icon: const Icon(Icons.check_rounded, size: 18),
+            label: const Text('Approve'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryGreen,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
           ),
         ),
-        SizedBox(width: 8),
-        Flexible(
+        const SizedBox(width: 12),
+        Expanded(
           child: ElevatedButton.icon(
-            icon: Icon(Icons.close, size: isSmallScreen ? 18 : 20),
-            label: Text(
-              'Reject',
-              style: TextStyle(fontSize: isSmallScreen ? 14 : 15),
-            ),
-            style: buttonStyle.copyWith(
-              backgroundColor: MaterialStateProperty.all(Colors.red),
-            ),
             onPressed: () => rejectEbook(ebook['id']),
+            icon: const Icon(Icons.close_rounded, size: 18),
+            label: const Text('Reject'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: errorRed,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
           ),
         ),
       ],

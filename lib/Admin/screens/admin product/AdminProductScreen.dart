@@ -36,8 +36,13 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
   @override
   void initState() {
     super.initState();
-    fetchProducts();
+    fetchProducts().then((_) {
+      if (products.isNotEmpty) {
+        getImageUrl(products.first);
+      }
+    });
   }
+
 
   Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
@@ -269,14 +274,39 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
   }
 
   String? getImageUrl(dynamic product) {
-    if (product['images'] != null &&
-        product['images'] is List &&
-        product['images'].isNotEmpty) {
-      final String rawUrl = product['images'][0];
-      return rawUrl.startsWith('http') ? rawUrl : '$baseUrl$rawUrl';
+    if (product['images'] == null) return null;
+
+    List<dynamic> imageList = [];
+
+    if (product['images'] is String) {
+      try {
+        imageList = jsonDecode(product['images']);
+      } catch (e) {
+        print("⚠️ Failed to parse image string: ${product['images']}");
+        return null;
+      }
+    } else if (product['images'] is List) {
+      imageList = product['images'];
     }
+
+    if (imageList.isNotEmpty) {
+      String rawUrl = imageList[0].toString();
+
+      if (!rawUrl.startsWith('/')) {
+        rawUrl = '/$rawUrl';
+      }
+
+      final finalUrl = rawUrl.startsWith('http')
+          ? rawUrl
+          : '$baseUrl$rawUrl';
+
+      print('🖼️ Flutter image URL: $finalUrl');
+      return finalUrl;
+    }
+
     return null;
   }
+
 
   Widget _buildGridProductCard(dynamic product) {
     final imageUrl = getImageUrl(product);
