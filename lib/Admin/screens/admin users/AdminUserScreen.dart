@@ -6,7 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 
 class AdminUserScreen extends StatefulWidget {
-  const AdminUserScreen({Key? key}) : super(key: key);
+  const AdminUserScreen({super.key});
 
   @override
   State<AdminUserScreen> createState() => _AdminUserScreenState();
@@ -26,7 +26,7 @@ class _AdminUserScreenState extends State<AdminUserScreen>
   String _searchQuery = '';
   bool _isSearching = false;
 
-  final String baseUrl = 'http://51.75.31.246:3000';
+  final String baseUrl = 'http://192.168.1.126:3000';
 
   // Modern Agriculture Theme Colors
   static const Color primaryGreen = Color(0xFF4CAF50);
@@ -103,14 +103,19 @@ class _AdminUserScreenState extends State<AdminUserScreen>
     });
   }
 
-  void _showSnackBar(String message, {bool isError = false, bool isSuccess = false}) {
+  void _showSnackBar(
+    String message, {
+    bool isError = false,
+    bool isSuccess = false,
+  }) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
           children: [
             Icon(
-              isSuccess ? Icons.check_circle_rounded :
-              (isError ? Icons.error_rounded : Icons.info_rounded),
+              isSuccess
+                  ? Icons.check_circle_rounded
+                  : (isError ? Icons.error_rounded : Icons.info_rounded),
               color: Colors.white,
               size: 20,
             ),
@@ -126,8 +131,8 @@ class _AdminUserScreenState extends State<AdminUserScreen>
             ),
           ],
         ),
-        backgroundColor: isSuccess ? successGreen :
-        (isError ? errorRed : primaryGreen),
+        backgroundColor:
+            isSuccess ? successGreen : (isError ? errorRed : primaryGreen),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         margin: const EdgeInsets.all(16),
@@ -148,14 +153,14 @@ class _AdminUserScreenState extends State<AdminUserScreen>
         throw Exception('Authentication token not found');
       }
 
-      final url = showBlocked
-          ? '$baseUrl/api/admin/users/blocked'
-          : '$baseUrl/api/admin/users';
+      final url =
+          showBlocked
+              ? '$baseUrl/api/admin/users/blocked'
+              : '$baseUrl/api/admin/users';
 
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {'Authorization': 'Bearer $token'},
-      ).timeout(const Duration(seconds: 15));
+      final response = await http
+          .get(Uri.parse(url), headers: {'Authorization': 'Bearer $token'})
+          .timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -167,7 +172,9 @@ class _AdminUserScreenState extends State<AdminUserScreen>
       } else if (response.statusCode == 401) {
         _setError("Authentication failed. Please log in again.");
       } else {
-        _setError("Server error (${response.statusCode}): ${response.reasonPhrase}");
+        _setError(
+          "Server error (${response.statusCode}): ${response.reasonPhrase}",
+        );
         _showSnackBar("Failed to load users", isError: true);
       }
     } catch (e) {
@@ -181,110 +188,121 @@ class _AdminUserScreenState extends State<AdminUserScreen>
 
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: cardWhite,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        contentPadding: EdgeInsets.zero,
-        content: Container(
-          width: 320,
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: isBlocking ? errorRed.withOpacity(0.1) : successGreen.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  isBlocking ? Icons.block_rounded : Icons.lock_open_rounded,
-                  color: isBlocking ? errorRed : successGreen,
-                  size: 32,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                isBlocking ? 'Block User' : 'Unblock User',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: textPrimary,
-                ),
-              ),
-              const SizedBox(height: 12),
-              RichText(
-                textAlign: TextAlign.center,
-                text: TextSpan(
-                  style: const TextStyle(
-                    color: textSecondary,
-                    fontSize: 14,
-                    height: 1.4,
-                  ),
-                  children: [
-                    TextSpan(
-                        text: isBlocking
-                            ? "Are you sure you want to block "
-                            : "Are you sure you want to unblock "
-                    ),
-                    TextSpan(
-                      text: userName,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    TextSpan(
-                        text: isBlocking
-                            ? "? They will no longer be able to access the platform."
-                            : "? They will regain access to the platform."
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-              Row(
+      builder:
+          (context) => AlertDialog(
+            backgroundColor: cardWhite,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            contentPadding: EdgeInsets.zero,
+            content: Container(
+              width: 320,
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        'Cancel',
-                        style: TextStyle(
-                          color: textSecondary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color:
+                          isBlocking
+                              ? errorRed.withValues(alpha: 0.1)
+                              : successGreen.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      isBlocking
+                          ? Icons.block_rounded
+                          : Icons.lock_open_rounded,
+                      color: isBlocking ? errorRed : successGreen,
+                      size: 32,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.pop(context, true),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: isBlocking ? errorRed : successGreen,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                  const SizedBox(height: 16),
+                  Text(
+                    isBlocking ? 'Block User' : 'Unblock User',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
+                      style: const TextStyle(
+                        color: textSecondary,
+                        fontSize: 14,
+                        height: 1.4,
+                      ),
+                      children: [
+                        TextSpan(
+                          text:
+                              isBlocking
+                                  ? "Are you sure you want to block "
+                                  : "Are you sure you want to unblock ",
+                        ),
+                        TextSpan(
+                          text: userName,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                          text:
+                              isBlocking
+                                  ? "? They will no longer be able to access the platform."
+                                  : "? They will regain access to the platform.",
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            'Cancel',
+                            style: TextStyle(
+                              color: textSecondary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ),
-                      child: Text(
-                        isBlocking ? 'Block' : 'Unblock',
-                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                isBlocking ? errorRed : successGreen,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            isBlocking ? 'Block' : 'Unblock',
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
     );
 
     if (confirmed == true) {
@@ -301,10 +319,12 @@ class _AdminUserScreenState extends State<AdminUserScreen>
       final token = await getToken();
       if (token == null) throw Exception('Authentication token not found');
 
-      final response = await http.delete(
-        Uri.parse('$baseUrl/api/admin/users/${user['id']}/block'),
-        headers: {'Authorization': 'Bearer $token'},
-      ).timeout(const Duration(seconds: 10));
+      final response = await http
+          .delete(
+            Uri.parse('$baseUrl/api/admin/users/${user['id']}/block'),
+            headers: {'Authorization': 'Bearer $token'},
+          )
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         _showSnackBar("User blocked successfully 🚫", isSuccess: true);
@@ -322,10 +342,12 @@ class _AdminUserScreenState extends State<AdminUserScreen>
       final token = await getToken();
       if (token == null) throw Exception('Authentication token not found');
 
-      final response = await http.put(
-        Uri.parse('$baseUrl/api/admin/users/${user['id']}/unblock'),
-        headers: {'Authorization': 'Bearer $token'},
-      ).timeout(const Duration(seconds: 10));
+      final response = await http
+          .put(
+            Uri.parse('$baseUrl/api/admin/users/${user['id']}/unblock'),
+            headers: {'Authorization': 'Bearer $token'},
+          )
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         _showSnackBar("User unblocked successfully ✅", isSuccess: true);
@@ -367,20 +389,22 @@ class _AdminUserScreenState extends State<AdminUserScreen>
   }
 
   Widget _buildAvatar(dynamic user) {
-    final hasProfileImage = user['profile_image'] != null &&
+    final hasProfileImage =
+        user['profile_image'] != null &&
         user['profile_image'].toString().isNotEmpty;
-    final profileUrl = hasProfileImage
-        ? (user['profile_image'].toString().startsWith('http')
-        ? user['profile_image']
-        : '$baseUrl${user['profile_image']}')
-        : null;
+    final profileUrl =
+        hasProfileImage
+            ? (user['profile_image'].toString().startsWith('http')
+                ? user['profile_image']
+                : '$baseUrl${user['profile_image']}')
+            : null;
 
     return Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: _getAvatarColor(user).withOpacity(0.3),
+            color: _getAvatarColor(user).withValues(alpha: 0.3),
             spreadRadius: 0,
             blurRadius: 8,
             offset: const Offset(0, 2),
@@ -389,37 +413,41 @@ class _AdminUserScreenState extends State<AdminUserScreen>
       ),
       child: CircleAvatar(
         radius: 28,
-        backgroundColor: hasProfileImage ? Colors.grey.shade200 : _getAvatarColor(user),
-        child: hasProfileImage
-            ? ClipOval(
-          child: CachedNetworkImage(
-            imageUrl: profileUrl!,
-            width: 56,
-            height: 56,
-            fit: BoxFit.cover,
-            placeholder: (context, url) => Shimmer.fromColors(
-              baseColor: Colors.grey.shade300,
-              highlightColor: Colors.grey.shade100,
-              child: Container(color: Colors.white),
-            ),
-            errorWidget: (context, url, error) => Text(
-              _getInitials(user),
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-            ),
-          ),
-        )
-            : Text(
-          _getInitials(user),
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
+        backgroundColor:
+            hasProfileImage ? Colors.grey.shade200 : _getAvatarColor(user),
+        child:
+            hasProfileImage
+                ? ClipOval(
+                  child: CachedNetworkImage(
+                    imageUrl: profileUrl!,
+                    width: 56,
+                    height: 56,
+                    fit: BoxFit.cover,
+                    placeholder:
+                        (context, url) => Shimmer.fromColors(
+                          baseColor: Colors.grey.shade300,
+                          highlightColor: Colors.grey.shade100,
+                          child: Container(color: Colors.white),
+                        ),
+                    errorWidget:
+                        (context, url, error) => Text(
+                          _getInitials(user),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        ),
+                  ),
+                )
+                : Text(
+                  _getInitials(user),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
       ),
     );
   }
@@ -427,12 +455,14 @@ class _AdminUserScreenState extends State<AdminUserScreen>
   Widget _buildUserCard(dynamic user, int index) {
     final isVerified = user['is_verified'] ?? false;
     final userRole = user['role'] ?? 'User';
-    final joinDate = user['created_at'] != null
-        ? DateTime.tryParse(user['created_at'])
-        : null;
-    final formattedJoinDate = joinDate != null
-        ? '${joinDate.day}/${joinDate.month}/${joinDate.year}'
-        : 'Unknown';
+    final joinDate =
+        user['created_at'] != null
+            ? DateTime.tryParse(user['created_at'])
+            : null;
+    final formattedJoinDate =
+        joinDate != null
+            ? '${joinDate.day}/${joinDate.month}/${joinDate.year}'
+            : 'Unknown';
 
     return TweenAnimationBuilder<double>(
       duration: Duration(milliseconds: 300 + (index * 100)),
@@ -449,7 +479,7 @@ class _AdminUserScreenState extends State<AdminUserScreen>
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
+                    color: Colors.black.withValues(alpha: 0.08),
                     blurRadius: 20,
                     offset: const Offset(0, 4),
                   ),
@@ -521,9 +551,10 @@ class _AdminUserScreenState extends State<AdminUserScreen>
                                       vertical: 4,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: userRole.toLowerCase() == 'admin'
-                                          ? accentOrange.withOpacity(0.1)
-                                          : primaryGreen.withOpacity(0.1),
+                                      color:
+                                          userRole.toLowerCase() == 'admin'
+                                              ? accentOrange.withValues(alpha: 0.1)
+                                              : primaryGreen.withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Text(
@@ -531,9 +562,10 @@ class _AdminUserScreenState extends State<AdminUserScreen>
                                       style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
-                                        color: userRole.toLowerCase() == 'admin'
-                                            ? accentOrange
-                                            : primaryGreen,
+                                        color:
+                                            userRole.toLowerCase() == 'admin'
+                                                ? accentOrange
+                                                : primaryGreen,
                                       ),
                                     ),
                                   ),
@@ -561,18 +593,23 @@ class _AdminUserScreenState extends State<AdminUserScreen>
                         const SizedBox(width: 12),
                         Container(
                           decoration: BoxDecoration(
-                            color: showBlocked
-                                ? successGreen.withOpacity(0.1)
-                                : errorRed.withOpacity(0.1),
+                            color:
+                                showBlocked
+                                    ? successGreen.withValues(alpha: 0.1)
+                                    : errorRed.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: IconButton(
                             icon: Icon(
-                              showBlocked ? Icons.lock_open_rounded : Icons.block_rounded,
+                              showBlocked
+                                  ? Icons.lock_open_rounded
+                                  : Icons.block_rounded,
                               color: showBlocked ? successGreen : errorRed,
                             ),
-                            tooltip: showBlocked ? 'Unblock user' : 'Block user',
-                            onPressed: () => _showBlockDialog(user, !showBlocked),
+                            tooltip:
+                                showBlocked ? 'Unblock user' : 'Block user',
+                            onPressed:
+                                () => _showBlockDialog(user, !showBlocked),
                           ),
                         ),
                       ],
@@ -602,8 +639,8 @@ class _AdminUserScreenState extends State<AdminUserScreen>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                primaryGreen.withOpacity(0.05),
-                accentOrange.withOpacity(0.05),
+                primaryGreen.withValues(alpha: 0.05),
+                accentOrange.withValues(alpha: 0.05),
               ],
             ),
           ),
@@ -640,10 +677,7 @@ class _AdminUserScreenState extends State<AdminUserScreen>
                         ),
                         Text(
                           'Manage platform users',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: textSecondary,
-                          ),
+                          style: TextStyle(fontSize: 14, color: textSecondary),
                         ),
                       ],
                     ),
@@ -657,57 +691,66 @@ class _AdminUserScreenState extends State<AdminUserScreen>
       actions: [
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
-          child: _isSearching
-              ? Container(
-            width: 200,
-            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-            child: TextField(
-              controller: _searchFieldController,
-              autofocus: true,
-              style: const TextStyle(color: textPrimary),
-              decoration: InputDecoration(
-                hintText: 'Search users...',
-                hintStyle: const TextStyle(color: textSecondary),
-                filled: true,
-                fillColor: backgroundGray,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                prefixIcon: const Icon(Icons.search, color: textSecondary),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.close, color: textSecondary),
-                  onPressed: () {
-                    setState(() {
-                      _isSearching = false;
-                      _searchFieldController.clear();
-                    });
-                    _searchController?.reverse();
-                  },
-                ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-              ),
-            ),
-          )
-              : Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.search_rounded),
-                tooltip: 'Search users',
-                onPressed: () {
-                  setState(() {
-                    _isSearching = true;
-                  });
-                  _searchController?.forward();
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.refresh_rounded),
-                tooltip: 'Refresh users',
-                onPressed: fetchUsers,
-              ),
-            ],
-          ),
+          child:
+              _isSearching
+                  ? Container(
+                    width: 200,
+                    margin: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 8,
+                    ),
+                    child: TextField(
+                      controller: _searchFieldController,
+                      autofocus: true,
+                      style: const TextStyle(color: textPrimary),
+                      decoration: InputDecoration(
+                        hintText: 'Search users...',
+                        hintStyle: const TextStyle(color: textSecondary),
+                        filled: true,
+                        fillColor: backgroundGray,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        prefixIcon: const Icon(
+                          Icons.search,
+                          color: textSecondary,
+                        ),
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.close, color: textSecondary),
+                          onPressed: () {
+                            setState(() {
+                              _isSearching = false;
+                              _searchFieldController.clear();
+                            });
+                            _searchController?.reverse();
+                          },
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                        ),
+                      ),
+                    ),
+                  )
+                  : Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.search_rounded),
+                        tooltip: 'Search users',
+                        onPressed: () {
+                          setState(() {
+                            _isSearching = true;
+                          });
+                          _searchController?.forward();
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.refresh_rounded),
+                        tooltip: 'Refresh users',
+                        onPressed: fetchUsers,
+                      ),
+                    ],
+                  ),
         ),
       ],
       bottom: PreferredSize(
@@ -780,7 +823,7 @@ class _AdminUserScreenState extends State<AdminUserScreen>
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: errorRed.withOpacity(0.1),
+                color: errorRed.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -802,10 +845,7 @@ class _AdminUserScreenState extends State<AdminUserScreen>
             const SizedBox(height: 12),
             Text(
               errorMessage ?? 'An unknown error occurred',
-              style: const TextStyle(
-                color: textSecondary,
-                fontSize: 14,
-              ),
+              style: const TextStyle(color: textSecondary, fontSize: 14),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
@@ -816,7 +856,10 @@ class _AdminUserScreenState extends State<AdminUserScreen>
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryGreen,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -842,7 +885,9 @@ class _AdminUserScreenState extends State<AdminUserScreen>
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                showBlocked ? Icons.lock_open_rounded : Icons.people_outline_rounded,
+                showBlocked
+                    ? Icons.lock_open_rounded
+                    : Icons.people_outline_rounded,
                 size: 64,
                 color: primaryGreen,
               ),
@@ -862,10 +907,7 @@ class _AdminUserScreenState extends State<AdminUserScreen>
               showBlocked
                   ? 'All users are active and contributing to the community'
                   : 'Start building your agricultural community',
-              style: const TextStyle(
-                color: textSecondary,
-                fontSize: 14,
-              ),
+              style: const TextStyle(color: textSecondary, fontSize: 14),
               textAlign: TextAlign.center,
             ),
           ],
@@ -897,41 +939,48 @@ class _AdminUserScreenState extends State<AdminUserScreen>
         body: RefreshIndicator(
           onRefresh: fetchUsers,
           color: primaryGreen,
-          child: _fadeController != null
-              ? AnimatedBuilder(
-            animation: _fadeController!,
-            builder: (context, child) {
-              return Opacity(
-                opacity: _fadeController!.value,
-                child: isLoading
-                    ? _buildLoadingState()
-                    : errorMessage != null
-                    ? _buildErrorState()
-                    : filteredUsers.isEmpty
-                    ? _buildEmptyState()
-                    : ListView.builder(
-                  itemCount: filteredUsers.length,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  itemBuilder: (context, index) {
-                    return _buildUserCard(filteredUsers[index], index);
-                  },
-                ),
-              );
-            },
-          )
-              : isLoading
-              ? _buildLoadingState()
-              : errorMessage != null
-              ? _buildErrorState()
-              : filteredUsers.isEmpty
-              ? _buildEmptyState()
-              : ListView.builder(
-            itemCount: filteredUsers.length,
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            itemBuilder: (context, index) {
-              return _buildUserCard(filteredUsers[index], index);
-            },
-          ),
+          child:
+              _fadeController != null
+                  ? AnimatedBuilder(
+                    animation: _fadeController!,
+                    builder: (context, child) {
+                      return Opacity(
+                        opacity: _fadeController!.value,
+                        child:
+                            isLoading
+                                ? _buildLoadingState()
+                                : errorMessage != null
+                                ? _buildErrorState()
+                                : filteredUsers.isEmpty
+                                ? _buildEmptyState()
+                                : ListView.builder(
+                                  itemCount: filteredUsers.length,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
+                                  itemBuilder: (context, index) {
+                                    return _buildUserCard(
+                                      filteredUsers[index],
+                                      index,
+                                    );
+                                  },
+                                ),
+                      );
+                    },
+                  )
+                  : isLoading
+                  ? _buildLoadingState()
+                  : errorMessage != null
+                  ? _buildErrorState()
+                  : filteredUsers.isEmpty
+                  ? _buildEmptyState()
+                  : ListView.builder(
+                    itemCount: filteredUsers.length,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    itemBuilder: (context, index) {
+                      return _buildUserCard(filteredUsers[index], index);
+                    },
+                  ),
         ),
       ),
     );

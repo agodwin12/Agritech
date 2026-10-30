@@ -7,10 +7,10 @@ class MarketUpdatesCard extends StatelessWidget {
   final bool isDarkMode;
 
   const MarketUpdatesCard({
-    Key? key,
+    super.key,
     required this.onTap,
     required this.isDarkMode,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -32,14 +32,14 @@ class MarketUpdatesCard extends StatelessWidget {
               const Color(0xFF145A3C),
             ]
                 : [
-              MarketplaceTheme.primaryColor.withOpacity(0.9),
-              MarketplaceTheme.secondaryColor.withOpacity(0.9),
+              MarketplaceTheme.primaryColor.withValues(alpha: 0.9),
+              MarketplaceTheme.secondaryColor.withValues(alpha: 0.9),
             ],
           ),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: MarketplaceTheme.primaryColor.withOpacity(0.3),
+              color: MarketplaceTheme.primaryColor.withValues(alpha: 0.3),
               blurRadius: 12,
               offset: const Offset(0, 6),
               spreadRadius: -4,
@@ -52,7 +52,7 @@ class MarketUpdatesCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
@@ -80,7 +80,7 @@ class MarketUpdatesCard extends StatelessWidget {
                   Text(
                     'Latest prices and trends for agricultural products',
                     style: GoogleFonts.poppins(
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                       fontSize: 13,
                       height: 1.3,
                     ),
@@ -94,7 +94,7 @@ class MarketUpdatesCard extends StatelessWidget {
             // Arrow icon
             Icon(
               Icons.arrow_forward_ios_rounded,
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withValues(alpha: 0.7),
               size: 16,
             ),
           ],

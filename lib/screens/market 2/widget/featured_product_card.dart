@@ -13,7 +13,7 @@ class FeaturedProductHero extends StatelessWidget {
   final bool isDarkMode;
 
   const FeaturedProductHero({
-    Key? key,
+    super.key,
     required this.product,
     required this.onTap,
     required this.primaryColor,
@@ -21,7 +21,7 @@ class FeaturedProductHero extends StatelessWidget {
     required this.warningColor,
     required this.textColor,
     required this.isDarkMode,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +46,7 @@ class FeaturedProductHero extends StatelessWidget {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withOpacity(0.8),
+                    Colors.black.withValues(alpha: 0.8),
                   ],
                   stops: const [0.5, 1.0],
                 ).createShader(rect);
@@ -64,14 +64,14 @@ class FeaturedProductHero extends StatelessWidget {
                       end: Alignment.bottomRight,
                       colors: isDarkMode
                           ? [const Color(0xFF2C3E50), const Color(0xFF1A1A2E)]
-                          : [primaryColor.withOpacity(0.8), accentColor.withOpacity(0.9)],
+                          : [primaryColor.withValues(alpha: 0.8), accentColor.withValues(alpha: 0.9)],
                     ),
                   ),
                   child: Center(
                     child: Icon(
                       Icons.eco_outlined,
                       size: 80,
-                      color: Colors.white.withOpacity(0.5),
+                      color: Colors.white.withValues(alpha: 0.5),
                     ),
                   ),
                 ),
@@ -127,7 +127,7 @@ class FeaturedProductHero extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: Text(
@@ -184,7 +184,7 @@ class FeaturedProductHero extends StatelessWidget {
                   Text(
                     product.description ?? 'Quality farm products from local producers',
                     style: GoogleFonts.poppins(
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withValues(alpha: 0.8),
                       fontSize: 14,
                       height: 1.4,
                     ),
@@ -205,12 +205,12 @@ class FeaturedProductHero extends StatelessWidget {
                           Text(
                             'Price',
                             style: GoogleFonts.poppins(
-                              color: Colors.white.withOpacity(0.7),
+                              color: Colors.white.withValues(alpha: 0.7),
                               fontSize: 14,
                             ),
                           ),
                           Text(
-                            '\XAF${product.price.toStringAsFixed(0)}',
+                            'XAF${product.price.toStringAsFixed(0)}',
                             style: GoogleFonts.montserrat(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -264,7 +264,7 @@ class FeaturedProductsCarousel extends StatelessWidget {
   final bool isDarkMode;
 
   const FeaturedProductsCarousel({
-    Key? key,
+    super.key,
     required this.featuredProducts,
     required this.onProductTap,
     required this.primaryColor,
@@ -272,7 +272,7 @@ class FeaturedProductsCarousel extends StatelessWidget {
     required this.warningColor,
     required this.textColor,
     required this.isDarkMode,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -299,7 +299,7 @@ class FeaturedProductsCarousel extends StatelessWidget {
         pagination: SwiperPagination(
           builder: DotSwiperPaginationBuilder(
             activeColor: warningColor,
-            color: Colors.white.withOpacity(0.5),
+            color: Colors.white.withValues(alpha: 0.5),
             size: 8.0,
             activeSize: 10.0,
           ),

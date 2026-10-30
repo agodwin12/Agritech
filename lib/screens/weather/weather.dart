@@ -5,7 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'dart:math' as math;
 
 class WeatherScreen extends StatefulWidget {
-  const WeatherScreen({Key? key, required Map<String, dynamic> userData, required String token}) : super(key: key);
+  const WeatherScreen({super.key, required Map<String, dynamic> userData, required String token});
 
   @override
   State<WeatherScreen> createState() => _WeatherScreenState();
@@ -366,7 +366,7 @@ class _WeatherScreenState extends State<WeatherScreen> with TickerProviderStateM
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(20),
             ),
             child: const CircularProgressIndicator(
@@ -433,11 +433,11 @@ class _WeatherScreenState extends State<WeatherScreen> with TickerProviderStateM
       padding: EdgeInsets.all(isTablet ? 40 : 30),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30),
-        color: Colors.white.withOpacity(0.15),
-        border: Border.all(color: Colors.white.withOpacity(0.3), width: 1),
+        color: Colors.white.withValues(alpha: 0.15),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -446,7 +446,7 @@ class _WeatherScreenState extends State<WeatherScreen> with TickerProviderStateM
       child: Column(
         children: [
           Image.network(
-            'https://openweathermap.org/img/wn/${_iconCode}@4x.png',
+            'https://openweathermap.org/img/wn/$_iconCode@4x.png',
             height: isTablet ? 140 : 120,
             errorBuilder: (context, error, stackTrace) => Icon(
               Icons.wb_sunny,
@@ -511,8 +511,8 @@ class _WeatherScreenState extends State<WeatherScreen> with TickerProviderStateM
       padding: EdgeInsets.all(isTablet ? 20 : 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: Colors.white.withOpacity(0.15),
-        border: Border.all(color: Colors.white.withOpacity(0.2)),
+        color: Colors.white.withValues(alpha: 0.15),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
       ),
       child: Column(
         children: [
@@ -546,8 +546,8 @@ class _WeatherScreenState extends State<WeatherScreen> with TickerProviderStateM
       padding: EdgeInsets.all(isTablet ? 30 : 25),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25),
-        color: const Color(0xFF1B5E20).withOpacity(0.3),
-        border: Border.all(color: const Color(0xFF4CAF50).withOpacity(0.5)),
+        color: const Color(0xFF1B5E20).withValues(alpha: 0.3),
+        border: Border.all(color: const Color(0xFF4CAF50).withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -589,8 +589,8 @@ class _WeatherScreenState extends State<WeatherScreen> with TickerProviderStateM
       padding: EdgeInsets.all(isTablet ? 30 : 25),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25),
-        color: Colors.white.withOpacity(0.15),
-        border: Border.all(color: Colors.white.withOpacity(0.2)),
+        color: Colors.white.withValues(alpha: 0.15),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -611,7 +611,7 @@ class _WeatherScreenState extends State<WeatherScreen> with TickerProviderStateM
             ],
           ),
           SizedBox(height: isTablet ? 25 : 20),
-          ..._forecast.map((day) => _buildForecastItem(day, isTablet)).toList(),
+          ..._forecast.map((day) => _buildForecastItem(day, isTablet)),
         ],
       ),
     );
@@ -629,7 +629,7 @@ class _WeatherScreenState extends State<WeatherScreen> with TickerProviderStateM
       ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
-        color: isToday ? Colors.white.withOpacity(0.2) : Colors.transparent,
+        color: isToday ? Colors.white.withValues(alpha: 0.2) : Colors.transparent,
       ),
       child: Row(
         children: [
@@ -710,8 +710,8 @@ class _WeatherScreenState extends State<WeatherScreen> with TickerProviderStateM
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    Colors.yellow.withOpacity(0.8),
-                    Colors.orange.withOpacity(0.4),
+                    Colors.yellow.withValues(alpha: 0.8),
+                    Colors.orange.withValues(alpha: 0.4),
                     Colors.transparent,
                   ],
                 ),
@@ -733,7 +733,7 @@ class _WeatherScreenState extends State<WeatherScreen> with TickerProviderStateM
       animation: _thunderController,
       builder: (context, child) {
         return Container(
-          color: Colors.white.withOpacity(_thunderController.value * 0.3),
+          color: Colors.white.withValues(alpha: _thunderController.value * 0.3),
         );
       },
     );
@@ -760,7 +760,7 @@ class RainPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.lightBlue.withOpacity(0.6)
+      ..color = Colors.lightBlue.withValues(alpha: 0.6)
       ..strokeWidth = 2
       ..strokeCap = StrokeCap.round;
 
@@ -790,7 +790,7 @@ class SnowPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withOpacity(0.8)
+      ..color = Colors.white.withValues(alpha: 0.8)
       ..style = PaintingStyle.fill;
 
     final random = math.Random(42);

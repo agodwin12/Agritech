@@ -5,9 +5,9 @@ class MarketplaceLoadingState extends StatelessWidget {
   final bool isDarkMode;
 
   const MarketplaceLoadingState({
-    Key? key,
+    super.key,
     required this.isDarkMode,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

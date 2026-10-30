@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
-import 'dart:convert';
 
 Future<void> registerUser({
   required String fullName,
@@ -13,7 +12,7 @@ Future<void> registerUser({
   required DateTime dateOfBirth,
   required File profileImage,
 }) async {
-  final uri = Uri.parse('http://51.75.31.246:3000/api/users/register');
+  final uri = Uri.parse('http://192.168.1.126:3000/api/users/register');
 
   var request = http.MultipartRequest('POST', uri);
 

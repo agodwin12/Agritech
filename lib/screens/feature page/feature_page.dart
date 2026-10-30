@@ -30,13 +30,20 @@ class SearchSuggestion {
 
 // Responsive breakpoints and utilities
 class ResponsiveUtils {
-  static bool isMobile(BuildContext context) => MediaQuery.of(context).size.width < 600;
-  static bool isTablet(BuildContext context) => MediaQuery.of(context).size.width >= 600 && MediaQuery.of(context).size.width < 1200;
-  static bool isDesktop(BuildContext context) => MediaQuery.of(context).size.width >= 1200;
-  static bool isLandscape(BuildContext context) => MediaQuery.of(context).orientation == Orientation.landscape;
+  static bool isMobile(BuildContext context) =>
+      MediaQuery.of(context).size.width < 600;
+  static bool isTablet(BuildContext context) =>
+      MediaQuery.of(context).size.width >= 600 &&
+      MediaQuery.of(context).size.width < 1200;
+  static bool isDesktop(BuildContext context) =>
+      MediaQuery.of(context).size.width >= 1200;
+  static bool isLandscape(BuildContext context) =>
+      MediaQuery.of(context).orientation == Orientation.landscape;
 
-  static double getScreenWidth(BuildContext context) => MediaQuery.of(context).size.width;
-  static double getScreenHeight(BuildContext context) => MediaQuery.of(context).size.height;
+  static double getScreenWidth(BuildContext context) =>
+      MediaQuery.of(context).size.width;
+  static double getScreenHeight(BuildContext context) =>
+      MediaQuery.of(context).size.height;
 
   // Responsive padding
   static EdgeInsets getHorizontalPadding(BuildContext context) {
@@ -74,7 +81,12 @@ class ResponsiveUtils {
   }
 
   // Responsive spacing
-  static double getSpacing(BuildContext context, {double mobile = 16, double tablet = 20, double desktop = 24}) {
+  static double getSpacing(
+    BuildContext context, {
+    double mobile = 16,
+    double tablet = 20,
+    double desktop = 24,
+  }) {
     if (isDesktop(context)) return desktop;
     if (isTablet(context)) return tablet;
     return mobile;
@@ -85,11 +97,7 @@ class HomeScreen extends StatefulWidget {
   final Map<String, dynamic> userData;
   final String token;
 
-  const HomeScreen({
-    Key? key,
-    required this.userData,
-    required this.token,
-  }) : super(key: key);
+  const HomeScreen({super.key, required this.userData, required this.token});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -171,7 +179,7 @@ class _HomeScreenState extends State<HomeScreen> {
           'buy',
           'sell',
           'products',
-          'store'
+          'store',
         ],
         onTap: () => _navigateToMarketplace(),
       ),
@@ -186,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
           'connect',
           'chat',
           'discuss',
-          'talk'
+          'talk',
         ],
         onTap: () => _navigateToForum(),
       ),
@@ -201,7 +209,7 @@ class _HomeScreenState extends State<HomeScreen> {
           'forecast',
           'climate',
           'rain',
-          'sun'
+          'sun',
         ],
         onTap: () => _scrollToWeatherSection(),
       ),
@@ -223,7 +231,7 @@ class _HomeScreenState extends State<HomeScreen> {
           'fruits',
           'farming',
           'agriculture',
-          'seeds'
+          'seeds',
         ],
         onTap: () => _scrollToCropsSection(),
       ),
@@ -237,7 +245,7 @@ class _HomeScreenState extends State<HomeScreen> {
           'demand',
           'prices',
           'economics',
-          'analysis'
+          'analysis',
         ],
         onTap: () => _scrollToMarketDemand(),
       ),
@@ -251,7 +259,7 @@ class _HomeScreenState extends State<HomeScreen> {
           'education',
           'tutorials',
           'tips',
-          'knowledge'
+          'knowledge',
         ],
         onTap: () => _scrollToVideoSection(),
       ),
@@ -270,11 +278,14 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
-    final filtered = _searchSuggestions.where((suggestion) {
-      return suggestion.keywords.any((keyword) => keyword.contains(query)) ||
-          suggestion.title.toLowerCase().contains(query) ||
-          suggestion.subtitle.toLowerCase().contains(query);
-    }).toList();
+    final filtered =
+        _searchSuggestions.where((suggestion) {
+          return suggestion.keywords.any(
+                (keyword) => keyword.contains(query),
+              ) ||
+              suggestion.title.toLowerCase().contains(query) ||
+              suggestion.subtitle.toLowerCase().contains(query);
+        }).toList();
 
     setState(() {
       _filteredSuggestions = filtered;
@@ -305,14 +316,11 @@ class _HomeScreenState extends State<HomeScreen> {
     _removeOverlay();
 
     _overlayEntry = OverlayEntry(
-      builder: (context) =>
-          Positioned(
-            width: MediaQuery
-                .of(context)
-                .size
-                .width - ResponsiveUtils
-                .getHorizontalPadding(context)
-                .horizontal,
+      builder:
+          (context) => Positioned(
+            width:
+                MediaQuery.of(context).size.width -
+                ResponsiveUtils.getHorizontalPadding(context).horizontal,
             child: CompositedTransformFollower(
               link: _layerLink,
               showWhenUnlinked: false,
@@ -329,7 +337,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -352,32 +360,44 @@ class _HomeScreenState extends State<HomeScreen> {
                           padding: EdgeInsets.symmetric(
                             horizontal: ResponsiveUtils.getSpacing(context),
                             vertical: ResponsiveUtils.getSpacing(
-                                context, mobile: 12, tablet: 14, desktop: 16),
+                              context,
+                              mobile: 12,
+                              tablet: 14,
+                              desktop: 16,
+                            ),
                           ),
                           child: Row(
                             children: [
                               Container(
                                 padding: EdgeInsets.all(
-                                    ResponsiveUtils.getSpacing(
-                                        context, mobile: 8,
-                                        tablet: 10,
-                                        desktop: 12)),
+                                  ResponsiveUtils.getSpacing(
+                                    context,
+                                    mobile: 8,
+                                    tablet: 10,
+                                    desktop: 12,
+                                  ),
+                                ),
                                 decoration: BoxDecoration(
-                                  color: primaryGreen.withOpacity(0.1),
+                                  color: primaryGreen.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Icon(
                                   suggestion.icon,
                                   color: primaryGreen,
-                                  size: ResponsiveUtils.isDesktop(context)
-                                      ? 24
-                                      : 20,
+                                  size:
+                                      ResponsiveUtils.isDesktop(context)
+                                          ? 24
+                                          : 20,
                                 ),
                               ),
-                              SizedBox(width: ResponsiveUtils.getSpacing(
-                                  context, mobile: 12,
+                              SizedBox(
+                                width: ResponsiveUtils.getSpacing(
+                                  context,
+                                  mobile: 12,
                                   tablet: 14,
-                                  desktop: 16)),
+                                  desktop: 16,
+                                ),
+                              ),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -385,8 +405,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Text(
                                       suggestion.title,
                                       style: GoogleFonts.poppins(
-                                        fontSize: ResponsiveUtils
-                                            .getBodyFontSize(context),
+                                        fontSize:
+                                            ResponsiveUtils.getBodyFontSize(
+                                              context,
+                                            ),
                                         fontWeight: FontWeight.w600,
                                         color: darkGreen,
                                       ),
@@ -394,9 +416,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Text(
                                       suggestion.subtitle,
                                       style: GoogleFonts.poppins(
-                                        fontSize: ResponsiveUtils
-                                            .getBodyFontSize(context) - 2,
-                                        color: earthBrown.withOpacity(0.7),
+                                        fontSize:
+                                            ResponsiveUtils.getBodyFontSize(
+                                              context,
+                                            ) -
+                                            2,
+                                        color: earthBrown.withValues(alpha: 0.7),
                                       ),
                                     ),
                                   ],
@@ -404,10 +429,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               Icon(
                                 Icons.arrow_forward_ios,
-                                color: primaryGreen.withOpacity(0.5),
-                                size: ResponsiveUtils.isDesktop(context)
-                                    ? 18
-                                    : 16,
+                                color: primaryGreen.withValues(alpha: 0.5),
+                                size:
+                                    ResponsiveUtils.isDesktop(context)
+                                        ? 18
+                                        : 16,
                               ),
                             ],
                           ),
@@ -434,8 +460,8 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) =>
-            MarketplaceScreen(
+        builder:
+            (_) => MarketplaceScreen(
               userData: widget.userData,
               token: widget.token,
               categoryId: 0,
@@ -448,11 +474,8 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) =>
-            ForumScreen(
-              userData: widget.userData,
-              token: widget.token,
-            ),
+        builder:
+            (_) => ForumScreen(userData: widget.userData, token: widget.token),
       ),
     );
   }
@@ -511,7 +534,9 @@ class _HomeScreenState extends State<HomeScreen> {
       onError: (val) {
         print('🔴 Speech error: $val');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Speech error: ${val.errorMsg ?? val.toString()}")),
+          SnackBar(
+            content: Text("Speech error: ${val.errorMsg ?? val.toString()}"),
+          ),
         );
         setState(() => _isListening = false);
       },
@@ -539,11 +564,12 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       print('Speech recognition unavailable.');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Speech recognition unavailable on this device.")),
+        SnackBar(
+          content: Text("Speech recognition unavailable on this device."),
+        ),
       );
     }
   }
-
 
   void _stopListening() {
     _speech.stop();
@@ -554,20 +580,20 @@ class _HomeScreenState extends State<HomeScreen> {
     print("🎤 Voice command received: $command");
 
     final matchingSuggestion = _searchSuggestions.firstWhere(
-          (suggestion) => suggestion.keywords.any(
-            (keyword) => command.contains(keyword),
-      ),
-      orElse: () => SearchSuggestion(
-        title: 'No match found',
-        subtitle: '',
-        icon: Icons.error,
-        keywords: [],
-        onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("⚠️ No match found for: \"$command\"")),
-          );
-        },
-      ),
+      (suggestion) =>
+          suggestion.keywords.any((keyword) => command.contains(keyword)),
+      orElse:
+          () => SearchSuggestion(
+            title: 'No match found',
+            subtitle: '',
+            icon: Icons.error,
+            keywords: [],
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("⚠️ No match found for: \"$command\"")),
+              );
+            },
+          ),
     );
 
     matchingSuggestion.onTap();
@@ -584,12 +610,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _determinePosition() async {
     Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
+      desiredAccuracy: LocationAccuracy.high,
+    );
     await _fetchWeather(position.latitude, position.longitude);
   }
 
   Future<void> _fetchWeather(double lat, double lon) async {
-    final url = 'https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=$_weatherApiKey&units=metric';
+    final url =
+        'https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=$_weatherApiKey&units=metric';
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
@@ -623,10 +651,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _fetchTopCrops() async {
-    final url = 'http://51.75.31.246:3000/api/products';
+    final url = 'http://192.168.1.126:3000/api/products';
     final response = await http.get(
       Uri.parse(url),
-      headers: { 'Authorization': 'Bearer ${widget.token}' },
+      headers: {'Authorization': 'Bearer ${widget.token}'},
     );
 
     if (response.statusCode == 200) {
@@ -640,22 +668,23 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _fetchMarketDemand() async {
-    final url = 'http://51.75.31.246:3000/api/market/demands/today';
+    final url = 'http://192.168.1.126:3000/api/market/demands/today';
     final response = await http.get(
       Uri.parse(url),
-      headers: { 'Authorization': 'Bearer ${widget.token}'},
+      headers: {'Authorization': 'Bearer ${widget.token}'},
     );
     if (response.statusCode == 200) {
-      setState(() =>
-      _marketDemand = json.decode(response.body)['message'] ?? '');
+      setState(
+        () => _marketDemand = json.decode(response.body)['message'] ?? '',
+      );
     }
   }
 
   Future<void> _fetchRandomVideo() async {
-    final url = 'http://51.75.31.246:3000/api/videos/random';
+    final url = 'http://192.168.1.126:3000/api/videos/random';
     final response = await http.get(
       Uri.parse(url),
-      headers: { 'Authorization': 'Bearer ${widget.token}'},
+      headers: {'Authorization': 'Bearer ${widget.token}'},
     );
     if (response.statusCode == 200) {
       setState(() => _randomVideo = json.decode(response.body));
@@ -693,22 +722,24 @@ class _HomeScreenState extends State<HomeScreen> {
             await _fetchRandomVideo();
           },
           color: primaryGreen,
-          child: ResponsiveUtils.isDesktop(context)
-              ? _buildDesktopLayout()
-              : _buildMobileTabletLayout(),
+          child:
+              ResponsiveUtils.isDesktop(context)
+                  ? _buildDesktopLayout()
+                  : _buildMobileTabletLayout(),
         ),
       ),
-      bottomNavigationBar: ResponsiveUtils.isDesktop(context)
-          ? null
-          : FarmConnectNavBar(
-        isDarkMode: false,
-        darkColor: darkGreen,
-        primaryColor: primaryGreen,
-        textColor: earthBrown,
-        currentIndex: 0,
-        userData: widget.userData,
-        token: widget.token,
-      ),
+      bottomNavigationBar:
+          ResponsiveUtils.isDesktop(context)
+              ? null
+              : FarmConnectNavBar(
+                isDarkMode: false,
+                darkColor: darkGreen,
+                primaryColor: primaryGreen,
+                textColor: earthBrown,
+                currentIndex: 0,
+                userData: widget.userData,
+                token: widget.token,
+              ),
     );
   }
 
@@ -731,8 +762,9 @@ class _HomeScreenState extends State<HomeScreen> {
         Expanded(
           child: ListView(
             controller: _scrollController,
-            padding: ResponsiveUtils.getHorizontalPadding(context).copyWith(
-                top: 16, bottom: 100),
+            padding: ResponsiveUtils.getHorizontalPadding(
+              context,
+            ).copyWith(top: 16, bottom: 100),
             children: [
               _buildSearchBar(),
               SizedBox(height: ResponsiveUtils.getSpacing(context)),
@@ -747,8 +779,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildMobileTabletLayout() {
     return ListView(
       controller: _scrollController,
-      padding: ResponsiveUtils.getHorizontalPadding(context).copyWith(
-          top: 16, bottom: 100),
+      padding: ResponsiveUtils.getHorizontalPadding(
+        context,
+      ).copyWith(top: 16, bottom: 100),
       children: [
         _buildHeader(),
         SizedBox(height: ResponsiveUtils.getSpacing(context)),
@@ -761,11 +794,23 @@ class _HomeScreenState extends State<HomeScreen> {
           SizedBox(height: ResponsiveUtils.getSpacing(context)),
         ],
         _buildMarketDemand(context),
-        SizedBox(height: ResponsiveUtils.getSpacing(
-            context, mobile: 32, tablet: 36, desktop: 40)),
+        SizedBox(
+          height: ResponsiveUtils.getSpacing(
+            context,
+            mobile: 32,
+            tablet: 36,
+            desktop: 40,
+          ),
+        ),
         _buildTopCropsSection(),
-        SizedBox(height: ResponsiveUtils.getSpacing(
-            context, mobile: 32, tablet: 36, desktop: 40)),
+        SizedBox(
+          height: ResponsiveUtils.getSpacing(
+            context,
+            mobile: 32,
+            tablet: 36,
+            desktop: 40,
+          ),
+        ),
         _buildCommunitySection(),
         SizedBox(height: ResponsiveUtils.getSpacing(context)),
         _buildHelpSupport(),
@@ -783,7 +828,9 @@ class _HomeScreenState extends State<HomeScreen> {
       childAspectRatio: ResponsiveUtils.isDesktop(context) ? 1.5 : 1.0,
       children: [
         _buildWeatherSection(),
-        if (_randomVideo != null) _buildVideoSection() else
+        if (_randomVideo != null)
+          _buildVideoSection()
+        else
           _buildCommunitySection(),
         _buildMarketDemand(context),
         _buildTopCropsSection(),
@@ -795,20 +842,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildDesktopNavigation() {
     return Column(
-      children: _searchSuggestions.map((suggestion) {
-        return ListTile(
-          leading: Icon(suggestion.icon, color: primaryGreen),
-          title: Text(
-            suggestion.title,
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: darkGreen,
-            ),
-          ),
-          onTap: suggestion.onTap,
-        );
-      }).toList(),
+      children:
+          _searchSuggestions.map((suggestion) {
+            return ListTile(
+              leading: Icon(suggestion.icon, color: primaryGreen),
+              title: Text(
+                suggestion.title,
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: darkGreen,
+                ),
+              ),
+              onTap: suggestion.onTap,
+            );
+          }).toList(),
     );
   }
 
@@ -821,15 +869,22 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(ResponsiveUtils.getSpacing(
-                context, mobile: 12, tablet: 14, desktop: 16)),
+            padding: EdgeInsets.all(
+              ResponsiveUtils.getSpacing(
+                context,
+                mobile: 12,
+                tablet: 14,
+                desktop: 16,
+              ),
+            ),
             decoration: BoxDecoration(
               color: primaryGreen,
               borderRadius: BorderRadius.circular(
-                  ResponsiveUtils.getSpacing(context)),
+                ResponsiveUtils.getSpacing(context),
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: primaryGreen.withOpacity(0.3),
+                  color: primaryGreen.withValues(alpha: 0.3),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -858,7 +913,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   'Let\'s grow together today',
                   style: GoogleFonts.poppins(
                     fontSize: ResponsiveUtils.getBodyFontSize(context),
-                    color: earthBrown.withOpacity(0.7),
+                    color: earthBrown.withValues(alpha: 0.7),
                   ),
                 ),
               ],
@@ -869,7 +924,10 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => NotificationScreen(userId: widget.userData['id'].toString()),
+                  builder:
+                      (_) => NotificationScreen(
+                        userId: widget.userData['id'].toString(),
+                      ),
                 ),
               );
             },
@@ -889,7 +947,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-
         ],
       ),
     );
@@ -900,11 +957,17 @@ class _HomeScreenState extends State<HomeScreen> {
       link: _layerLink,
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(ResponsiveUtils.getSpacing(
-              context, mobile: 20, tablet: 22, desktop: 24)),
+          borderRadius: BorderRadius.circular(
+            ResponsiveUtils.getSpacing(
+              context,
+              mobile: 20,
+              tablet: 22,
+              desktop: 24,
+            ),
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 20,
               offset: const Offset(0, 4),
             ),
@@ -914,7 +977,8 @@ class _HomeScreenState extends State<HomeScreen> {
           controller: _searchController,
           focusNode: _searchFocusNode,
           style: GoogleFonts.poppins(
-              fontSize: ResponsiveUtils.getBodyFontSize(context) + 2),
+            fontSize: ResponsiveUtils.getBodyFontSize(context) + 2,
+          ),
           decoration: InputDecoration(
             hintText: 'Search crops, tips, markets...',
             hintStyle: GoogleFonts.poppins(
@@ -922,8 +986,14 @@ class _HomeScreenState extends State<HomeScreen> {
               fontSize: ResponsiveUtils.getBodyFontSize(context) + 2,
             ),
             prefixIcon: Container(
-              padding: EdgeInsets.all(ResponsiveUtils.getSpacing(
-                  context, mobile: 12, tablet: 14, desktop: 16)),
+              padding: EdgeInsets.all(
+                ResponsiveUtils.getSpacing(
+                  context,
+                  mobile: 12,
+                  tablet: 14,
+                  desktop: 16,
+                ),
+              ),
               child: Icon(
                 Icons.search,
                 color: primaryGreen,
@@ -933,10 +1003,22 @@ class _HomeScreenState extends State<HomeScreen> {
             suffixIcon: GestureDetector(
               onTap: _isListening ? _stopListening : _startListening,
               child: Container(
-                margin: EdgeInsets.all(ResponsiveUtils.getSpacing(
-                    context, mobile: 8, tablet: 10, desktop: 12)),
-                padding: EdgeInsets.all(ResponsiveUtils.getSpacing(
-                    context, mobile: 8, tablet: 10, desktop: 12)),
+                margin: EdgeInsets.all(
+                  ResponsiveUtils.getSpacing(
+                    context,
+                    mobile: 8,
+                    tablet: 10,
+                    desktop: 12,
+                  ),
+                ),
+                padding: EdgeInsets.all(
+                  ResponsiveUtils.getSpacing(
+                    context,
+                    mobile: 8,
+                    tablet: 10,
+                    desktop: 12,
+                  ),
+                ),
                 decoration: BoxDecoration(
                   color: _isListening ? Colors.red : primaryGreen,
                   borderRadius: BorderRadius.circular(12),
@@ -951,13 +1033,23 @@ class _HomeScreenState extends State<HomeScreen> {
             filled: true,
             fillColor: Colors.white,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(ResponsiveUtils.getSpacing(
-                  context, mobile: 20, tablet: 22, desktop: 24)),
+              borderRadius: BorderRadius.circular(
+                ResponsiveUtils.getSpacing(
+                  context,
+                  mobile: 20,
+                  tablet: 22,
+                  desktop: 24,
+                ),
+              ),
               borderSide: BorderSide.none,
             ),
             contentPadding: EdgeInsets.symmetric(
               vertical: ResponsiveUtils.getSpacing(
-                  context, mobile: 16, tablet: 18, desktop: 20),
+                context,
+                mobile: 16,
+                tablet: 18,
+                desktop: 20,
+              ),
             ),
           ),
         ),
@@ -968,19 +1060,31 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildWeatherSection() {
     return Container(
       key: _weatherKey,
-      padding: EdgeInsets.all(ResponsiveUtils.getSpacing(
-          context, mobile: 24, tablet: 28, desktop: 32)),
+      padding: EdgeInsets.all(
+        ResponsiveUtils.getSpacing(
+          context,
+          mobile: 24,
+          tablet: 28,
+          desktop: 32,
+        ),
+      ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [lightGreen, accentGreen],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(ResponsiveUtils.getSpacing(
-            context, mobile: 24, tablet: 26, desktop: 28)),
+        borderRadius: BorderRadius.circular(
+          ResponsiveUtils.getSpacing(
+            context,
+            mobile: 24,
+            tablet: 26,
+            desktop: 28,
+          ),
+        ),
         boxShadow: [
           BoxShadow(
-            color: lightGreen.withOpacity(0.3),
+            color: lightGreen.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -996,8 +1100,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: Colors.white,
                 size: ResponsiveUtils.isDesktop(context) ? 32 : 28,
               ),
-              SizedBox(width: ResponsiveUtils.getSpacing(
-                  context, mobile: 12, tablet: 14, desktop: 16)),
+              SizedBox(
+                width: ResponsiveUtils.getSpacing(
+                  context,
+                  mobile: 12,
+                  tablet: 14,
+                  desktop: 16,
+                ),
+              ),
               Expanded(
                 child: Text(
                   "Today's Weather in $_cityName",
@@ -1010,24 +1120,30 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
-          SizedBox(height: ResponsiveUtils.getSpacing(
-              context, mobile: 20, tablet: 22, desktop: 24)),
-          ResponsiveUtils.isDesktop(context) ||
-              ResponsiveUtils.isTablet(context)
-              ? Row(
-            children: [
-              Expanded(flex: 2, child: _buildTemperatureInfo()),
-              SizedBox(width: ResponsiveUtils.getSpacing(context)),
-              Expanded(flex: 1, child: _buildHumidityInfo()),
-            ],
-          )
-              : Column(
-            children: [
-              _buildTemperatureInfo(),
-              SizedBox(height: ResponsiveUtils.getSpacing(context)),
-              _buildHumidityInfo(),
-            ],
+          SizedBox(
+            height: ResponsiveUtils.getSpacing(
+              context,
+              mobile: 20,
+              tablet: 22,
+              desktop: 24,
+            ),
           ),
+          ResponsiveUtils.isDesktop(context) ||
+                  ResponsiveUtils.isTablet(context)
+              ? Row(
+                children: [
+                  Expanded(flex: 2, child: _buildTemperatureInfo()),
+                  SizedBox(width: ResponsiveUtils.getSpacing(context)),
+                  Expanded(flex: 1, child: _buildHumidityInfo()),
+                ],
+              )
+              : Column(
+                children: [
+                  _buildTemperatureInfo(),
+                  SizedBox(height: ResponsiveUtils.getSpacing(context)),
+                  _buildHumidityInfo(),
+                ],
+              ),
           SizedBox(height: ResponsiveUtils.getSpacing(context)),
           _buildWeatherTip(),
         ],
@@ -1042,8 +1158,12 @@ class _HomeScreenState extends State<HomeScreen> {
         Text(
           '$_temperature°C',
           style: GoogleFonts.poppins(
-            fontSize: ResponsiveUtils.isDesktop(context) ? 42 : ResponsiveUtils
-                .isTablet(context) ? 38 : 36,
+            fontSize:
+                ResponsiveUtils.isDesktop(context)
+                    ? 42
+                    : ResponsiveUtils.isTablet(context)
+                    ? 38
+                    : 36,
             fontWeight: FontWeight.w700,
             color: Colors.white,
           ),
@@ -1052,7 +1172,7 @@ class _HomeScreenState extends State<HomeScreen> {
           'Feels perfect',
           style: GoogleFonts.poppins(
             fontSize: ResponsiveUtils.getBodyFontSize(context),
-            color: Colors.white.withOpacity(0.9),
+            color: Colors.white.withValues(alpha: 0.9),
           ),
         ),
       ],
@@ -1063,59 +1183,69 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       padding: EdgeInsets.all(ResponsiveUtils.getSpacing(context)),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
+        color: Colors.white.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(
-            ResponsiveUtils.getSpacing(context)),
+          ResponsiveUtils.getSpacing(context),
+        ),
       ),
-      child: ResponsiveUtils.isMobile(context)
-          ? Row(
-        children: [
-          Icon(Icons.water_drop, color: Colors.white, size: 20),
-          SizedBox(width: ResponsiveUtils.getSpacing(
-              context, mobile: 8, tablet: 10, desktop: 12)),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '$_humidity%',
-                style: GoogleFonts.poppins(
-                  fontSize: ResponsiveUtils.getBodyFontSize(context) + 2,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
+      child:
+          ResponsiveUtils.isMobile(context)
+              ? Row(
+                children: [
+                  Icon(Icons.water_drop, color: Colors.white, size: 20),
+                  SizedBox(
+                    width: ResponsiveUtils.getSpacing(
+                      context,
+                      mobile: 8,
+                      tablet: 10,
+                      desktop: 12,
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '$_humidity%',
+                        style: GoogleFonts.poppins(
+                          fontSize:
+                              ResponsiveUtils.getBodyFontSize(context) + 2,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        'Humidity',
+                        style: GoogleFonts.poppins(
+                          fontSize:
+                              ResponsiveUtils.getBodyFontSize(context) - 2,
+                          color: Colors.white.withValues(alpha: 0.8),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              )
+              : Column(
+                children: [
+                  Icon(Icons.water_drop, color: Colors.white, size: 20),
+                  const SizedBox(height: 4),
+                  Text(
+                    '$_humidity%',
+                    style: GoogleFonts.poppins(
+                      fontSize: ResponsiveUtils.getBodyFontSize(context) + 2,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    'Humidity',
+                    style: GoogleFonts.poppins(
+                      fontSize: ResponsiveUtils.getBodyFontSize(context) - 2,
+                      color: Colors.white.withValues(alpha: 0.8),
+                    ),
+                  ),
+                ],
               ),
-              Text(
-                'Humidity',
-                style: GoogleFonts.poppins(
-                  fontSize: ResponsiveUtils.getBodyFontSize(context) - 2,
-                  color: Colors.white.withOpacity(0.8),
-                ),
-              ),
-            ],
-          ),
-        ],
-      )
-          : Column(
-        children: [
-          Icon(Icons.water_drop, color: Colors.white, size: 20),
-          const SizedBox(height: 4),
-          Text(
-            '$_humidity%',
-            style: GoogleFonts.poppins(
-              fontSize: ResponsiveUtils.getBodyFontSize(context) + 2,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-            ),
-          ),
-          Text(
-            'Humidity',
-            style: GoogleFonts.poppins(
-              fontSize: ResponsiveUtils.getBodyFontSize(context) - 2,
-              color: Colors.white.withOpacity(0.8),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -1123,15 +1253,22 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       padding: EdgeInsets.all(ResponsiveUtils.getSpacing(context)),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.15),
+        color: Colors.white.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(
-            ResponsiveUtils.getSpacing(context)),
+          ResponsiveUtils.getSpacing(context),
+        ),
       ),
       child: Row(
         children: [
           Icon(Icons.lightbulb_outline, color: Colors.white, size: 20),
-          SizedBox(width: ResponsiveUtils.getSpacing(
-              context, mobile: 12, tablet: 14, desktop: 16)),
+          SizedBox(
+            width: ResponsiveUtils.getSpacing(
+              context,
+              mobile: 12,
+              tablet: 14,
+              desktop: 16,
+            ),
+          ),
           Expanded(
             child: Text(
               _weatherSummary,
@@ -1151,11 +1288,17 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       key: _videoKey,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(ResponsiveUtils.getSpacing(
-            context, mobile: 20, tablet: 22, desktop: 24)),
+        borderRadius: BorderRadius.circular(
+          ResponsiveUtils.getSpacing(
+            context,
+            mobile: 20,
+            tablet: 22,
+            desktop: 24,
+          ),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -1172,43 +1315,61 @@ class _HomeScreenState extends State<HomeScreen> {
               color: darkGreen,
             ),
           ),
-          SizedBox(height: ResponsiveUtils.getSpacing(
-              context, mobile: 12, tablet: 14, desktop: 16)),
+          SizedBox(
+            height: ResponsiveUtils.getSpacing(
+              context,
+              mobile: 12,
+              tablet: 14,
+              desktop: 16,
+            ),
+          ),
           GestureDetector(
             onTap: () {},
             child: Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(ResponsiveUtils.getSpacing(
-                    context, mobile: 20, tablet: 22, desktop: 24)),
+                borderRadius: BorderRadius.circular(
+                  ResponsiveUtils.getSpacing(
+                    context,
+                    mobile: 20,
+                    tablet: 22,
+                    desktop: 24,
+                  ),
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 15,
                     offset: const Offset(0, 5),
                   ),
                 ],
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(ResponsiveUtils.getSpacing(
-                    context, mobile: 20, tablet: 22, desktop: 24)),
+                borderRadius: BorderRadius.circular(
+                  ResponsiveUtils.getSpacing(
+                    context,
+                    mobile: 20,
+                    tablet: 22,
+                    desktop: 24,
+                  ),
+                ),
                 child: AspectRatio(
-                  aspectRatio: ResponsiveUtils.isDesktop(context)
-                      ? 16 / 10
-                      : 16 / 9,
+                  aspectRatio:
+                      ResponsiveUtils.isDesktop(context) ? 16 / 10 : 16 / 9,
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
                       Image.network(
                         _randomVideo!['thumbnail'] ?? '',
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            Container(
+                        errorBuilder:
+                            (context, error, stackTrace) => Container(
                               color: softGreen,
                               child: Icon(
                                 Icons.agriculture,
-                                size: ResponsiveUtils.isDesktop(context)
-                                    ? 64
-                                    : 48,
+                                size:
+                                    ResponsiveUtils.isDesktop(context)
+                                        ? 64
+                                        : 48,
                                 color: primaryGreen,
                               ),
                             ),
@@ -1217,9 +1378,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              Colors.black.withOpacity(0.3),
+                              Colors.black.withValues(alpha: 0.3),
                               Colors.transparent,
-                              Colors.black.withOpacity(0.6),
+                              Colors.black.withValues(alpha: 0.6),
                             ],
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
@@ -1228,10 +1389,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       Center(
                         child: Container(
-                          padding: EdgeInsets.all(ResponsiveUtils.getSpacing(
-                              context)),
+                          padding: EdgeInsets.all(
+                            ResponsiveUtils.getSpacing(context),
+                          ),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -1248,8 +1410,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Text(
                           _randomVideo!['title'] ?? 'Agricultural Tips',
                           style: GoogleFonts.poppins(
-                            fontSize: ResponsiveUtils.getBodyFontSize(context) +
-                                2,
+                            fontSize:
+                                ResponsiveUtils.getBodyFontSize(context) + 2,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
                           ),
@@ -1278,34 +1440,64 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
       },
-      borderRadius: BorderRadius.circular(ResponsiveUtils.getSpacing(
-          context, mobile: 20, tablet: 22, desktop: 24)),
+      borderRadius: BorderRadius.circular(
+        ResponsiveUtils.getSpacing(
+          context,
+          mobile: 20,
+          tablet: 22,
+          desktop: 24,
+        ),
+      ),
       child: Container(
         key: _marketKey,
-        padding: EdgeInsets.all(ResponsiveUtils.getSpacing(
-            context, mobile: 20, tablet: 24, desktop: 28)),
+        padding: EdgeInsets.all(
+          ResponsiveUtils.getSpacing(
+            context,
+            mobile: 20,
+            tablet: 24,
+            desktop: 28,
+          ),
+        ),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              primaryGreen.withOpacity(0.1),
-              accentGreen.withOpacity(0.1)
+              primaryGreen.withValues(alpha: 0.1),
+              accentGreen.withValues(alpha: 0.1),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(ResponsiveUtils.getSpacing(
-              context, mobile: 20, tablet: 22, desktop: 24)),
-          border: Border.all(color: accentGreen.withOpacity(0.3)),
+          borderRadius: BorderRadius.circular(
+            ResponsiveUtils.getSpacing(
+              context,
+              mobile: 20,
+              tablet: 22,
+              desktop: 24,
+            ),
+          ),
+          border: Border.all(color: accentGreen.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
             Container(
-              padding: EdgeInsets.all(ResponsiveUtils.getSpacing(
-                  context, mobile: 12, tablet: 14, desktop: 16)),
+              padding: EdgeInsets.all(
+                ResponsiveUtils.getSpacing(
+                  context,
+                  mobile: 12,
+                  tablet: 14,
+                  desktop: 16,
+                ),
+              ),
               decoration: BoxDecoration(
                 color: primaryGreen,
-                borderRadius: BorderRadius.circular(ResponsiveUtils.getSpacing(
-                    context, mobile: 12, tablet: 14, desktop: 16)),
+                borderRadius: BorderRadius.circular(
+                  ResponsiveUtils.getSpacing(
+                    context,
+                    mobile: 12,
+                    tablet: 14,
+                    desktop: 16,
+                  ),
+                ),
               ),
               child: Icon(
                 Icons.trending_up,
@@ -1328,7 +1520,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   SizedBox(
                     height: ResponsiveUtils.getSpacing(
-                        context, mobile: 4, tablet: 6, desktop: 8),
+                      context,
+                      mobile: 4,
+                      tablet: 6,
+                      desktop: 8,
+                    ),
                   ),
                   Text(
                     _marketDemand.isNotEmpty
@@ -1336,7 +1532,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         : 'Loading market data...',
                     style: GoogleFonts.poppins(
                       fontSize: ResponsiveUtils.getBodyFontSize(context),
-                      color: earthBrown.withOpacity(0.8),
+                      color: earthBrown.withValues(alpha: 0.8),
                     ),
                   ),
                 ],
@@ -1352,7 +1548,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 
   Widget _buildTopCropsSection() {
     return Container(
@@ -1372,16 +1567,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               TextButton.icon(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => MarketplaceScreen(
-                      userData: widget.userData,
-                      token: widget.token,
-                      categoryId: 0,
+                onPressed:
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (_) => MarketplaceScreen(
+                              userData: widget.userData,
+                              token: widget.token,
+                              categoryId: 0,
+                            ),
+                      ),
                     ),
-                  ),
-                ),
                 icon: Icon(
                   Icons.arrow_forward,
                   color: primaryGreen,
@@ -1403,14 +1600,14 @@ class _HomeScreenState extends State<HomeScreen> {
           // New: handle loading state
           _topCrops.isEmpty
               ? Center(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: CircularProgressIndicator(
-                color: primaryGreen,
-                strokeWidth: 3,
-              ),
-            ),
-          )
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: CircularProgressIndicator(
+                    color: primaryGreen,
+                    strokeWidth: 3,
+                  ),
+                ),
+              )
               : ResponsiveUtils.isDesktop(context)
               ? _buildCropsGrid()
               : _buildCropsHorizontalList(),
@@ -1452,26 +1649,29 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildCropItem(dynamic crop) {
-    final cropSize = ResponsiveUtils.isDesktop(context)
-        ? 80.0
-        : ResponsiveUtils.isTablet(context)
-        ? 75.0
-        : 70.0;
+    final cropSize =
+        ResponsiveUtils.isDesktop(context)
+            ? 80.0
+            : ResponsiveUtils.isTablet(context)
+            ? 75.0
+            : 70.0;
 
-    final imageUrl = crop['images'] != null && crop['images'].isNotEmpty
-        ? crop['images'][0]
-        : 'https://via.placeholder.com/100x100.png?text=No+Image';
+    final imageUrl =
+        crop['images'] != null && crop['images'].isNotEmpty
+            ? crop['images'][0]
+            : 'https://via.placeholder.com/100x100.png?text=No+Image';
 
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => MarketplaceScreen(
-              userData: widget.userData,
-              token: widget.token,
-              categoryId: 0,
-            ),
+            builder:
+                (_) => MarketplaceScreen(
+                  userData: widget.userData,
+                  token: widget.token,
+                  categoryId: 0,
+                ),
           ),
         );
       },
@@ -1484,7 +1684,7 @@ class _HomeScreenState extends State<HomeScreen> {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: accentGreen.withOpacity(0.3),
+                  color: accentGreen.withValues(alpha: 0.3),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -1494,20 +1694,25 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Image.network(
                 imageUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  color: softGreen,
-                  child: Icon(
-                    Icons.eco,
-                    color: primaryGreen,
-                    size: ResponsiveUtils.isDesktop(context) ? 36 : 30,
-                  ),
-                ),
+                errorBuilder:
+                    (context, error, stackTrace) => Container(
+                      color: softGreen,
+                      child: Icon(
+                        Icons.eco,
+                        color: primaryGreen,
+                        size: ResponsiveUtils.isDesktop(context) ? 36 : 30,
+                      ),
+                    ),
               ),
             ),
           ),
           SizedBox(
             height: ResponsiveUtils.getSpacing(
-                context, mobile: 8, tablet: 10, desktop: 12),
+              context,
+              mobile: 8,
+              tablet: 10,
+              desktop: 12,
+            ),
           ),
           Text(
             crop['name'] ?? 'Unknown',
@@ -1527,40 +1732,59 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildCommunitySection() {
     return Container(
-      padding: EdgeInsets.all(ResponsiveUtils.getSpacing(
-          context, mobile: 20, tablet: 24, desktop: 28)),
+      padding: EdgeInsets.all(
+        ResponsiveUtils.getSpacing(
+          context,
+          mobile: 20,
+          tablet: 24,
+          desktop: 28,
+        ),
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(ResponsiveUtils.getSpacing(
-            context, mobile: 20, tablet: 22, desktop: 24)),
+        borderRadius: BorderRadius.circular(
+          ResponsiveUtils.getSpacing(
+            context,
+            mobile: 20,
+            tablet: 22,
+            desktop: 24,
+          ),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: ResponsiveUtils.isMobile(context)
-          ? Column(
-        children: [
-          _buildCommunityIcon(),
-          SizedBox(height: ResponsiveUtils.getSpacing(context)),
-          _buildCommunityContent(),
-          SizedBox(height: ResponsiveUtils.getSpacing(context)),
-          _buildCommunityButton(),
-        ],
-      )
-          : Row(
-        children: [
-          _buildCommunityIcon(),
-          SizedBox(width: ResponsiveUtils.getSpacing(context)),
-          Expanded(child: _buildCommunityContent()),
-          SizedBox(width: ResponsiveUtils.getSpacing(
-              context, mobile: 12, tablet: 16, desktop: 20)),
-          _buildCommunityButton(),
-        ],
-      ),
+      child:
+          ResponsiveUtils.isMobile(context)
+              ? Column(
+                children: [
+                  _buildCommunityIcon(),
+                  SizedBox(height: ResponsiveUtils.getSpacing(context)),
+                  _buildCommunityContent(),
+                  SizedBox(height: ResponsiveUtils.getSpacing(context)),
+                  _buildCommunityButton(),
+                ],
+              )
+              : Row(
+                children: [
+                  _buildCommunityIcon(),
+                  SizedBox(width: ResponsiveUtils.getSpacing(context)),
+                  Expanded(child: _buildCommunityContent()),
+                  SizedBox(
+                    width: ResponsiveUtils.getSpacing(
+                      context,
+                      mobile: 12,
+                      tablet: 16,
+                      desktop: 20,
+                    ),
+                  ),
+                  _buildCommunityButton(),
+                ],
+              ),
     );
   }
 
@@ -1568,9 +1792,10 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       padding: EdgeInsets.all(ResponsiveUtils.getSpacing(context)),
       decoration: BoxDecoration(
-        color: skyBlue.withOpacity(0.2),
+        color: skyBlue.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(
-            ResponsiveUtils.getSpacing(context)),
+          ResponsiveUtils.getSpacing(context),
+        ),
       ),
       child: Icon(
         Icons.groups,
@@ -1582,8 +1807,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildCommunityContent() {
     return Column(
-      crossAxisAlignment: ResponsiveUtils.isMobile(context) ? CrossAxisAlignment
-          .center : CrossAxisAlignment.start,
+      crossAxisAlignment:
+          ResponsiveUtils.isMobile(context)
+              ? CrossAxisAlignment.center
+              : CrossAxisAlignment.start,
       children: [
         Text(
           'Community Forum',
@@ -1592,21 +1819,29 @@ class _HomeScreenState extends State<HomeScreen> {
             fontWeight: FontWeight.w600,
             color: darkGreen,
           ),
-          textAlign: ResponsiveUtils.isMobile(context)
-              ? TextAlign.center
-              : TextAlign.start,
+          textAlign:
+              ResponsiveUtils.isMobile(context)
+                  ? TextAlign.center
+                  : TextAlign.start,
         ),
-        SizedBox(height: ResponsiveUtils.getSpacing(
-            context, mobile: 4, tablet: 6, desktop: 8)),
+        SizedBox(
+          height: ResponsiveUtils.getSpacing(
+            context,
+            mobile: 4,
+            tablet: 6,
+            desktop: 8,
+          ),
+        ),
         Text(
           'Connect, share, and learn from fellow farmers',
           style: GoogleFonts.poppins(
             fontSize: ResponsiveUtils.getBodyFontSize(context),
-            color: earthBrown.withOpacity(0.7),
+            color: earthBrown.withValues(alpha: 0.7),
           ),
-          textAlign: ResponsiveUtils.isMobile(context)
-              ? TextAlign.center
-              : TextAlign.start,
+          textAlign:
+              ResponsiveUtils.isMobile(context)
+                  ? TextAlign.center
+                  : TextAlign.start,
         ),
       ],
     );
@@ -1619,12 +1854,12 @@ class _HomeScreenState extends State<HomeScreen> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: TextButton(
-        onPressed: () =>
-            Navigator.push(
+        onPressed:
+            () => Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) =>
-                    ForumScreen(
+                builder:
+                    (_) => ForumScreen(
                       userData: widget.userData,
                       token: widget.token,
                     ),
@@ -1633,9 +1868,17 @@ class _HomeScreenState extends State<HomeScreen> {
         style: TextButton.styleFrom(
           padding: EdgeInsets.symmetric(
             horizontal: ResponsiveUtils.getSpacing(
-                context, mobile: 20, tablet: 24, desktop: 28),
+              context,
+              mobile: 20,
+              tablet: 24,
+              desktop: 28,
+            ),
             vertical: ResponsiveUtils.getSpacing(
-                context, mobile: 12, tablet: 14, desktop: 16),
+              context,
+              mobile: 12,
+              tablet: 14,
+              desktop: 16,
+            ),
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
@@ -1656,40 +1899,59 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildHelpSupport() {
     return Container(
       key: _helpKey,
-      padding: EdgeInsets.all(ResponsiveUtils.getSpacing(
-          context, mobile: 20, tablet: 24, desktop: 28)),
+      padding: EdgeInsets.all(
+        ResponsiveUtils.getSpacing(
+          context,
+          mobile: 20,
+          tablet: 24,
+          desktop: 28,
+        ),
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(ResponsiveUtils.getSpacing(
-            context, mobile: 20, tablet: 22, desktop: 24)),
+        borderRadius: BorderRadius.circular(
+          ResponsiveUtils.getSpacing(
+            context,
+            mobile: 20,
+            tablet: 22,
+            desktop: 24,
+          ),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: ResponsiveUtils.isMobile(context)
-          ? Column(
-        children: [
-          _buildHelpIcon(),
-          SizedBox(height: ResponsiveUtils.getSpacing(context)),
-          _buildHelpContent(),
-          SizedBox(height: ResponsiveUtils.getSpacing(context)),
-          _buildHelpButton(),
-        ],
-      )
-          : Row(
-        children: [
-          _buildHelpIcon(),
-          SizedBox(width: ResponsiveUtils.getSpacing(context)),
-          Expanded(child: _buildHelpContent()),
-          SizedBox(width: ResponsiveUtils.getSpacing(
-              context, mobile: 12, tablet: 16, desktop: 20)),
-          _buildHelpButton(),
-        ],
-      ),
+      child:
+          ResponsiveUtils.isMobile(context)
+              ? Column(
+                children: [
+                  _buildHelpIcon(),
+                  SizedBox(height: ResponsiveUtils.getSpacing(context)),
+                  _buildHelpContent(),
+                  SizedBox(height: ResponsiveUtils.getSpacing(context)),
+                  _buildHelpButton(),
+                ],
+              )
+              : Row(
+                children: [
+                  _buildHelpIcon(),
+                  SizedBox(width: ResponsiveUtils.getSpacing(context)),
+                  Expanded(child: _buildHelpContent()),
+                  SizedBox(
+                    width: ResponsiveUtils.getSpacing(
+                      context,
+                      mobile: 12,
+                      tablet: 16,
+                      desktop: 20,
+                    ),
+                  ),
+                  _buildHelpButton(),
+                ],
+              ),
     );
   }
 
@@ -1697,9 +1959,10 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       padding: EdgeInsets.all(ResponsiveUtils.getSpacing(context)),
       decoration: BoxDecoration(
-        color: primaryGreen.withOpacity(0.2),
+        color: primaryGreen.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(
-            ResponsiveUtils.getSpacing(context)),
+          ResponsiveUtils.getSpacing(context),
+        ),
       ),
       child: Icon(
         Icons.support_agent,
@@ -1711,8 +1974,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildHelpContent() {
     return Column(
-      crossAxisAlignment: ResponsiveUtils.isMobile(context) ? CrossAxisAlignment
-          .center : CrossAxisAlignment.start,
+      crossAxisAlignment:
+          ResponsiveUtils.isMobile(context)
+              ? CrossAxisAlignment.center
+              : CrossAxisAlignment.start,
       children: [
         Text(
           'Help & Support',
@@ -1721,21 +1986,29 @@ class _HomeScreenState extends State<HomeScreen> {
             fontWeight: FontWeight.w600,
             color: darkGreen,
           ),
-          textAlign: ResponsiveUtils.isMobile(context)
-              ? TextAlign.center
-              : TextAlign.start,
+          textAlign:
+              ResponsiveUtils.isMobile(context)
+                  ? TextAlign.center
+                  : TextAlign.start,
         ),
-        SizedBox(height: ResponsiveUtils.getSpacing(
-            context, mobile: 4, tablet: 6, desktop: 8)),
+        SizedBox(
+          height: ResponsiveUtils.getSpacing(
+            context,
+            mobile: 4,
+            tablet: 6,
+            desktop: 8,
+          ),
+        ),
         Text(
           '24/7 assistance for all your farming needs',
           style: GoogleFonts.poppins(
             fontSize: ResponsiveUtils.getBodyFontSize(context),
-            color: earthBrown.withOpacity(0.7),
+            color: earthBrown.withValues(alpha: 0.7),
           ),
-          textAlign: ResponsiveUtils.isMobile(context)
-              ? TextAlign.center
-              : TextAlign.start,
+          textAlign:
+              ResponsiveUtils.isMobile(context)
+                  ? TextAlign.center
+                  : TextAlign.start,
         ),
       ],
     );
@@ -1752,9 +2025,17 @@ class _HomeScreenState extends State<HomeScreen> {
         style: TextButton.styleFrom(
           padding: EdgeInsets.symmetric(
             horizontal: ResponsiveUtils.getSpacing(
-                context, mobile: 20, tablet: 24, desktop: 28),
+              context,
+              mobile: 20,
+              tablet: 24,
+              desktop: 28,
+            ),
             vertical: ResponsiveUtils.getSpacing(
-                context, mobile: 12, tablet: 14, desktop: 16),
+              context,
+              mobile: 12,
+              tablet: 14,
+              desktop: 16,
+            ),
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),

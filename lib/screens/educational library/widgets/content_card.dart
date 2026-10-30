@@ -15,12 +15,12 @@ class ContentCard extends StatelessWidget {
   final VoidCallback? onPurchase;
 
   const ContentCard({
-    Key? key,
+    super.key,
     required this.content,
     required this.isVideo,
     required this.onTap,
     this.onPurchase,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -132,8 +132,8 @@ class ContentCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: isVideo
-              ? [Colors.red.withOpacity(0.2), Colors.orange.withOpacity(0.2)]
-              : [Colors.blue.withOpacity(0.2), Colors.purple.withOpacity(0.2)],
+              ? [Colors.red.withValues(alpha: 0.2), Colors.orange.withValues(alpha: 0.2)]
+              : [Colors.blue.withValues(alpha: 0.2), Colors.purple.withValues(alpha: 0.2)],
         ),
       ),
       child: Column(
@@ -168,7 +168,7 @@ class ContentCard extends StatelessWidget {
           end: Alignment.center,
           colors: [
             Colors.transparent,
-            Colors.black.withOpacity(0.3),
+            Colors.black.withValues(alpha: 0.3),
           ],
         ),
       ),
@@ -176,7 +176,7 @@ class ContentCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.7),
+            color: Colors.black.withValues(alpha: 0.7),
             shape: BoxShape.circle,
           ),
           child: const Icon(
@@ -196,7 +196,7 @@ class ContentCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: AppColorss.primary.withOpacity(0.9),
+          color: AppColorss.primary.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(
@@ -218,7 +218,7 @@ class ContentCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.red.withOpacity(0.9),
+          color: Colors.red.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(
@@ -303,7 +303,7 @@ class ContentCard extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         decoration: BoxDecoration(
-          color: Colors.green.withOpacity(0.1),
+          color: Colors.green.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
@@ -321,7 +321,7 @@ class ContentCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: Colors.orange.withOpacity(0.1),
+        color: Colors.orange.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
@@ -361,7 +361,7 @@ class ContentCard extends StatelessWidget {
 
 // Skeleton loading card for when content is loading
 class ContentCardSkeleton extends StatelessWidget {
-  const ContentCardSkeleton({Key? key}) : super(key: key);
+  const ContentCardSkeleton({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -480,7 +480,7 @@ class EnhancedContentCard extends StatefulWidget {
   final bool showRating;
 
   const EnhancedContentCard({
-    Key? key,
+    super.key,
     required this.content,
     required this.isVideo,
     required this.onTap,
@@ -488,7 +488,7 @@ class EnhancedContentCard extends StatefulWidget {
     this.onFavorite,
     this.isFavorite = false,
     this.showRating = false,
-  }) : super(key: key);
+  });
 
   @override
   State<EnhancedContentCard> createState() => _EnhancedContentCardState();
@@ -553,12 +553,12 @@ class CompactContentCard extends StatelessWidget {
   final VoidCallback? onPurchase;
 
   const CompactContentCard({
-    Key? key,
+    super.key,
     required this.content,
     required this.isVideo,
     required this.onTap,
     this.onPurchase,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

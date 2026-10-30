@@ -10,7 +10,6 @@ import 'package:agritech/services/api_service.dart';
 import 'package:agritech/services/auth_provider.dart';
 import 'package:agritech/services/cart_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -30,26 +29,28 @@ class MyApp extends StatelessWidget {
         // show splash while waiting
         if (snapshot.connectionState != ConnectionState.done) {
           return const MaterialApp(
-            home: Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            ),
+            home: Scaffold(body: Center(child: CircularProgressIndicator())),
           );
         }
 
         return MultiProvider(
           providers: [
-            ChangeNotifierProvider<AuthProvider>(
-              create: (_) => AuthProvider(),
-            ),
+            ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
             ProxyProvider<AuthProvider, ApiService>(
-              update: (_, authProvider, __) =>
-                  ApiService(baseUrl: 'http://51.75.31.246:3000', token: authProvider.token),
+              update:
+                  (_, authProvider, _) => ApiService(
+                    baseUrl: 'http://192.168.1.126:3000',
+                    token: authProvider.token,
+                  ),
             ),
             ChangeNotifierProxyProvider<ApiService, CartProvider>(
-              create: (context) => CartProvider(
-                  Provider.of<ApiService>(context, listen: false)),
-              update: (context, apiService, previous) =>
-              previous!..updateApiService(apiService),
+              create:
+                  (context) => CartProvider(
+                    Provider.of<ApiService>(context, listen: false),
+                  ),
+              update:
+                  (context, apiService, previous) =>
+                      previous!..updateApiService(apiService),
             ),
           ],
           child: MaterialApp(
@@ -62,26 +63,22 @@ class MyApp extends StatelessWidget {
                 primary: const Color(0xFF2E7D32),
                 secondary: const Color(0xFF66BB6A),
               ),
-              textTheme: GoogleFonts.poppinsTextTheme(),
             ),
             home: WelcomeScreen(),
             routes: {
               '/signin': (context) => AuthScreen(),
               '/signup': (context) => SignUpScreen(),
-              '/feature': (context) =>
-                  HomeScreen(userData: {}, token: ''),
-              '/profile': (context) =>
-                  ProfileScreen(userData: {}, token: ''),
-              '/weather': (context) => const WeatherScreen(
-                userData: {},
-                token: '',
-              ),
-              '/add-product': (context) => AddProductScreen(
-                userData: {},
-                token: '',
-                categories: [],
-                onProductAdded: () {},
-              ),
+              '/feature': (context) => HomeScreen(userData: {}, token: ''),
+              '/profile': (context) => ProfileScreen(userData: {}, token: ''),
+              '/weather':
+                  (context) => const WeatherScreen(userData: {}, token: ''),
+              '/add-product':
+                  (context) => AddProductScreen(
+                    userData: {},
+                    token: '',
+                    categories: [],
+                    onProductAdded: () {},
+                  ),
               '/forgot-reset': (_) => const ForgotResetScreen(),
             },
           ),

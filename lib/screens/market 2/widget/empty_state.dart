@@ -7,10 +7,10 @@ class MarketplaceEmptyState extends StatelessWidget {
   final VoidCallback onResetFilters;
 
   const MarketplaceEmptyState({
-    Key? key,
+    super.key,
     required this.isDarkMode,
     required this.onResetFilters,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +21,7 @@ class MarketplaceEmptyState extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: MarketplaceTheme.primaryColor.withOpacity(0.1),
+              color: MarketplaceTheme.primaryColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(

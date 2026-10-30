@@ -7,14 +7,19 @@ import 'package:image_picker/image_picker.dart';
 class EbookScreen extends StatefulWidget {
   final String token;
   final int userId;
-  const EbookScreen({required this.token, required this.userId, required Map userData});
+  const EbookScreen({super.key, 
+    required this.token,
+    required this.userId,
+    required Map userData,
+  });
 
   @override
   State<EbookScreen> createState() => _EbookScreenState();
 }
 
-class _EbookScreenState extends State<EbookScreen> with SingleTickerProviderStateMixin {
-  final String baseUrl = "http://51.75.31.246:3000/api";
+class _EbookScreenState extends State<EbookScreen>
+    with SingleTickerProviderStateMixin {
+  final String baseUrl = "http://192.168.1.126:3000/api";
   late TabController _tabController;
   List<dynamic> categories = [];
   List<dynamic> allEbooks = [];
@@ -37,15 +42,14 @@ class _EbookScreenState extends State<EbookScreen> with SingleTickerProviderStat
   }
 
   Future<void> fetchAll() async {
-    await Future.wait([
-      fetchCategories(),
-      fetchApprovedEbooks(),
-    ]);
+    await Future.wait([fetchCategories(), fetchApprovedEbooks()]);
   }
 
   Future<void> fetchCategories() async {
     final res = await http.get(Uri.parse('$baseUrl/ebooks/categories'));
-    if (res.statusCode == 200) setState(() => categories = jsonDecode(res.body));
+    if (res.statusCode == 200) {
+      setState(() => categories = jsonDecode(res.body));
+    }
   }
 
   Future<void> fetchApprovedEbooks() async {
@@ -67,14 +71,19 @@ class _EbookScreenState extends State<EbookScreen> with SingleTickerProviderStat
   }
 
   Future<void> submitEbook() async {
-    if (title.text.isEmpty || price.text.isEmpty || double.tryParse(price.text) == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please fill all fields properly')));
+    if (title.text.isEmpty ||
+        price.text.isEmpty ||
+        double.tryParse(price.text) == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill all fields properly')),
+      );
       return;
     }
 
-    var uri = editingEbookId == null
-        ? Uri.parse('$baseUrl/ebooks')
-        : Uri.parse('$baseUrl/ebooks/$editingEbookId');
+    var uri =
+        editingEbookId == null
+            ? Uri.parse('$baseUrl/ebooks')
+            : Uri.parse('$baseUrl/ebooks/$editingEbookId');
 
     var request = http.MultipartRequest(
       editingEbookId == null ? 'POST' : 'PUT',
@@ -90,19 +99,28 @@ class _EbookScreenState extends State<EbookScreen> with SingleTickerProviderStat
     request.fields['category_id'] = selectedCategory.toString();
 
     if (selectedCoverImage != null) {
-      request.files.add(await http.MultipartFile.fromPath('cover_image', selectedCoverImage!.path));
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'cover_image',
+          selectedCoverImage!.path,
+        ),
+      );
     }
 
     final streamed = await request.send();
     final res = await http.Response.fromStream(streamed);
 
     if (res.statusCode == 201 || res.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ebook saved successfully')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Ebook saved successfully')));
       clearForm();
       fetchApprovedEbooks();
       Navigator.pop(context);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${res.body}')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: ${res.body}')));
     }
   }
 
@@ -112,7 +130,9 @@ class _EbookScreenState extends State<EbookScreen> with SingleTickerProviderStat
       headers: {'Authorization': 'Bearer ${widget.token}'},
     );
     if (res.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ebook deleted')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Ebook deleted')));
       fetchApprovedEbooks();
     }
   }
@@ -133,50 +153,77 @@ class _EbookScreenState extends State<EbookScreen> with SingleTickerProviderStat
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (_) => Padding(
-        padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom, left: 20, right: 20, top: 20),
-        child: SingleChildScrollView(
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text(editingEbookId == null ? 'Submit Ebook' : 'Update Ebook',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            TextField(controller: title, decoration: InputDecoration(labelText: 'Title')),
-            TextField(controller: desc, decoration: InputDecoration(labelText: 'Description')),
-            TextField(controller: fileUrl, decoration: InputDecoration(labelText: 'File URL')),
-            TextField(
-              controller: price,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: 'Price'),
+      builder:
+          (_) => Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+              left: 20,
+              right: 20,
+              top: 20,
             ),
-            DropdownButtonFormField<int>(
-              value: selectedCategory,
-              items: categories
-                  .map((c) => DropdownMenuItem<int>(value: c['id'], child: Text(c['name'])))
-                  .toList(),
-              onChanged: (val) => setState(() => selectedCategory = val),
-              decoration: InputDecoration(labelText: 'Category'),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    editingEbookId == null ? 'Submit Ebook' : 'Update Ebook',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  TextField(
+                    controller: title,
+                    decoration: InputDecoration(labelText: 'Title'),
+                  ),
+                  TextField(
+                    controller: desc,
+                    decoration: InputDecoration(labelText: 'Description'),
+                  ),
+                  TextField(
+                    controller: fileUrl,
+                    decoration: InputDecoration(labelText: 'File URL'),
+                  ),
+                  TextField(
+                    controller: price,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(labelText: 'Price'),
+                  ),
+                  DropdownButtonFormField<int>(
+                    initialValue: selectedCategory,
+                    items:
+                        categories
+                            .map(
+                              (c) => DropdownMenuItem<int>(
+                                value: c['id'],
+                                child: Text(c['name']),
+                              ),
+                            )
+                            .toList(),
+                    onChanged: (val) => setState(() => selectedCategory = val),
+                    decoration: InputDecoration(labelText: 'Category'),
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: pickCoverImage,
+                        icon: Icon(Icons.image),
+                        label: Text('Select Cover'),
+                      ),
+                      SizedBox(width: 10),
+                      if (selectedCoverImage != null)
+                        Expanded(
+                          child: Text(selectedCoverImage!.path.split('/').last),
+                        ),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: submitEbook,
+                    child: Text(editingEbookId == null ? 'Submit' : 'Update'),
+                  ),
+                ],
+              ),
             ),
-            SizedBox(height: 10),
-            Row(
-              children: [
-                ElevatedButton.icon(
-                  onPressed: pickCoverImage,
-                  icon: Icon(Icons.image),
-                  label: Text('Select Cover'),
-                ),
-                SizedBox(width: 10),
-                if (selectedCoverImage != null)
-                  Expanded(child: Text(selectedCoverImage!.path.split('/').last)),
-              ],
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: submitEbook,
-              child: Text(editingEbookId == null ? 'Submit' : 'Update'),
-            )
-          ]),
-        ),
-      ),
+          ),
     );
   }
 
@@ -200,23 +247,26 @@ class _EbookScreenState extends State<EbookScreen> with SingleTickerProviderStat
           tabs: const [Tab(text: 'Marketplace'), Tab(text: 'My Ebooks')],
         ),
       ),
-      body: TabBarView(controller: _tabController, children: [
-        buildList(allEbooks, isMyList: false),
-        Stack(
-          children: [
-            buildList(myEbooks, isMyList: true),
-            Positioned(
-              bottom: 20,
-              right: 20,
-              child: FloatingActionButton.extended(
-                onPressed: () => openForm(),
-                icon: Icon(Icons.add),
-                label: Text("Add Ebook"),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          buildList(allEbooks, isMyList: false),
+          Stack(
+            children: [
+              buildList(myEbooks, isMyList: true),
+              Positioned(
+                bottom: 20,
+                right: 20,
+                child: FloatingActionButton.extended(
+                  onPressed: () => openForm(),
+                  icon: Icon(Icons.add),
+                  label: Text("Add Ebook"),
+                ),
               ),
-            )
-          ],
-        ),
-      ]),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -240,18 +290,23 @@ class _EbookScreenState extends State<EbookScreen> with SingleTickerProviderStat
                 Text("Category: ${ebook['EbookCategory']?['name'] ?? 'N/A'}"),
               ],
             ),
-            trailing: isMyList
-                ? PopupMenuButton<String>(
-              onSelected: (value) {
-                if (value == 'edit') openForm(data: ebook);
-                if (value == 'delete') deleteEbook(ebook['id']);
-              },
-              itemBuilder: (_) => [
-                PopupMenuItem(value: 'edit', child: Text('Edit')),
-                PopupMenuItem(value: 'delete', child: Text('Delete')),
-              ],
-            )
-                : null,
+            trailing:
+                isMyList
+                    ? PopupMenuButton<String>(
+                      onSelected: (value) {
+                        if (value == 'edit') openForm(data: ebook);
+                        if (value == 'delete') deleteEbook(ebook['id']);
+                      },
+                      itemBuilder:
+                          (_) => [
+                            PopupMenuItem(value: 'edit', child: Text('Edit')),
+                            PopupMenuItem(
+                              value: 'delete',
+                              child: Text('Delete'),
+                            ),
+                          ],
+                    )
+                    : null,
           ),
         );
       },

@@ -14,7 +14,7 @@ class CategoryDropdown extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
 
   const CategoryDropdown({
-    Key? key,
+    super.key,
     required this.categories,
     required this.selectedCategoryId,
     required this.onCategoryChanged,
@@ -22,7 +22,7 @@ class CategoryDropdown extends StatelessWidget {
     this.hintText,
     this.margin,
     this.padding,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +51,7 @@ class CategoryDropdown extends StatelessWidget {
   }
 
   Widget _buildLoadingState() {
-    return Container(
+    return SizedBox(
       height: 48,
       child: Row(
         children: [
@@ -85,7 +85,7 @@ class CategoryDropdown extends StatelessWidget {
   Widget _buildDropdown() {
     // Check if categories list is empty
     if (categories.isEmpty) {
-      return Container(
+      return SizedBox(
         height: 48,
         child: Row(
           children: [
@@ -111,7 +111,7 @@ class CategoryDropdown extends StatelessWidget {
 
     // If items is null or empty, show error state
     if (dropdownItems == null || dropdownItems.isEmpty) {
-      return Container(
+      return SizedBox(
         height: 48,
         child: Row(
           children: [
@@ -250,7 +250,7 @@ class CategoryDropdown extends StatelessWidget {
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColorss.info.withOpacity(0.1),
+                      color: AppColorss.info.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -280,9 +280,6 @@ class CategoryDropdown extends StatelessWidget {
 
     for (final category in categories) {
       // Skip null categories
-      if (category == null) continue;
-
-      // Skip categories with invalid data
       if (category.id <= 0 || category.name.isEmpty) {
         print('Skipping invalid category: ID=${category.id}, Name="${category.name}"');
         continue;
@@ -335,13 +332,13 @@ class CategoryDropdownForUpload extends StatelessWidget {
   final String contentType; // 'ebook' or 'video'
 
   const CategoryDropdownForUpload({
-    Key? key,
+    super.key,
     required this.categories,
     required this.selectedCategoryId,
     required this.onCategoryChanged,
     this.isRequired = true,
     required this.contentType,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -380,7 +377,7 @@ class CategoryDropdownForUpload extends StatelessWidget {
     }
 
     // Final check for items
-    if (dropdownItems == null || dropdownItems.isEmpty) {
+    if (dropdownItems.isEmpty) {
       return _buildErrorState('No valid categories found');
     }
 
@@ -446,9 +443,6 @@ class CategoryDropdownForUpload extends StatelessWidget {
 
     for (final category in categories) {
       // Skip null categories
-      if (category == null) continue;
-
-      // Skip categories with invalid data
       if (category.id <= 0 || category.name.isEmpty) {
         print('Skipping invalid category: ID=${category.id}, Name="${category.name}"');
         continue;

@@ -5,15 +5,16 @@ import 'package:intl/intl.dart';
 
 class AdminEbookModerationScreen extends StatefulWidget {
   final String token;
-  const AdminEbookModerationScreen({Key? key, required this.token}) : super(key: key);
+  const AdminEbookModerationScreen({super.key, required this.token});
 
   @override
-  State<AdminEbookModerationScreen> createState() => _AdminEbookModerationScreenState();
+  State<AdminEbookModerationScreen> createState() =>
+      _AdminEbookModerationScreenState();
 }
 
 class _AdminEbookModerationScreenState extends State<AdminEbookModerationScreen>
     with TickerProviderStateMixin {
-  final String baseUrl = 'http://51.75.31.246:3000/api';
+  final String baseUrl = 'http://192.168.1.126:3000/api';
   List<dynamic> pendingEbooks = [];
   bool isLoading = true;
   late AnimationController _fadeController;
@@ -40,7 +41,8 @@ class _AdminEbookModerationScreenState extends State<AdminEbookModerationScreen>
   }
 
   String? getImageUrl(dynamic ebook) {
-    if (ebook['cover_image'] != null && ebook['cover_image'].toString().isNotEmpty) {
+    if (ebook['cover_image'] != null &&
+        ebook['cover_image'].toString().isNotEmpty) {
       String rawUrl = ebook['cover_image'];
 
       // Add slash if missing
@@ -48,9 +50,7 @@ class _AdminEbookModerationScreenState extends State<AdminEbookModerationScreen>
         rawUrl = '/$rawUrl';
       }
 
-      final fullUrl = rawUrl.startsWith('http')
-          ? rawUrl
-          : '$baseUrl$rawUrl';
+      final fullUrl = rawUrl.startsWith('http') ? rawUrl : '$baseUrl$rawUrl';
 
       debugPrint('Ebook image URL: $fullUrl'); // 👈 Log for debugging
 
@@ -58,7 +58,6 @@ class _AdminEbookModerationScreenState extends State<AdminEbookModerationScreen>
     }
     return null;
   }
-
 
   void _initAnimations() {
     _fadeController = AnimationController(
@@ -77,7 +76,9 @@ class _AdminEbookModerationScreenState extends State<AdminEbookModerationScreen>
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic));
+    ).animate(
+      CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+    );
   }
 
   @override
@@ -90,7 +91,9 @@ class _AdminEbookModerationScreenState extends State<AdminEbookModerationScreen>
   Future<void> fetchPendingEbooks() async {
     setState(() => isLoading = true);
     try {
-      final response = await http.get(Uri.parse('$baseUrl/ebooks?approved=false'));
+      final response = await http.get(
+        Uri.parse('$baseUrl/ebooks?approved=false'),
+      );
       if (response.statusCode == 200) {
         setState(() {
           pendingEbooks = jsonDecode(response.body);
@@ -138,13 +141,19 @@ class _AdminEbookModerationScreenState extends State<AdminEbookModerationScreen>
     }
   }
 
-  void _showSnackBar(String message, {bool isError = false, bool isSuccess = false}) {
+  void _showSnackBar(
+    String message, {
+    bool isError = false,
+    bool isSuccess = false,
+  }) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
           children: [
             Icon(
-              isSuccess ? Icons.check_circle : (isError ? Icons.error : Icons.info),
+              isSuccess
+                  ? Icons.check_circle
+                  : (isError ? Icons.error : Icons.info),
               color: Colors.white,
               size: 20,
             ),
@@ -160,7 +169,8 @@ class _AdminEbookModerationScreenState extends State<AdminEbookModerationScreen>
             ),
           ],
         ),
-        backgroundColor: isSuccess ? primaryGreen : (isError ? errorRed : darkGreen),
+        backgroundColor:
+            isSuccess ? primaryGreen : (isError ? errorRed : darkGreen),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),
@@ -178,11 +188,12 @@ class _AdminEbookModerationScreenState extends State<AdminEbookModerationScreen>
     return Scaffold(
       backgroundColor: backgroundGray,
       appBar: _buildModernAppBar(),
-      body: isLoading
-          ? _buildLoadingState()
-          : pendingEbooks.isEmpty
-          ? _buildEmptyState()
-          : _buildEbooksList(),
+      body:
+          isLoading
+              ? _buildLoadingState()
+              : pendingEbooks.isEmpty
+              ? _buildEmptyState()
+              : _buildEbooksList(),
     );
   }
 
@@ -199,11 +210,7 @@ class _AdminEbookModerationScreenState extends State<AdminEbookModerationScreen>
               color: lightGreen,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
-              Icons.eco,
-              color: primaryGreen,
-              size: 24,
-            ),
+            child: const Icon(Icons.eco, color: primaryGreen, size: 24),
           ),
           const SizedBox(width: 12),
           const Expanded(
@@ -246,7 +253,7 @@ class _AdminEbookModerationScreenState extends State<AdminEbookModerationScreen>
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
+                  color: Colors.black.withValues(alpha: 0.08),
                   blurRadius: 20,
                   offset: const Offset(0, 4),
                 ),
@@ -302,10 +309,7 @@ class _AdminEbookModerationScreenState extends State<AdminEbookModerationScreen>
             const SizedBox(height: 8),
             const Text(
               'No pending ebooks to review',
-              style: TextStyle(
-                fontSize: 16,
-                color: textSecondary,
-              ),
+              style: TextStyle(fontSize: 16, color: textSecondary),
             ),
           ],
         ),
@@ -340,20 +344,20 @@ class _AdminEbookModerationScreenState extends State<AdminEbookModerationScreen>
                   mainAxisSpacing: 20,
                 ),
                 itemCount: pendingEbooks.length,
-                itemBuilder: (context, index) => _buildModernEbookCard(
-                  pendingEbooks[index],
-                  index,
-                ),
+                itemBuilder:
+                    (context, index) =>
+                        _buildModernEbookCard(pendingEbooks[index], index),
               );
             }
 
             return ListView.builder(
               padding: const EdgeInsets.all(20),
               itemCount: pendingEbooks.length,
-              itemBuilder: (context, index) => Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: _buildModernEbookCard(pendingEbooks[index], index),
-              ),
+              itemBuilder:
+                  (context, index) => Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: _buildModernEbookCard(pendingEbooks[index], index),
+                  ),
             );
           },
         ),
@@ -376,7 +380,7 @@ class _AdminEbookModerationScreenState extends State<AdminEbookModerationScreen>
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
+                    color: Colors.black.withValues(alpha: 0.08),
                     blurRadius: 20,
                     offset: const Offset(0, 4),
                   ),
@@ -423,8 +427,8 @@ class _AdminEbookModerationScreenState extends State<AdminEbookModerationScreen>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            primaryGreen.withOpacity(0.1),
-            accentOrange.withOpacity(0.1),
+            primaryGreen.withValues(alpha: 0.1),
+            accentOrange.withValues(alpha: 0.1),
           ],
         ),
       ),
@@ -439,7 +443,7 @@ class _AdminEbookModerationScreenState extends State<AdminEbookModerationScreen>
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
+                      color: Colors.black.withValues(alpha: 0.15),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -447,19 +451,19 @@ class _AdminEbookModerationScreenState extends State<AdminEbookModerationScreen>
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      getImageUrl(ebook) ?? '',
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        color: lightGreen,
-                        child: const Icon(
-                          Icons.menu_book_rounded,
-                          size: 48,
-                          color: primaryGreen,
+                  child: Image.network(
+                    getImageUrl(ebook) ?? '',
+                    fit: BoxFit.cover,
+                    errorBuilder:
+                        (_, _, _) => Container(
+                          color: lightGreen,
+                          child: const Icon(
+                            Icons.menu_book_rounded,
+                            size: 48,
+                            color: primaryGreen,
+                          ),
                         ),
-                      ),
-                    ),
-
+                  ),
                 ),
               ),
             )
@@ -473,7 +477,7 @@ class _AdminEbookModerationScreenState extends State<AdminEbookModerationScreen>
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
+                      color: Colors.black.withValues(alpha: 0.15),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -528,11 +532,7 @@ class _AdminEbookModerationScreenState extends State<AdminEbookModerationScreen>
   Widget _buildEbookDescription(dynamic ebook) {
     return Text(
       ebook['description'] ?? 'No description available',
-      style: const TextStyle(
-        fontSize: 14,
-        color: textSecondary,
-        height: 1.4,
-      ),
+      style: const TextStyle(fontSize: 14, color: textSecondary, height: 1.4),
       maxLines: 3,
       overflow: TextOverflow.ellipsis,
     );
@@ -569,7 +569,12 @@ class _AdminEbookModerationScreenState extends State<AdminEbookModerationScreen>
     );
   }
 
-  Widget _buildInfoItem(IconData icon, String label, String value, Color color) {
+  Widget _buildInfoItem(
+    IconData icon,
+    String label,
+    String value,
+    Color color,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -587,10 +592,7 @@ class _AdminEbookModerationScreenState extends State<AdminEbookModerationScreen>
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
-                fontSize: 13,
-                color: textPrimary,
-              ),
+              style: const TextStyle(fontSize: 13, color: textPrimary),
               overflow: TextOverflow.ellipsis,
             ),
           ),

@@ -7,18 +7,20 @@ import 'package:shimmer/shimmer.dart';
 
 // Agriculture-themed color scheme
 class AppColors {
-  static const Color primary = Color(0xFF2E7D32);       // Deep Forest Green
-  static const Color secondary = Color(0xFF8BC34A);     // Light Leaf Green
-  static const Color accent = Color(0xFFFFD54F);        // Harvest Gold
-  static const Color textDark = Color(0xFF33691E);      // Dark Green Text
-  static const Color background = Color(0xFFF5F9EE);    // Off-white with green tint
+  static const Color primary = Color(0xFF2E7D32); // Deep Forest Green
+  static const Color secondary = Color(0xFF8BC34A); // Light Leaf Green
+  static const Color accent = Color(0xFFFFD54F); // Harvest Gold
+  static const Color textDark = Color(0xFF33691E); // Dark Green Text
+  static const Color background = Color(
+    0xFFF5F9EE,
+  ); // Off-white with green tint
   static const Color cardBackground = Color(0xFFFFFFFF);
-  static const Color error = Color(0xFFB71C1C);         // Dark Red for errors
-  static const Color success = Color(0xFF33691E);       // Dark Green for success
+  static const Color error = Color(0xFFB71C1C); // Dark Red for errors
+  static const Color success = Color(0xFF33691E); // Dark Green for success
 }
 
 class AdminProductScreen extends StatefulWidget {
-  const AdminProductScreen({Key? key}) : super(key: key);
+  const AdminProductScreen({super.key});
 
   @override
   State<AdminProductScreen> createState() => _AdminProductScreenState();
@@ -31,7 +33,7 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
   String? errorMessage;
   bool isGridView = true; // Toggle between grid and list view
 
-  final String baseUrl = 'http://51.75.31.246:3000'; // Emulator base URL
+  final String baseUrl = 'http://192.168.1.126:3000'; // Emulator base URL
 
   @override
   void initState() {
@@ -60,14 +62,14 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
         throw Exception('Authentication token not found');
       }
 
-      final url = showOnlyFeatured
-          ? '$baseUrl/api/admin/products/featured'
-          : '$baseUrl/api/admin/products';
+      final url =
+          showOnlyFeatured
+              ? '$baseUrl/api/admin/products/featured'
+              : '$baseUrl/api/admin/products';
 
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {'Authorization': 'Bearer $token'},
-      ).timeout(const Duration(seconds: 10));
+      final response = await http
+          .get(Uri.parse(url), headers: {'Authorization': 'Bearer $token'})
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -135,20 +137,22 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
       if (token == null) throw Exception('Authentication token not found');
 
       final endpoint = makeFeatured ? 'feature' : 'unfeature';
-      final loadingMessage = makeFeatured
-          ? 'Marking product as featured...'
-          : 'Removing product from featured...';
+      final loadingMessage =
+          makeFeatured
+              ? 'Marking product as featured...'
+              : 'Removing product from featured...';
 
       final loadingSnackBar = SnackBar(
         content: Row(
           children: [
             const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
-                )),
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            ),
             const SizedBox(width: 16),
             Text(loadingMessage),
           ],
@@ -159,21 +163,26 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
         behavior: SnackBarBehavior.floating,
       );
 
-      final snackBarController =
-      ScaffoldMessenger.of(context).showSnackBar(loadingSnackBar);
+      final snackBarController = ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(loadingSnackBar);
 
-      final response = await http.put(
-        Uri.parse('$baseUrl/api/admin/products/$productId/$endpoint'),
-        headers: {'Authorization': 'Bearer $token'},
-      ).timeout(const Duration(seconds: 10));
+      final response = await http
+          .put(
+            Uri.parse('$baseUrl/api/admin/products/$productId/$endpoint'),
+            headers: {'Authorization': 'Bearer $token'},
+          )
+          .timeout(const Duration(seconds: 10));
 
       // Hide the loading snackbar
       snackBarController.close();
 
       if (response.statusCode == 200) {
-        _showSuccessSnackBar(makeFeatured
-            ? 'Product marked as featured'
-            : 'Product removed from featured');
+        _showSuccessSnackBar(
+          makeFeatured
+              ? 'Product marked as featured'
+              : 'Product removed from featured',
+        );
         fetchProducts();
       } else {
         _showErrorSnackBar("Failed to update feature status");
@@ -186,89 +195,96 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
   Future<void> deleteProduct(int productId, String productName) async {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          'Confirm Deletion',
-          style: TextStyle(
-            color: AppColors.textDark,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        content: Text(
-          'Are you sure you want to delete "$productName"?',
-          style: TextStyle(color: Colors.grey.shade700),
-        ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'CANCEL',
-              style: TextStyle(color: AppColors.textDark),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-
-              try {
-                final token = await getToken();
-                if (token == null)
-                  throw Exception('Authentication token not found');
-
-                final loadingSnackBar = SnackBar(
-                  content: Row(
-                    children: const [
-                      SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      ),
-                      SizedBox(width: 16),
-                      Text('Deleting product...'),
-                    ],
-                  ),
-                  duration: const Duration(seconds: 60),
-                  backgroundColor: AppColors.primary,
-                  margin: const EdgeInsets.all(16),
-                  behavior: SnackBarBehavior.floating,
-                );
-
-                final snackBarController = ScaffoldMessenger.of(context)
-                    .showSnackBar(loadingSnackBar);
-
-                final response = await http.delete(
-                  Uri.parse('$baseUrl/api/admin/products/$productId'),
-                  headers: {'Authorization': 'Bearer $token'},
-                ).timeout(const Duration(seconds: 10));
-
-                // Hide the loading snackbar
-                snackBarController.close();
-
-                if (response.statusCode == 200) {
-                  _showSuccessSnackBar('Product deleted successfully');
-                  fetchProducts();
-                } else {
-                  _showErrorSnackBar("Failed to delete product");
-                }
-              } catch (e) {
-                _showErrorSnackBar("Error: ${e.toString()}");
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.error,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+      builder:
+          (context) => AlertDialog(
+            title: Text(
+              'Confirm Deletion',
+              style: TextStyle(
+                color: AppColors.textDark,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            child: const Text('DELETE'),
+            content: Text(
+              'Are you sure you want to delete "$productName"?',
+              style: TextStyle(color: Colors.grey.shade700),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  'CANCEL',
+                  style: TextStyle(color: AppColors.textDark),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+
+                  try {
+                    final token = await getToken();
+                    if (token == null) {
+                      throw Exception('Authentication token not found');
+                    }
+
+                    final loadingSnackBar = SnackBar(
+                      content: Row(
+                        children: const [
+                          SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(width: 16),
+                          Text('Deleting product...'),
+                        ],
+                      ),
+                      duration: const Duration(seconds: 60),
+                      backgroundColor: AppColors.primary,
+                      margin: const EdgeInsets.all(16),
+                      behavior: SnackBarBehavior.floating,
+                    );
+
+                    final snackBarController = ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(loadingSnackBar);
+
+                    final response = await http
+                        .delete(
+                          Uri.parse('$baseUrl/api/admin/products/$productId'),
+                          headers: {'Authorization': 'Bearer $token'},
+                        )
+                        .timeout(const Duration(seconds: 10));
+
+                    // Hide the loading snackbar
+                    snackBarController.close();
+
+                    if (response.statusCode == 200) {
+                      _showSuccessSnackBar('Product deleted successfully');
+                      fetchProducts();
+                    } else {
+                      _showErrorSnackBar("Failed to delete product");
+                    }
+                  } catch (e) {
+                    _showErrorSnackBar("Error: ${e.toString()}");
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.error,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text('DELETE'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -295,9 +311,7 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
         rawUrl = '/$rawUrl';
       }
 
-      final finalUrl = rawUrl.startsWith('http')
-          ? rawUrl
-          : '$baseUrl$rawUrl';
+      final finalUrl = rawUrl.startsWith('http') ? rawUrl : '$baseUrl$rawUrl';
 
       print('🖼️ Flutter image URL: $finalUrl');
       return finalUrl;
@@ -309,9 +323,9 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
   // Responsive helper method
   int _getCrossAxisCount(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    if (screenWidth >= 1200) return 4;  // Desktop
-    if (screenWidth >= 900) return 3;   // Tablet landscape
-    if (screenWidth >= 600) return 2;   // Tablet portrait
+    if (screenWidth >= 1200) return 4; // Desktop
+    if (screenWidth >= 900) return 3; // Tablet landscape
+    if (screenWidth >= 600) return 2; // Tablet portrait
     return 2; // Mobile (changed from 1 to 2 for better mobile experience)
   }
 
@@ -333,7 +347,8 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
     const buttonHeight = 40.0;
     const spacing = 8.0;
 
-    final cardHeight = imageHeight + contentPadding * 2 + titleHeight + buttonHeight + spacing;
+    final cardHeight =
+        imageHeight + contentPadding * 2 + titleHeight + buttonHeight + spacing;
 
     return cardWidth / cardHeight;
   }
@@ -341,19 +356,21 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
   Widget _buildGridProductCard(dynamic product) {
     final imageUrl = getImageUrl(product);
     final bool isFeatured = product['is_featured'] ?? false;
-    final double price = product['price'] is int
-        ? product['price'].toDouble()
-        : (product['price'] is String
-        ? double.tryParse(product['price']) ?? 0.0
-        : product['price'] ?? 0.0);
+    final double price =
+        product['price'] is int
+            ? product['price'].toDouble()
+            : (product['price'] is String
+                ? double.tryParse(product['price']) ?? 0.0
+                : product['price'] ?? 0.0);
 
     return Card(
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: isFeatured
-            ? BorderSide(color: AppColors.accent, width: 2)
-            : BorderSide.none,
+        side:
+            isFeatured
+                ? BorderSide(color: AppColors.accent, width: 2)
+                : BorderSide.none,
       ),
       elevation: 2,
       shadowColor: Colors.black26,
@@ -364,37 +381,46 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
           Expanded(
             flex: 3,
             child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(12),
+              ),
               child: Stack(
                 children: [
                   SizedBox(
                     width: double.infinity,
-                    child: imageUrl != null
-                        ? CachedNetworkImage(
-                      imageUrl: imageUrl,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Shimmer.fromColors(
-                        baseColor: Colors.grey.shade200,
-                        highlightColor: Colors.grey.shade50,
-                        child: Container(
-                          color: Colors.white,
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        color: Colors.grey.shade100,
-                        child: const Center(
-                          child: Icon(Icons.image_not_supported,
-                              size: 32, color: Colors.grey),
-                        ),
-                      ),
-                    )
-                        : Container(
-                      color: Colors.grey.shade100,
-                      child: const Center(
-                        child: Icon(Icons.image_not_supported,
-                            size: 32, color: Colors.grey),
-                      ),
-                    ),
+                    child:
+                        imageUrl != null
+                            ? CachedNetworkImage(
+                              imageUrl: imageUrl,
+                              fit: BoxFit.cover,
+                              placeholder:
+                                  (context, url) => Shimmer.fromColors(
+                                    baseColor: Colors.grey.shade200,
+                                    highlightColor: Colors.grey.shade50,
+                                    child: Container(color: Colors.white),
+                                  ),
+                              errorWidget:
+                                  (context, url, error) => Container(
+                                    color: Colors.grey.shade100,
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.image_not_supported,
+                                        size: 32,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                            )
+                            : Container(
+                              color: Colors.grey.shade100,
+                              child: const Center(
+                                child: Icon(
+                                  Icons.image_not_supported,
+                                  size: 32,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
                   ),
                   // Overlay gradient at the bottom
                   Positioned(
@@ -409,7 +435,7 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
                           end: Alignment.bottomCenter,
                           colors: [
                             Colors.transparent,
-                            Colors.black.withOpacity(0.7),
+                            Colors.black.withValues(alpha: 0.7),
                           ],
                         ),
                       ),
@@ -422,13 +448,15 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
                       right: 8,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 3),
+                          horizontal: 6,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.accent,
                           borderRadius: BorderRadius.circular(8),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
+                              color: Colors.black.withValues(alpha: 0.2),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),
@@ -457,14 +485,16 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
                     bottom: 8,
                     left: 8,
                     child: Container(
-                      padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.primary,
                         borderRadius: BorderRadius.circular(8),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
+                            color: Colors.black.withValues(alpha: 0.2),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -512,7 +542,10 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
                     children: [
                       // Feature toggle button
                       Material(
-                        color: isFeatured ? AppColors.accent.withOpacity(0.1) : Colors.transparent,
+                        color:
+                            isFeatured
+                                ? AppColors.accent.withValues(alpha: 0.1)
+                                : Colors.transparent,
                         borderRadius: BorderRadius.circular(6),
                         child: InkWell(
                           onTap: () {
@@ -523,7 +556,8 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
                             padding: const EdgeInsets.all(6.0),
                             child: Icon(
                               isFeatured ? Icons.star : Icons.star_border,
-                              color: isFeatured ? AppColors.accent : Colors.grey,
+                              color:
+                                  isFeatured ? AppColors.accent : Colors.grey,
                               size: 18,
                             ),
                           ),
@@ -535,7 +569,10 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
                         borderRadius: BorderRadius.circular(6),
                         child: InkWell(
                           onTap: () {
-                            deleteProduct(product['id'], product['name'] ?? 'This product');
+                            deleteProduct(
+                              product['id'],
+                              product['name'] ?? 'This product',
+                            );
                           },
                           borderRadius: BorderRadius.circular(6),
                           child: Padding(
@@ -562,19 +599,21 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
   Widget _buildListProductCard(dynamic product) {
     final imageUrl = getImageUrl(product);
     final bool isFeatured = product['is_featured'] ?? false;
-    final double price = product['price'] is int
-        ? product['price'].toDouble()
-        : (product['price'] is String
-        ? double.tryParse(product['price']) ?? 0.0
-        : product['price'] ?? 0.0);
+    final double price =
+        product['price'] is int
+            ? product['price'].toDouble()
+            : (product['price'] is String
+                ? double.tryParse(product['price']) ?? 0.0
+                : product['price'] ?? 0.0);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: isFeatured
-            ? BorderSide(color: AppColors.accent, width: 2)
-            : BorderSide.none,
+        side:
+            isFeatured
+                ? BorderSide(color: AppColors.accent, width: 2)
+                : BorderSide.none,
       ),
       elevation: 2,
       shadowColor: Colors.black26,
@@ -597,32 +636,39 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
                   SizedBox(
                     width: 100,
                     height: 120,
-                    child: imageUrl != null
-                        ? CachedNetworkImage(
-                      imageUrl: imageUrl,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Shimmer.fromColors(
-                        baseColor: Colors.grey.shade200,
-                        highlightColor: Colors.grey.shade50,
-                        child: Container(
-                          color: Colors.white,
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        color: Colors.grey.shade100,
-                        child: const Center(
-                          child: Icon(Icons.image_not_supported,
-                              size: 32, color: Colors.grey),
-                        ),
-                      ),
-                    )
-                        : Container(
-                      color: Colors.grey.shade100,
-                      child: const Center(
-                        child: Icon(Icons.image_not_supported,
-                            size: 32, color: Colors.grey),
-                      ),
-                    ),
+                    child:
+                        imageUrl != null
+                            ? CachedNetworkImage(
+                              imageUrl: imageUrl,
+                              fit: BoxFit.cover,
+                              placeholder:
+                                  (context, url) => Shimmer.fromColors(
+                                    baseColor: Colors.grey.shade200,
+                                    highlightColor: Colors.grey.shade50,
+                                    child: Container(color: Colors.white),
+                                  ),
+                              errorWidget:
+                                  (context, url, error) => Container(
+                                    color: Colors.grey.shade100,
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.image_not_supported,
+                                        size: 32,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                            )
+                            : Container(
+                              color: Colors.grey.shade100,
+                              child: const Center(
+                                child: Icon(
+                                  Icons.image_not_supported,
+                                  size: 32,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
                   ),
                   if (isFeatured)
                     Positioned(
@@ -630,13 +676,15 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
                       left: 6,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 3),
+                          horizontal: 6,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.accent,
                           borderRadius: BorderRadius.circular(6),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
+                              color: Colors.black.withValues(alpha: 0.2),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),
@@ -684,9 +732,10 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
                       children: [
                         // Feature toggle button
                         Material(
-                          color: isFeatured
-                              ? AppColors.accent.withOpacity(0.1)
-                              : Colors.transparent,
+                          color:
+                              isFeatured
+                                  ? AppColors.accent.withValues(alpha: 0.1)
+                                  : Colors.transparent,
                           borderRadius: BorderRadius.circular(8),
                           child: InkWell(
                             onTap: () {
@@ -701,16 +750,19 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
                                   Icon(
                                     isFeatured ? Icons.star : Icons.star_border,
                                     color:
-                                    isFeatured ? AppColors.accent : Colors.grey,
+                                        isFeatured
+                                            ? AppColors.accent
+                                            : Colors.grey,
                                     size: 18,
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
                                     isFeatured ? 'Featured' : 'Feature',
                                     style: TextStyle(
-                                      color: isFeatured
-                                          ? AppColors.accent
-                                          : Colors.grey,
+                                      color:
+                                          isFeatured
+                                              ? AppColors.accent
+                                              : Colors.grey,
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -723,12 +775,14 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
                         const SizedBox(width: 8),
                         // Delete button
                         Material(
-                          color: AppColors.error.withOpacity(0.1),
+                          color: AppColors.error.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                           child: InkWell(
                             onTap: () {
-                              deleteProduct(product['id'],
-                                  product['name'] ?? 'This product');
+                              deleteProduct(
+                                product['id'],
+                                product['name'] ?? 'This product',
+                              );
                             },
                             borderRadius: BorderRadius.circular(8),
                             child: Padding(
@@ -778,7 +832,7 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 10,
                 spreadRadius: 1,
               ),
@@ -794,16 +848,16 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  showOnlyFeatured ? Icons.star_border : Icons.inventory_2_outlined,
+                  showOnlyFeatured
+                      ? Icons.star_border
+                      : Icons.inventory_2_outlined,
                   size: 60,
-                  color: AppColors.primary.withOpacity(0.7),
+                  color: AppColors.primary.withValues(alpha: 0.7),
                 ),
               ),
               const SizedBox(height: 24),
               Text(
-                showOnlyFeatured
-                    ? 'No Featured Products'
-                    : 'No Products Found',
+                showOnlyFeatured ? 'No Featured Products' : 'No Products Found',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -816,10 +870,7 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
                 showOnlyFeatured
                     ? 'Feature products to display them here'
                     : 'Add products to start managing your inventory',
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontSize: 15,
-                ),
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 15),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 28),
@@ -842,8 +893,10 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -868,7 +921,7 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 10,
                 spreadRadius: 1,
               ),
@@ -880,7 +933,7 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppColors.error.withOpacity(0.1),
+                  color: AppColors.error.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -902,10 +955,7 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
               const SizedBox(height: 12),
               Text(
                 errorMessage ?? 'An unknown error occurred',
-                style: TextStyle(
-                  color: Colors.grey.shade700,
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 28),
@@ -919,8 +969,10 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -938,149 +990,153 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
     return Shimmer.fromColors(
       baseColor: Colors.grey.shade200,
       highlightColor: Colors.grey.shade50,
-      child: isGridView
-          ? GridView.builder(
-        padding: const EdgeInsets.all(16),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: _getCrossAxisCount(context),
-          childAspectRatio: _getChildAspectRatio(context),
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-        ),
-        itemCount: 6,
-        itemBuilder: (context, index) {
-          return Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(12)),
-                    ),
-                  ),
+      child:
+          isGridView
+              ? GridView.builder(
+                padding: const EdgeInsets.all(16),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: _getCrossAxisCount(context),
+                  childAspectRatio: _getChildAspectRatio(context),
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
                 ),
-                Expanded(
-                  flex: 2,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
+                itemCount: 6,
+                itemBuilder: (context, index) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
+                          flex: 3,
                           child: Container(
-                            height: 12,
-                            width: double.infinity,
-                            color: Colors.white,
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(12),
+                              ),
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              height: 24,
-                              width: 24,
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                              ),
+                        Expanded(
+                          flex: 2,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    height: 12,
+                                    width: double.infinity,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      height: 24,
+                                      width: 24,
+                                      decoration: const BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    Container(
+                                      height: 24,
+                                      width: 24,
+                                      decoration: const BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                            Container(
-                              height: 24,
-                              width: 24,
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      )
-          : ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: 6,
-        itemBuilder: (context, index) {
-          return Container(
-            height: 120,
-            margin: const EdgeInsets.only(bottom: 12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 100,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.horizontal(
-                        left: Radius.circular(12)),
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  );
+                },
+              )
+              : ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: 6,
+                itemBuilder: (context, index) {
+                  return Container(
+                    height: 120,
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
                       children: [
                         Container(
-                          height: 16,
-                          width: 150,
-                          color: Colors.white,
-                        ),
-                        Container(
-                          height: 14,
-                          width: 80,
-                          color: Colors.white,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Container(
-                              height: 30,
-                              width: 80,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
+                          width: 100,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.horizontal(
+                              left: Radius.circular(12),
                             ),
-                            const SizedBox(width: 8),
-                            Container(
-                              height: 30,
-                              width: 80,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Container(
+                                  height: 16,
+                                  width: 150,
+                                  color: Colors.white,
+                                ),
+                                Container(
+                                  height: 14,
+                                  width: 80,
+                                  color: Colors.white,
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Container(
+                                      height: 30,
+                                      width: 80,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      height: 30,
+                                      width: 80,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+                  );
+                },
+              ),
     );
   }
 
@@ -1096,14 +1152,10 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
           elevation: 0,
           centerTitle: false,
           shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(
-              bottom: Radius.circular(20),
-            ),
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
           ),
         ),
-        cardTheme: CardTheme(
-          color: AppColors.cardBackground,
-        ),
+        cardTheme: CardThemeData(color: AppColors.cardBackground),
         colorScheme: ColorScheme.fromSwatch().copyWith(
           primary: AppColors.primary,
           secondary: AppColors.secondary,
@@ -1135,7 +1187,7 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
                   "Agricultural Store Admin",
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                     fontWeight: FontWeight.w300,
                   ),
                 ),
@@ -1148,7 +1200,8 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
                   isGridView ? Icons.view_list : Icons.grid_view,
                   color: Colors.white,
                 ),
-                tooltip: isGridView ? 'Switch to list view' : 'Switch to grid view',
+                tooltip:
+                    isGridView ? 'Switch to list view' : 'Switch to grid view',
                 onPressed: () {
                   setState(() {
                     isGridView = !isGridView;
@@ -1162,9 +1215,10 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
                   children: [
                     Icon(
                       Icons.star,
-                      color: showOnlyFeatured
-                          ? AppColors.accent
-                          : Colors.white.withOpacity(0.7),
+                      color:
+                          showOnlyFeatured
+                              ? AppColors.accent
+                              : Colors.white.withValues(alpha: 0.7),
                       size: 28,
                     ),
                     if (showOnlyFeatured)
@@ -1182,7 +1236,10 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
                       ),
                   ],
                 ),
-                tooltip: showOnlyFeatured ? 'Show all products' : 'Show only featured',
+                tooltip:
+                    showOnlyFeatured
+                        ? 'Show all products'
+                        : 'Show only featured',
                 onPressed: () {
                   setState(() {
                     showOnlyFeatured = !showOnlyFeatured;
@@ -1203,34 +1260,34 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
         body: RefreshIndicator(
           onRefresh: fetchProducts,
           color: AppColors.primary,
-          child: isLoading
-              ? _buildLoadingState()
-              : errorMessage != null
-              ? _buildErrorState()
-              : products.isEmpty
-              ? _buildEmptyState()
-              : isGridView
-              ? GridView.builder(
-            padding: const EdgeInsets.all(16),
-            gridDelegate:
-            SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: _getCrossAxisCount(context),
-              childAspectRatio: _getChildAspectRatio(context),
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-            ),
-            itemCount: products.length,
-            itemBuilder: (context, index) {
-              return _buildGridProductCard(products[index]);
-            },
-          )
-              : ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: products.length,
-            itemBuilder: (context, index) {
-              return _buildListProductCard(products[index]);
-            },
-          ),
+          child:
+              isLoading
+                  ? _buildLoadingState()
+                  : errorMessage != null
+                  ? _buildErrorState()
+                  : products.isEmpty
+                  ? _buildEmptyState()
+                  : isGridView
+                  ? GridView.builder(
+                    padding: const EdgeInsets.all(16),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: _getCrossAxisCount(context),
+                      childAspectRatio: _getChildAspectRatio(context),
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                    ),
+                    itemCount: products.length,
+                    itemBuilder: (context, index) {
+                      return _buildGridProductCard(products[index]);
+                    },
+                  )
+                  : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: products.length,
+                    itemBuilder: (context, index) {
+                      return _buildListProductCard(products[index]);
+                    },
+                  ),
         ),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () {

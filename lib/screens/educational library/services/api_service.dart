@@ -7,9 +7,8 @@ import '../model/category_model.dart';
 import '../model/ebook_model.dart';
 import '../model/video_model.dart';
 
-
 class ApiService {
-  static const String baseUrl = 'http://51.75.31.246:3000/api';
+  static const String baseUrl = 'http://192.168.1.126:3000/api';
   static const Duration timeoutDuration = Duration(seconds: 15);
 
   final String? _token;
@@ -22,18 +21,28 @@ class ApiService {
   };
 
   // Generic HTTP methods
-  Future<http.Response> _get(String endpoint, {Map<String, String>? queryParams}) async {
-    final uri = Uri.parse('$baseUrl/$endpoint').replace(queryParameters: queryParams);
+  Future<http.Response> _get(
+    String endpoint, {
+    Map<String, String>? queryParams,
+  }) async {
+    final uri = Uri.parse(
+      '$baseUrl/$endpoint',
+    ).replace(queryParameters: queryParams);
     return await http.get(uri, headers: _headers).timeout(timeoutDuration);
   }
 
-  Future<http.Response> _post(String endpoint, {Map<String, dynamic>? body}) async {
+  Future<http.Response> _post(
+    String endpoint, {
+    Map<String, dynamic>? body,
+  }) async {
     final uri = Uri.parse('$baseUrl/$endpoint');
-    return await http.post(
-      uri,
-      headers: _headers,
-      body: body != null ? json.encode(body) : null,
-    ).timeout(timeoutDuration);
+    return await http
+        .post(
+          uri,
+          headers: _headers,
+          body: body != null ? json.encode(body) : null,
+        )
+        .timeout(timeoutDuration);
   }
 
   // Category methods
@@ -42,12 +51,13 @@ class ApiService {
       final response = await _get('ebooks/categories');
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        return data.map((json) => Category.fromJson({
-          ...json,
-          'type': 'ebook',
-        })).toList();
+        return data
+            .map((json) => Category.fromJson({...json, 'type': 'ebook'}))
+            .toList();
       }
-      throw Exception('Failed to load ebook categories: ${response.statusCode}');
+      throw Exception(
+        'Failed to load ebook categories: ${response.statusCode}',
+      );
     } catch (e) {
       print('Error fetching ebook categories: $e');
       rethrow;
@@ -59,12 +69,13 @@ class ApiService {
       final response = await _get('videos/categories');
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        return data.map((json) => Category.fromJson({
-          ...json,
-          'type': 'video',
-        })).toList();
+        return data
+            .map((json) => Category.fromJson({...json, 'type': 'video'}))
+            .toList();
       }
-      throw Exception('Failed to load video categories: ${response.statusCode}');
+      throw Exception(
+        'Failed to load video categories: ${response.statusCode}',
+      );
     } catch (e) {
       print('Error fetching video categories: $e');
       rethrow;
@@ -136,16 +147,19 @@ class ApiService {
 
   Future<bool> purchaseEbook(int ebookId) async {
     try {
-      final response = await _post('ebooks/purchase', body: {
-        'ebook_id': ebookId,
-      });
+      final response = await _post(
+        'ebooks/purchase',
+        body: {'ebook_id': ebookId},
+      );
 
       if (response.statusCode == 201) {
         return true;
       }
 
       final errorData = json.decode(response.body);
-      throw Exception(errorData['error'] ?? errorData['message'] ?? 'Purchase failed');
+      throw Exception(
+        errorData['error'] ?? errorData['message'] ?? 'Purchase failed',
+      );
     } catch (e) {
       print('Error purchasing ebook: $e');
       rethrow;
@@ -199,9 +213,9 @@ class ApiService {
 
       final request = http.MultipartRequest('POST', uri);
 
-      if (_token != null && _token!.isNotEmpty) {
+      if (_token != null && _token.isNotEmpty) {
         request.headers['Authorization'] = 'Bearer $_token';
-        print('🔐 Authorization header added (${_token!.length} chars)');
+        print('🔐 Authorization header added (${_token.length} chars)');
       } else {
         print('⚠️ WARNING: No authorization token!');
       }
@@ -224,7 +238,9 @@ class ApiService {
         filename: coverImage.path.split('/').last,
       );
       request.files.add(coverMultipartFile);
-      print('📎 Cover image added as multipart file: ${coverImage.path.split('/').last}');
+      print(
+        '📎 Cover image added as multipart file: ${coverImage.path.split('/').last}',
+      );
 
       // Add PDF file if available
       if (pdfFile != null) {
@@ -237,13 +253,17 @@ class ApiService {
           filename: pdfFile.path.split('/').last,
         );
         request.files.add(multipartFile);
-        print('📎 PDF file added as multipart file: ${pdfFile.path.split('/').last}');
+        print(
+          '📎 PDF file added as multipart file: ${pdfFile.path.split('/').last}',
+        );
       } else {
         print('📎 No PDF file (optional)');
       }
 
       print(' SENDING REQUEST...');
-      final streamedResponse = await request.send().timeout(Duration(minutes: 5));
+      final streamedResponse = await request.send().timeout(
+        Duration(minutes: 5),
+      );
       final response = await http.Response.fromStream(streamedResponse);
 
       print('📨 Response received: ${response.statusCode}');
@@ -254,7 +274,8 @@ class ApiService {
         return true;
       } else {
         final errorData = json.decode(response.body);
-        final errorMessage = errorData['error'] ?? errorData['message'] ?? response.body;
+        final errorMessage =
+            errorData['error'] ?? errorData['message'] ?? response.body;
         throw Exception(errorMessage);
       }
     } catch (e) {
@@ -262,7 +283,6 @@ class ApiService {
       rethrow;
     }
   }
-
 
   Future<bool> uploadVideo({
     required String title,
@@ -303,10 +323,14 @@ class ApiService {
         filename: videoFile.path.split('/').last,
       );
       request.files.add(videoMultipartFile);
-      print('Video file added: ${videoFile.path.split('/').last}, Size: $videoSize bytes');
+      print(
+        'Video file added: ${videoFile.path.split('/').last}, Size: $videoSize bytes',
+      );
 
       print('Sending request to: $uri');
-      final streamedResponse = await request.send().timeout(Duration(minutes: 10)); // Longer timeout for videos
+      final streamedResponse = await request.send().timeout(
+        Duration(minutes: 10),
+      ); // Longer timeout for videos
       final response = await http.Response.fromStream(streamedResponse);
 
       print('Response status: ${response.statusCode}');
@@ -325,10 +349,7 @@ class ApiService {
     }
   }
 
-
-
-
-  static const String baseUrlImage = 'http://51.75.31.246:3000';
+  static const String baseUrlImage = 'http://192.168.1.126:3000';
 
   static String getFullUrl(String? path) {
     print('🔍 ApiService.getFullUrl called with: "$path"');
@@ -347,8 +368,8 @@ class ApiService {
     // Normalize: replace backslashes with slashes and remove multiple slashes
     String normalizedPath = path
         .replaceAll('\\', '/')
-        .replaceAll(RegExp(r'^/+'), '')      // remove leading slashes
-        .replaceAll(RegExp(r'/+'), '/');     // collapse multiple slashes
+        .replaceAll(RegExp(r'^/+'), '') // remove leading slashes
+        .replaceAll(RegExp(r'/+'), '/'); // collapse multiple slashes
 
     print('🔄 Normalized path: "$normalizedPath"');
 
@@ -357,7 +378,6 @@ class ApiService {
 
     return fullUrl;
   }
-
 
   Future<bool> submitPurchaseForm({
     required String ebookId,
@@ -389,9 +409,6 @@ class ApiService {
       return false;
     }
   }
-
-
-
 
   Future<List<Video>> getRandomVideos() async {
     try {
@@ -427,8 +444,6 @@ class ApiService {
     }
   }
 
-
-
   Future<List<Ebook>> getRandomEbooks() async {
     try {
       final response = await _get('ebooks/random');
@@ -463,8 +478,6 @@ class ApiService {
     }
   }
 
-
-
   Future<List<dynamic>> getRandomWebinars() async {
     try {
       final response = await _get('webinars/random');
@@ -482,7 +495,9 @@ class ApiService {
           } else if (responseBody.containsKey('data')) {
             data = responseBody['data'] as List<dynamic>;
           } else {
-            throw Exception('Unexpected response format for webinars. Expected "webinars" key.');
+            throw Exception(
+              'Unexpected response format for webinars. Expected "webinars" key.',
+            );
           }
         } else {
           throw Exception('Invalid response format for webinars');
@@ -498,6 +513,4 @@ class ApiService {
       rethrow;
     }
   }
-
-
 }

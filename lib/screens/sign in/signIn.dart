@@ -20,13 +20,14 @@ import '../../services/cart_provider.dart';
 import '../feature page/feature_page.dart';
 
 class AuthScreen extends StatefulWidget {
-  const AuthScreen({Key? key}) : super(key: key);
+  const AuthScreen({super.key});
 
   @override
   _AuthScreenState createState() => _AuthScreenState();
 }
 
-class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateMixin {
+class _AuthScreenState extends State<AuthScreen>
+    with SingleTickerProviderStateMixin {
   bool _isLogin = true;
   bool _isEmailLogin = true; // Toggle between email and phone login
   final _formKey = GlobalKey<FormState>();
@@ -106,27 +107,31 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
   }
 
   Future<void> _handleGoogleSignIn() async {
-    final GoogleSignIn googleSignIn = GoogleSignIn();
+    final GoogleSignIn googleSignIn = GoogleSignIn.instance;
     final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
     try {
-      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-      if (googleUser == null) return;
+      final GoogleSignInAccount googleUser = await googleSignIn.authenticate();
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          googleUser.authentication;
+
+      final String? idToken = googleAuth.idToken;
+      if (idToken == null || idToken.isEmpty) {
+        throw Exception('Google sign-in failed: missing ID token');
+      }
 
       final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+        idToken: idToken,
       );
 
-      final UserCredential userCredential =
-      await firebaseAuth.signInWithCredential(credential);
+      final UserCredential userCredential = await firebaseAuth
+          .signInWithCredential(credential);
       final user = userCredential.user;
 
       if (user != null) {
         final response = await http.post(
-          Uri.parse('http://51.75.31.246:3000/api/auth/google-login'),
+          Uri.parse('http://192.168.1.126:3000/api/auth/google-login'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'email': user.email,
@@ -147,7 +152,8 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => HomeScreen(userData: userData, token: token),
+              builder:
+                  (context) => HomeScreen(userData: userData, token: token),
             ),
           );
         } else {
@@ -159,19 +165,22 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
     }
   }
 
-
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      String identifier = _isEmailLogin ? _emailController.text.trim() : _phoneController.text.trim();
+      String identifier =
+          _isEmailLogin
+              ? _emailController.text.trim()
+              : _phoneController.text.trim();
       String password = _passwordController.text.trim();
 
-      final body = _isEmailLogin
-          ? {'email': identifier, 'password': password}
-          : {'phone': identifier, 'password': password};
+      final body =
+          _isEmailLogin
+              ? {'email': identifier, 'password': password}
+              : {'phone': identifier, 'password': password};
 
       try {
         final response = await http.post(
-          Uri.parse('http://51.75.31.246:3000/api/auth/login'),
+          Uri.parse('http://192.168.1.126:3000/api/auth/login'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode(body),
         );
@@ -183,7 +192,10 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
 
           print('✅ Login successful. Token: $token');
 
-          final authProvider = Provider.of<myAuth.AuthProvider>(context, listen: false);
+          final authProvider = Provider.of<myAuth.AuthProvider>(
+            context,
+            listen: false,
+          );
           authProvider.setToken(token);
 
           final prefs = await SharedPreferences.getInstance();
@@ -195,25 +207,20 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => AdminDashboardScreen(
-                  userData: user,
-                  token: token,
-                ),
+                builder:
+                    (context) =>
+                        AdminDashboardScreen(userData: user, token: token),
               ),
             );
-          }else {
+          } else {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => HomeScreen(
-                  userData: user,
-                  token: token,
-                ),
+                builder: (context) => HomeScreen(userData: user, token: token),
               ),
             );
           }
-        }
-        else {
+        } else {
           final error = jsonDecode(response.body);
           print('❌ Login failed: ${error['message']}');
           ScaffoldMessenger.of(context).showSnackBar(
@@ -229,8 +236,6 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -240,11 +245,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
         _scaleAnimation == null ||
         _fadeAnimation == null ||
         _slideAnimation == null) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -286,7 +287,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: _lightGreen.withOpacity(0.6),
+                                    color: _lightGreen.withValues(alpha: 0.6),
                                     blurRadius: 25,
                                     spreadRadius: 5,
                                   ),
@@ -326,7 +327,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                               textAlign: TextAlign.center,
                               style: GoogleFonts.poppins(
                                 fontSize: 16,
-                                color: Colors.white.withOpacity(0.8),
+                                color: Colors.white.withValues(alpha: 0.8),
                                 fontWeight: FontWeight.w300,
                               ),
                             ),
@@ -346,7 +347,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
-                          shadowColor: Colors.black.withOpacity(0.3),
+                          shadowColor: Colors.black.withValues(alpha: 0.3),
                           child: Container(
                             padding: const EdgeInsets.all(32),
                             decoration: BoxDecoration(
@@ -354,7 +355,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                               borderRadius: BorderRadius.circular(30),
                               boxShadow: [
                                 BoxShadow(
-                                  color: _primaryGreen.withOpacity(0.1),
+                                  color: _primaryGreen.withValues(alpha: 0.1),
                                   blurRadius: 20,
                                   spreadRadius: 2,
                                   offset: const Offset(0, 5),
@@ -390,19 +391,33 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                           Expanded(
                                             child: GestureDetector(
                                               onTap: () {
-                                                if (!_isEmailLogin) _toggleLoginMethod();
+                                                if (!_isEmailLogin) {
+                                                  _toggleLoginMethod();
+                                                }
                                               },
                                               child: Container(
-                                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      vertical: 12,
+                                                    ),
                                                 decoration: BoxDecoration(
-                                                  color: _isEmailLogin ? _primaryGreen : Colors.transparent,
-                                                  borderRadius: BorderRadius.circular(15),
+                                                  color:
+                                                      _isEmailLogin
+                                                          ? _primaryGreen
+                                                          : Colors.transparent,
+                                                  borderRadius:
+                                                      BorderRadius.circular(15),
                                                 ),
                                                 child: Text(
                                                   'Email',
                                                   textAlign: TextAlign.center,
                                                   style: GoogleFonts.poppins(
-                                                    color: _isEmailLogin ? Colors.white : Colors.grey.shade700,
+                                                    color:
+                                                        _isEmailLogin
+                                                            ? Colors.white
+                                                            : Colors
+                                                                .grey
+                                                                .shade700,
                                                     fontWeight: FontWeight.w500,
                                                   ),
                                                 ),
@@ -413,19 +428,33 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                           Expanded(
                                             child: GestureDetector(
                                               onTap: () {
-                                                if (_isEmailLogin) _toggleLoginMethod();
+                                                if (_isEmailLogin) {
+                                                  _toggleLoginMethod();
+                                                }
                                               },
                                               child: Container(
-                                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      vertical: 12,
+                                                    ),
                                                 decoration: BoxDecoration(
-                                                  color: !_isEmailLogin ? _primaryGreen : Colors.transparent,
-                                                  borderRadius: BorderRadius.circular(15),
+                                                  color:
+                                                      !_isEmailLogin
+                                                          ? _primaryGreen
+                                                          : Colors.transparent,
+                                                  borderRadius:
+                                                      BorderRadius.circular(15),
                                                 ),
                                                 child: Text(
                                                   'Phone',
                                                   textAlign: TextAlign.center,
                                                   style: GoogleFonts.poppins(
-                                                    color: !_isEmailLogin ? Colors.white : Colors.grey.shade700,
+                                                    color:
+                                                        !_isEmailLogin
+                                                            ? Colors.white
+                                                            : Colors
+                                                                .grey
+                                                                .shade700,
                                                     fontWeight: FontWeight.w500,
                                                   ),
                                                 ),
@@ -464,7 +493,9 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                         if (value == null || value.isEmpty) {
                                           return 'Please enter your email';
                                         }
-                                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                                        if (!RegExp(
+                                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                                        ).hasMatch(value)) {
                                           return 'Please enter a valid email';
                                         }
                                         return null;
@@ -484,7 +515,9 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                         if (value == null || value.isEmpty) {
                                           return 'Please enter your phone number';
                                         }
-                                        if (!RegExp(r'^\+?[0-9]{10,15}$').hasMatch(value)) {
+                                        if (!RegExp(
+                                          r'^\+?[0-9]{10,15}$',
+                                        ).hasMatch(value)) {
                                           return 'Please enter a valid phone number';
                                         }
                                         return null;
@@ -516,7 +549,10 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                       alignment: Alignment.centerRight,
                                       child: TextButton(
                                         onPressed: () {
-                                          Navigator.pushNamed(context, '/forgot-reset');
+                                          Navigator.pushNamed(
+                                            context,
+                                            '/forgot-reset',
+                                          );
                                         },
                                         child: Text(
                                           'Forgot Password?',
@@ -533,18 +569,25 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                   const SizedBox(height: 30),
 
                                   // Submit Button with double infinity (full width)
-                                  Container(
+                                  SizedBox(
                                     width: double.infinity, // Full width
                                     child: ElevatedButton(
                                       onPressed: _submitForm,
                                       style: ElevatedButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(vertical: 16),
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 16,
+                                        ),
                                         backgroundColor: Colors.transparent,
                                         shadowColor: Colors.transparent,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(15),
+                                          borderRadius: BorderRadius.circular(
+                                            15,
+                                          ),
                                         ),
-                                        minimumSize: Size(double.infinity, 50), // Ensure full width
+                                        minimumSize: Size(
+                                          double.infinity,
+                                          50,
+                                        ), // Ensure full width
                                       ),
                                       child: Ink(
                                         decoration: BoxDecoration(
@@ -553,11 +596,17 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                             begin: Alignment.centerLeft,
                                             end: Alignment.centerRight,
                                           ),
-                                          borderRadius: BorderRadius.circular(15),
+                                          borderRadius: BorderRadius.circular(
+                                            15,
+                                          ),
                                         ),
                                         child: Container(
-                                          width: double.infinity, // Ensure inner container takes full width
-                                          padding: const EdgeInsets.symmetric(vertical: 15),
+                                          width:
+                                              double
+                                                  .infinity, // Ensure inner container takes full width
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 15,
+                                          ),
                                           child: Text(
                                             _isLogin ? 'LOGIN' : 'SIGN UP',
                                             textAlign: TextAlign.center,
@@ -589,7 +638,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                         children: [
                           Expanded(
                             child: Divider(
-                              color: Colors.white.withOpacity(0.5),
+                              color: Colors.white.withValues(alpha: 0.5),
                               thickness: 1,
                             ),
                           ),
@@ -598,14 +647,14 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                             child: Text(
                               'OR',
                               style: GoogleFonts.poppins(
-                                color: Colors.white.withOpacity(0.8),
+                                color: Colors.white.withValues(alpha: 0.8),
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
                           Expanded(
                             child: Divider(
-                              color: Colors.white.withOpacity(0.5),
+                              color: Colors.white.withValues(alpha: 0.5),
                               thickness: 1,
                             ),
                           ),
@@ -625,7 +674,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                           borderRadius: BorderRadius.circular(15),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withValues(alpha: 0.1),
                               blurRadius: 10,
                               spreadRadius: 1,
                             ),
@@ -639,12 +688,17 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                               'assets/google.png',
                               width: 24,
                               height: 24,
-                              errorBuilder: (context, error, stackTrace) =>
-                              const Icon(Icons.account_circle, size: 24),
+                              errorBuilder:
+                                  (context, error, stackTrace) => const Icon(
+                                    Icons.account_circle,
+                                    size: 24,
+                                  ),
                             ),
                           ),
                           label: Text(
-                            _isLogin ? 'Continue with Google' : 'Sign up with Google',
+                            _isLogin
+                                ? 'Continue with Google'
+                                : 'Sign up with Google',
                             style: GoogleFonts.poppins(
                               color: Colors.black87,
                               fontWeight: FontWeight.w500,
@@ -652,14 +706,16 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                             ),
                           ),
                           style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 16,
+                              horizontal: 24,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15),
                             ),
                             minimumSize: const Size(double.infinity, 50),
                           ),
-                        )
-                        ,
+                        ),
                       ),
                     ),
 
@@ -678,12 +734,13 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                             ),
                             children: [
                               TextSpan(
-                                text: _isLogin
-                                    ? 'Don\'t have an account? '
-                                    : 'Already have an account? ',
+                                text:
+                                    _isLogin
+                                        ? 'Don\'t have an account? '
+                                        : 'Already have an account? ',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w400,
-                                  color: Colors.white.withOpacity(0.9),
+                                  color: Colors.white.withValues(alpha: 0.9),
                                 ),
                               ),
                               TextSpan(
@@ -694,15 +751,21 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                   decoration: TextDecoration.underline,
                                   decorationThickness: 2,
                                 ),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-
-                                    if (_isLogin) {
-                                      Navigator.pushNamed(context, '/signup');
-                                    } else {
-                                      Navigator.pushNamed(context, '/login');
-                                    }
-                                  },
+                                recognizer:
+                                    TapGestureRecognizer()
+                                      ..onTap = () {
+                                        if (_isLogin) {
+                                          Navigator.pushNamed(
+                                            context,
+                                            '/signup',
+                                          );
+                                        } else {
+                                          Navigator.pushNamed(
+                                            context,
+                                            '/login',
+                                          );
+                                        }
+                                      },
                               ),
                             ],
                           ),
@@ -736,7 +799,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 5,
             offset: const Offset(0, 2),
           ),
@@ -746,10 +809,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
         controller: controller,
         obscureText: isPassword,
         keyboardType: keyboardType,
-        style: GoogleFonts.poppins(
-          fontSize: 16,
-          color: Colors.black87,
-        ),
+        style: GoogleFonts.poppins(fontSize: 16, color: Colors.black87),
         decoration: InputDecoration(
           labelText: label,
           labelStyle: GoogleFonts.poppins(
@@ -779,7 +839,10 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
           ),
           filled: true,
           fillColor: Colors.grey.shade50,
-          contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 16,
+            horizontal: 16,
+          ),
         ),
         validator: validator,
       ),
@@ -817,19 +880,17 @@ class BackgroundPatternPainter extends CustomPainter {
     final Gradient gradient = LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
-      colors: [
-        primaryColor,
-        secondaryColor.withOpacity(0.8),
-      ],
+      colors: [primaryColor, secondaryColor.withValues(alpha: 0.8)],
     );
 
     paint.shader = gradient.createShader(rect);
     canvas.drawRect(rect, paint);
 
     // Draw decorative circles
-    final Paint circlePaint = Paint()
-      ..color = Colors.white.withOpacity(0.07)
-      ..style = PaintingStyle.fill;
+    final Paint circlePaint =
+        Paint()
+          ..color = Colors.white.withValues(alpha: 0.07)
+          ..style = PaintingStyle.fill;
 
     // Draw a wave pattern
     final waveHeight = size.height / 2;
@@ -842,15 +903,17 @@ class BackgroundPatternPainter extends CustomPainter {
     for (int i = 0; i < 4; i++) {
       final waveSegmentWidth = waveWidth / 4;
       final x1 = waveSegmentWidth * i;
-      final y1 = size.height - (i % 2 == 0 ? waveHeight * 0.5 : waveHeight * 0.8);
+      final y1 =
+          size.height - (i % 2 == 0 ? waveHeight * 0.5 : waveHeight * 0.8);
       final x2 = waveSegmentWidth * (i + 1);
-      final y2 = size.height - (i % 2 == 0 ? waveHeight * 0.8 : waveHeight * 0.5);
+      final y2 =
+          size.height - (i % 2 == 0 ? waveHeight * 0.8 : waveHeight * 0.5);
 
       wavePath.quadraticBezierTo(
-          (x1 + x2) / 2,
-          size.height - waveHeight * 1.2,
-          x2,
-          y2
+        (x1 + x2) / 2,
+        size.height - waveHeight * 1.2,
+        x2,
+        y2,
       );
     }
 
@@ -861,14 +924,15 @@ class BackgroundPatternPainter extends CustomPainter {
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
       colors: [
-        secondaryColor.withOpacity(0.3),
-        secondaryColor.withOpacity(0.1),
+        secondaryColor.withValues(alpha: 0.3),
+        secondaryColor.withValues(alpha: 0.1),
       ],
     );
 
-    final wavePaint = Paint()
-      ..shader = waveGradient.createShader(rect)
-      ..style = PaintingStyle.fill;
+    final wavePaint =
+        Paint()
+          ..shader = waveGradient.createShader(rect)
+          ..style = PaintingStyle.fill;
 
     canvas.drawPath(wavePath, wavePaint);
 
@@ -879,11 +943,7 @@ class BackgroundPatternPainter extends CustomPainter {
       final y = random.nextDouble() * size.height;
       final radius = random.nextDouble() * 30 + 5;
 
-      canvas.drawCircle(
-        Offset(x, y),
-        radius,
-        circlePaint,
-      );
+      canvas.drawCircle(Offset(x, y), radius, circlePaint);
     }
 
     // Add a few larger circles with gradient
@@ -905,9 +965,9 @@ class BackgroundPatternPainter extends CustomPainter {
         center: Alignment.center,
         radius: 1.0,
         colors: [
-          Colors.white.withOpacity(0.15),
-          Colors.white.withOpacity(0.05),
-          Colors.white.withOpacity(0.0),
+          Colors.white.withValues(alpha: 0.15),
+          Colors.white.withValues(alpha: 0.05),
+          Colors.white.withValues(alpha: 0.0),
         ],
         stops: const [0.0, 0.5, 1.0],
       );
@@ -917,10 +977,11 @@ class BackgroundPatternPainter extends CustomPainter {
     }
 
     // Add subtle horizontal lines
-    final linePaint = Paint()
-      ..color = Colors.white.withOpacity(0.05)
-      ..strokeWidth = 1.0
-      ..style = PaintingStyle.stroke;
+    final linePaint =
+        Paint()
+          ..color = Colors.white.withValues(alpha: 0.05)
+          ..strokeWidth = 1.0
+          ..style = PaintingStyle.stroke;
 
     for (int i = 0; i < size.height; i += 20) {
       canvas.drawLine(

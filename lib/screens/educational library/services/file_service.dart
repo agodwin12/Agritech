@@ -18,13 +18,13 @@ class FileService {
         return null;
       }
 
-      final result = await FilePicker.platform.pickFiles(
+      final file = await FilePicker.pickFile(
         type: FileType.custom,
         allowedExtensions: ['pdf'],
       );
 
-      if (result != null && result.files.single.path != null) {
-        return File(result.files.single.path!);
+      if (file?.path != null) {
+        return File(file!.path!);
       }
       return null;
     } catch (e) {
@@ -35,12 +35,12 @@ class FileService {
 
   // Image selection with source choice
   static Future<File?> pickImage(
-      BuildContext context, {
-        bool fromCamera = false,
-        int maxWidth = 1024,
-        int maxHeight = 1024,
-        int imageQuality = 85,
-      }) async {
+    BuildContext context, {
+    bool fromCamera = false,
+    int maxWidth = 1024,
+    int maxHeight = 1024,
+    int imageQuality = 85,
+  }) async {
     try {
       bool hasPermission;
       if (fromCamera) {
@@ -76,14 +76,15 @@ class FileService {
 
   // Video selection with source choice
   static Future<File?> pickVideo(
-      BuildContext context, {
-        bool fromCamera = false,
-        Duration maxDuration = const Duration(minutes: 10),
-      }) async {
+    BuildContext context, {
+    bool fromCamera = false,
+    Duration maxDuration = const Duration(minutes: 10),
+  }) async {
     try {
       bool hasPermission;
       if (fromCamera) {
-        hasPermission = await PermissionService.requestVideoRecordingPermissions();
+        hasPermission =
+            await PermissionService.requestVideoRecordingPermissions();
         if (!hasPermission) {
           PermissionService.showCameraPermissionDialog(context);
           return null;
@@ -113,11 +114,11 @@ class FileService {
 
   // Show image source selection dialog
   static Future<File?> showImageSourceDialog(
-      BuildContext context, {
-        int maxWidth = 1024,
-        int maxHeight = 1024,
-        int imageQuality = 85,
-      }) async {
+    BuildContext context, {
+    int maxWidth = 1024,
+    int maxHeight = 1024,
+    int imageQuality = 85,
+  }) async {
     try {
       print('🖼️ Showing image source dialog...');
 
@@ -126,60 +127,61 @@ class FileService {
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
-        builder: (context) => Container(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Select Image Source',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        builder:
+            (context) => Container(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildSourceOption(
-                    context: context,
-                    icon: Icons.camera_alt,
-                    label: 'Camera',
-                    onTap: () async {
-                      print('📷 Camera option selected');
-                      Navigator.pop(context);
-                      final file = await pickImage(
-                        context,
-                        fromCamera: true,
-                        maxWidth: maxWidth,
-                        maxHeight: maxHeight,
-                        imageQuality: imageQuality,
-                      );
-                      Navigator.pop(context, file);
-                    },
+                  Text(
+                    'Select Image Source',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                  _buildSourceOption(
-                    context: context,
-                    icon: Icons.photo_library,
-                    label: 'Gallery',
-                    onTap: () async {
-                      print('🖼️ Gallery option selected');
-                      Navigator.pop(context);
-                      final file = await pickImage(
-                        context,
-                        fromCamera: false,
-                        maxWidth: maxWidth,
-                        maxHeight: maxHeight,
-                        imageQuality: imageQuality,
-                      );
-                      Navigator.pop(context, file);
-                    },
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildSourceOption(
+                        context: context,
+                        icon: Icons.camera_alt,
+                        label: 'Camera',
+                        onTap: () async {
+                          print('📷 Camera option selected');
+                          Navigator.pop(context);
+                          final file = await pickImage(
+                            context,
+                            fromCamera: true,
+                            maxWidth: maxWidth,
+                            maxHeight: maxHeight,
+                            imageQuality: imageQuality,
+                          );
+                          Navigator.pop(context, file);
+                        },
+                      ),
+                      _buildSourceOption(
+                        context: context,
+                        icon: Icons.photo_library,
+                        label: 'Gallery',
+                        onTap: () async {
+                          print('🖼️ Gallery option selected');
+                          Navigator.pop(context);
+                          final file = await pickImage(
+                            context,
+                            fromCamera: false,
+                            maxWidth: maxWidth,
+                            maxHeight: maxHeight,
+                            imageQuality: imageQuality,
+                          );
+                          Navigator.pop(context, file);
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
-        ),
+            ),
       );
     } catch (e) {
       print('💥 Error in showImageSourceDialog: $e');
@@ -189,9 +191,9 @@ class FileService {
 
   // Show video source selection dialog
   static Future<File?> showVideoSourceDialog(
-      BuildContext context, {
-        Duration maxDuration = const Duration(minutes: 10),
-      }) async {
+    BuildContext context, {
+    Duration maxDuration = const Duration(minutes: 10),
+  }) async {
     try {
       print('🎥 Showing video source dialog...');
 
@@ -200,56 +202,57 @@ class FileService {
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
-        builder: (context) => Container(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Select Video Source',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        builder:
+            (context) => Container(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildSourceOption(
-                    context: context,
-                    icon: Icons.videocam,
-                    label: 'Camera',
-                    onTap: () async {
-                      print('📹 Video camera option selected');
-                      Navigator.pop(context);
-                      final file = await pickVideo(
-                        context,
-                        fromCamera: true,
-                        maxDuration: maxDuration,
-                      );
-                      Navigator.pop(context, file);
-                    },
+                  Text(
+                    'Select Video Source',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                  _buildSourceOption(
-                    context: context,
-                    icon: Icons.video_library,
-                    label: 'Gallery',
-                    onTap: () async {
-                      print('📱 Video gallery option selected');
-                      Navigator.pop(context);
-                      final file = await pickVideo(
-                        context,
-                        fromCamera: false,
-                        maxDuration: maxDuration,
-                      );
-                      Navigator.pop(context, file);
-                    },
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildSourceOption(
+                        context: context,
+                        icon: Icons.videocam,
+                        label: 'Camera',
+                        onTap: () async {
+                          print('📹 Video camera option selected');
+                          Navigator.pop(context);
+                          final file = await pickVideo(
+                            context,
+                            fromCamera: true,
+                            maxDuration: maxDuration,
+                          );
+                          Navigator.pop(context, file);
+                        },
+                      ),
+                      _buildSourceOption(
+                        context: context,
+                        icon: Icons.video_library,
+                        label: 'Gallery',
+                        onTap: () async {
+                          print('📱 Video gallery option selected');
+                          Navigator.pop(context);
+                          final file = await pickVideo(
+                            context,
+                            fromCamera: false,
+                            maxDuration: maxDuration,
+                          );
+                          Navigator.pop(context, file);
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
-        ),
+            ),
       );
     } catch (e) {
       print('💥 Error in showVideoSourceDialog: $e');
@@ -313,7 +316,9 @@ class FileService {
     final bytes = file.lengthSync();
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    if (bytes < 1024 * 1024 * 1024) {
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    }
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 
@@ -401,7 +406,7 @@ class FileService {
     final extension = getFileExtension(file);
 
     switch (extension) {
-    // Images
+      // Images
       case 'jpg':
       case 'jpeg':
         return 'image/jpeg';
@@ -414,7 +419,7 @@ class FileService {
       case 'webp':
         return 'image/webp';
 
-    // Videos
+      // Videos
       case 'mp4':
         return 'video/mp4';
       case 'avi':
@@ -430,7 +435,7 @@ class FileService {
       case 'mkv':
         return 'video/x-matroska';
 
-    // Documents
+      // Documents
       case 'pdf':
         return 'application/pdf';
       case 'doc':
@@ -447,17 +452,18 @@ class FileService {
 
   // Compress image file (basic compression by reducing quality)
   static Future<File?> compressImage(
-      File imageFile, {
-        int quality = 70,
-        int maxWidth = 1920,
-        int maxHeight = 1080,
-      }) async {
+    File imageFile, {
+    int quality = 70,
+    int maxWidth = 1920,
+    int maxHeight = 1080,
+  }) async {
     try {
       // This is a basic implementation - for production, consider using
       // packages like flutter_image_compress for better compression
       final String fileName = getFileNameWithoutExtension(imageFile);
       final String extension = getFileExtension(imageFile);
-      final String tempPath = '${imageFile.parent.path}/${fileName}_compressed.$extension';
+      final String tempPath =
+          '${imageFile.parent.path}/${fileName}_compressed.$extension';
 
       // Use ImagePicker to compress (basic approach)
       final XFile? compressedImage = await _imagePicker.pickImage(
@@ -483,16 +489,15 @@ class FileService {
     List<String>? allowedExtensions,
   }) async {
     try {
-      final result = await FilePicker.platform.pickFiles(
-        allowMultiple: true,
+      final files = await FilePicker.pickFiles(
         type: type,
         allowedExtensions: allowedExtensions,
       );
 
-      if (result != null) {
-        return result.paths
-            .where((path) => path != null)
-            .map((path) => File(path!))
+      if (files.isNotEmpty) {
+        return files
+            .where((file) => file.path != null)
+            .map((file) => File(file.path!))
             .toList();
       }
       return [];
@@ -512,27 +517,31 @@ class FileService {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('File Information'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildInfoRow('Name:', fileName),
-            _buildInfoRow('Size:', fileSize),
-            _buildInfoRow('Type:', fileExtension.toUpperCase()),
-            _buildInfoRow('MIME:', mimeType),
-            if (creationDate != null)
-              _buildInfoRow('Modified:', creationDate.toString().split('.')[0]),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('File Information'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildInfoRow('Name:', fileName),
+                _buildInfoRow('Size:', fileSize),
+                _buildInfoRow('Type:', fileExtension.toUpperCase()),
+                _buildInfoRow('MIME:', mimeType),
+                if (creationDate != null)
+                  _buildInfoRow(
+                    'Modified:',
+                    creationDate.toString().split('.')[0],
+                  ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -549,9 +558,7 @@ class FileService {
               style: const TextStyle(fontWeight: FontWeight.w500),
             ),
           ),
-          Expanded(
-            child: Text(value),
-          ),
+          Expanded(child: Text(value)),
         ],
       ),
     );

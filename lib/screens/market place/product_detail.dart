@@ -12,17 +12,18 @@ class ProductDetailScreen extends StatefulWidget {
   final String token;
 
   const ProductDetailScreen({
-    Key? key,
+    super.key,
     required this.productId,
     required this.userData,
     required this.token,
-  }) : super(key: key);
+  });
 
   @override
   _ProductDetailScreenState createState() => _ProductDetailScreenState();
 }
 
-class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTickerProviderStateMixin {
+class _ProductDetailScreenState extends State<ProductDetailScreen>
+    with SingleTickerProviderStateMixin {
   late ApiService _apiService;
   Product? _product;
   List<Review> _reviews = [];
@@ -39,7 +40,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _apiService = ApiService(
-      baseUrl: 'http://51.75.31.246:3000',
+      baseUrl: 'http://192.168.1.126:3000',
       token: widget.token,
     );
     _loadProductDetails();
@@ -95,22 +96,23 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
       setState(() {
         _isLoadingReviews = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading reviews: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error loading reviews: $e')));
     }
   }
 
   double get _averageRating {
     if (_reviews.isEmpty) return 0;
-    return _reviews.fold(0.0, (sum, review) => sum + review.rating) / _reviews.length;
+    return _reviews.fold(0.0, (sum, review) => sum + review.rating) /
+        _reviews.length;
   }
 
   Future<void> _submitReview() async {
     if (_userRating == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a rating')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select a rating')));
       return;
     }
 
@@ -140,9 +142,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
       setState(() {
         _isSubmittingReview = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error submitting review: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error submitting review: $e')));
     }
   }
 
@@ -156,238 +158,272 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : CustomScrollView(
-        slivers: [
-          // App Bar with Product Image
-          SliverAppBar(
-            expandedHeight: 300.0,
-            floating: false,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                _product!.name,
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  // Product Image
-                  _product!.images != null && _product!.images!.isNotEmpty
-                      ? PageView.builder(
-                    itemCount: _product!.images!.length,
-                    itemBuilder: (context, index) {
-                      return Hero(
-                        tag: 'product-${_product!.id}',
-                        child: Image.network(
-                          _product!.images![index],
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              color: Colors.grey[800],
-                              child: const Center(
-                                child: Icon(Icons.broken_image_rounded, size: 50, color: Colors.white),
-                              ),
-                            );
-                          },
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : CustomScrollView(
+                slivers: [
+                  // App Bar with Product Image
+                  SliverAppBar(
+                    expandedHeight: 300.0,
+                    floating: false,
+                    pinned: true,
+                    flexibleSpace: FlexibleSpaceBar(
+                      title: Text(
+                        _product!.name,
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
                         ),
-                      );
-                    },
-                  )
-                      : Container(
-                    color: Colors.grey[800],
-                    child: const Center(
-                      child: Icon(Icons.image, size: 50, color: Colors.white70),
-                    ),
-                  ),
-
-                  // Gradient overlay for better text visibility
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          Colors.black.withOpacity(0.7),
-                        ],
-                        stops: const [0.7, 1.0],
                       ),
-                    ),
-                  ),
-
-                  // NEW badge if the product is new
-                  if (_shouldShowNewBadge(_product!))
-                    Positioned(
-                      top: 16,
-                      right: 16,
-                      child: Container(
-                        width: 60,
-                        height: 60,
-                        child: Stack(
-                          children: [
-                            Icon(
-                              Icons.star,
-                              size: 60,
-                              color: Colors.blue[600],
-                            ),
-                            Center(
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: 6),
-                                child: Text(
-                                  'NEW',
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w700,
-                                    letterSpacing: 0.2,
+                      background: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          // Product Image
+                          _product!.images != null &&
+                                  _product!.images!.isNotEmpty
+                              ? PageView.builder(
+                                itemCount: _product!.images!.length,
+                                itemBuilder: (context, index) {
+                                  return Hero(
+                                    tag: 'product-${_product!.id}',
+                                    child: Image.network(
+                                      _product!.images![index],
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (
+                                        context,
+                                        error,
+                                        stackTrace,
+                                      ) {
+                                        return Container(
+                                          color: Colors.grey[800],
+                                          child: const Center(
+                                            child: Icon(
+                                              Icons.broken_image_rounded,
+                                              size: 50,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  );
+                                },
+                              )
+                              : Container(
+                                color: Colors.grey[800],
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.image,
+                                    size: 50,
+                                    color: Colors.white70,
                                   ),
                                 ),
                               ),
+
+                          // Gradient overlay for better text visibility
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.transparent,
+                                  Colors.black.withValues(alpha: 0.7),
+                                ],
+                                stops: const [0.7, 1.0],
+                              ),
                             ),
-                          ],
+                          ),
+
+                          // NEW badge if the product is new
+                          if (_shouldShowNewBadge(_product!))
+                            Positioned(
+                              top: 16,
+                              right: 16,
+                              child: SizedBox(
+                                width: 60,
+                                height: 60,
+                                child: Stack(
+                                  children: [
+                                    Icon(
+                                      Icons.star,
+                                      size: 60,
+                                      color: Colors.blue[600],
+                                    ),
+                                    Center(
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                          bottom: 6,
+                                        ),
+                                        child: Text(
+                                          'NEW',
+                                          style: GoogleFonts.poppins(
+                                            color: Colors.white,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w700,
+                                            letterSpacing: 0.2,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Product Details and Reviews Tabs
+                  SliverPersistentHeader(
+                    delegate: _SliverAppBarDelegate(
+                      TabBar(
+                        controller: _tabController,
+                        labelColor: primaryColor,
+                        unselectedLabelColor:
+                            isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                        indicatorColor: primaryColor,
+                        tabs: [
+                          Tab(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.info_outline, size: 18),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Details',
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Tab(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.star_border_rounded, size: 18),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Reviews (${_reviews.length})',
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      backgroundColor: backgroundColor,
+                    ),
+                    pinned: true,
+                  ),
+
+                  // Tab Content
+                  SliverFillRemaining(
+                    child: TabBarView(
+                      controller: _tabController,
+                      children: [
+                        // DETAILS TAB
+                        _buildDetailsTab(
+                          context,
+                          textColor,
+                          cardColor,
+                          primaryColor,
+                        ),
+
+                        // REVIEWS TAB
+                        _buildReviewsTab(
+                          context,
+                          textColor,
+                          cardColor,
+                          primaryColor,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+      bottomNavigationBar:
+          _isLoading
+              ? null
+              : Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, -5),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    // Price
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Price',
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color:
+                                  isDarkMode
+                                      ? Colors.grey[400]
+                                      : Colors.grey[600],
+                            ),
+                          ),
+                          Text(
+                            'XAF${_product!.price.toStringAsFixed(0)}',
+                            style: GoogleFonts.poppins(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              color: primaryColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Add to Cart Button
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed:
+                            _product!.stockQuantity > 0 ? _addToCart : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryColor,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: Text(
+                          _product!.stockQuantity > 0
+                              ? 'Add to Cart'
+                              : 'Out of Stock',
+                          style: GoogleFonts.poppins(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
-                ],
-              ),
-            ),
-          ),
-
-          // Product Details and Reviews Tabs
-          SliverPersistentHeader(
-            delegate: _SliverAppBarDelegate(
-              TabBar(
-                controller: _tabController,
-                labelColor: primaryColor,
-                unselectedLabelColor: isDarkMode ? Colors.grey[400] : Colors.grey[600],
-                indicatorColor: primaryColor,
-                tabs: [
-                  Tab(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.info_outline, size: 18),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Details',
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Tab(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.star_border_rounded, size: 18),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Reviews (${_reviews.length})',
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              backgroundColor: backgroundColor,
-            ),
-            pinned: true,
-          ),
-
-          // Tab Content
-          SliverFillRemaining(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                // DETAILS TAB
-                _buildDetailsTab(context, textColor, cardColor, primaryColor),
-
-                // REVIEWS TAB
-                _buildReviewsTab(context, textColor, cardColor, primaryColor),
-              ],
-            ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: _isLoading
-          ? null
-          : Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            // Price
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Price',
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
-                    ),
-                  ),
-                  Text(
-                    '\XAF${_product!.price.toStringAsFixed(0)}',
-                    style: GoogleFonts.poppins(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: primaryColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Add to Cart Button
-            Expanded(
-              child: ElevatedButton(
-                onPressed: _product!.stockQuantity > 0 ? _addToCart : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 0,
-                ),
-                child: Text(
-                  _product!.stockQuantity > 0 ? 'Add to Cart' : 'Out of Stock',
-                  style: GoogleFonts.poppins(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  ],
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -401,7 +437,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
     return false;
   }
 
-  Widget _buildDetailsTab(BuildContext context, Color textColor, Color cardColor, Color primaryColor) {
+  Widget _buildDetailsTab(
+    BuildContext context,
+    Color textColor,
+    Color cardColor,
+    Color primaryColor,
+  ) {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -411,7 +452,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: Colors.grey.withOpacity(0.2)),
+            side: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
           ),
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -451,7 +492,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                 // Categories
                 Row(
                   children: [
-                    Icon(Icons.category_outlined, size: 18, color: Colors.grey[600]),
+                    Icon(
+                      Icons.category_outlined,
+                      size: 18,
+                      color: Colors.grey[600],
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Wrap(
@@ -462,9 +507,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                               _product!.categoryName ?? 'Unknown Category',
                               style: GoogleFonts.poppins(fontSize: 12),
                             ),
-                            backgroundColor: primaryColor.withOpacity(0.1),
+                            backgroundColor: primaryColor.withValues(alpha: 0.1),
                             padding: EdgeInsets.zero,
-                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
                           ),
                           if (_product!.subCategoryName != null)
                             Chip(
@@ -472,9 +518,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                                 _product!.subCategoryName!,
                                 style: GoogleFonts.poppins(fontSize: 12),
                               ),
-                              backgroundColor: primaryColor.withOpacity(0.1),
+                              backgroundColor: primaryColor.withValues(alpha: 0.1),
                               padding: EdgeInsets.zero,
-                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
                             ),
                         ],
                       ),
@@ -487,8 +534,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                 Row(
                   children: [
                     Icon(
-                      _product!.stockQuantity > 0 ? Icons.check_circle : Icons.cancel,
-                      color: _product!.stockQuantity > 0 ? Colors.green : Colors.red,
+                      _product!.stockQuantity > 0
+                          ? Icons.check_circle
+                          : Icons.cancel,
+                      color:
+                          _product!.stockQuantity > 0
+                              ? Colors.green
+                              : Colors.red,
                       size: 18,
                     ),
                     const SizedBox(width: 8),
@@ -498,7 +550,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                           : 'Out of Stock',
                       style: GoogleFonts.poppins(
                         fontSize: 14,
-                        color: _product!.stockQuantity > 0 ? Colors.green : Colors.red,
+                        color:
+                            _product!.stockQuantity > 0
+                                ? Colors.green
+                                : Colors.red,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -506,7 +561,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                 ),
 
                 // Description
-                if (_product!.description != null && _product!.description!.isNotEmpty) ...[
+                if (_product!.description != null &&
+                    _product!.description!.isNotEmpty) ...[
                   const SizedBox(height: 24),
                   Text(
                     'Description',
@@ -543,7 +599,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: Colors.grey.withOpacity(0.2)),
+            side: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
           ),
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -565,27 +621,31 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                     // Decrease Button
                     Container(
                       decoration: BoxDecoration(
-                        color: primaryColor.withOpacity(0.1),
+                        color: primaryColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: IconButton(
                         icon: Icon(Icons.remove, color: primaryColor),
-                        onPressed: _quantity > 1
-                            ? () {
-                          setState(() {
-                            _quantity--;
-                          });
-                        }
-                            : null,
+                        onPressed:
+                            _quantity > 1
+                                ? () {
+                                  setState(() {
+                                    _quantity--;
+                                  });
+                                }
+                                : null,
                       ),
                     ),
 
                     // Quantity Display
                     Container(
                       margin: const EdgeInsets.symmetric(horizontal: 16),
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                        border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -600,18 +660,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                     // Increase Button
                     Container(
                       decoration: BoxDecoration(
-                        color: primaryColor.withOpacity(0.1),
+                        color: primaryColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: IconButton(
                         icon: Icon(Icons.add, color: primaryColor),
-                        onPressed: _quantity < (_product!.stockQuantity ?? 0)
-                            ? () {
-                          setState(() {
-                            _quantity++;
-                          });
-                        }
-                            : null,
+                        onPressed:
+                            _quantity < (_product!.stockQuantity ?? 0)
+                                ? () {
+                                  setState(() {
+                                    _quantity++;
+                                  });
+                                }
+                                : null,
                       ),
                     ),
                   ],
@@ -622,7 +683,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                 // Total Price
                 Center(
                   child: Text(
-                    'Total: \XAF${(_product!.price * _quantity).toStringAsFixed(0)}',
+                    'Total: XAF${(_product!.price * _quantity).toStringAsFixed(0)}',
                     style: GoogleFonts.poppins(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -641,7 +702,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
   }
 
   // ENHANCED Seller Card that's always visible and more prominent
-  Widget _buildSellerCard(Color textColor, Color cardColor, Color primaryColor) {
+  Widget _buildSellerCard(
+    Color textColor,
+    Color cardColor,
+    Color primaryColor,
+  ) {
     // Print debug info about the product and seller
     print('DEBUG Product UserId: ${_product!.userId}');
 
@@ -653,7 +718,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.blue.withOpacity(0.2),
+            color: Colors.blue.withValues(alpha: 0.2),
             blurRadius: 8,
             spreadRadius: 1,
           ),
@@ -684,9 +749,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                   ),
                   // Info icon with tooltip
                   Tooltip(
-                    message: hasSellerInfo
-                        ? 'Click below to view seller profile'
-                        : 'Seller profile not available for this product',
+                    message:
+                        hasSellerInfo
+                            ? 'Click below to view seller profile'
+                            : 'Seller profile not available for this product',
                     child: Icon(
                       Icons.info_outline,
                       size: 20,
@@ -703,15 +769,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                   // Seller avatar
                   CircleAvatar(
                     radius: 30,
-                    backgroundColor: primaryColor.withOpacity(0.1),
+                    backgroundColor: primaryColor.withValues(alpha: 0.1),
                     backgroundImage: _getSellerImage(),
-                    child: _getSellerImage() == null
-                        ? Icon(
-                      Icons.person,
-                      size: 30,
-                      color: primaryColor,
-                    )
-                        : null,
+                    child:
+                        _getSellerImage() == null
+                            ? Icon(Icons.person, size: 30, color: primaryColor)
+                            : null,
                   ),
                   const SizedBox(width: 16),
 
@@ -767,47 +830,59 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
 
               // View seller profile button
               GestureDetector(
-                onTap: hasSellerInfo ? () {
-                  // Navigate to seller profile
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => UserProfileScreen(
-                        userId: _product!.userId!,
-                        token: widget.token,
-                      ),
-                    ),
-                  );
-                } : () {
-                  // Show message when seller profile is not available
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Seller profile not available for this product'),
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                  );
-                },
+                onTap:
+                    hasSellerInfo
+                        ? () {
+                          // Navigate to seller profile
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => UserProfileScreen(
+                                    userId: _product!.userId!,
+                                    token: widget.token,
+                                  ),
+                            ),
+                          );
+                        }
+                        : () {
+                          // Show message when seller profile is not available
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Seller profile not available for this product',
+                              ),
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          );
+                        },
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   decoration: BoxDecoration(
-                    gradient: hasSellerInfo
-                        ? LinearGradient(
-                      colors: [Colors.blue, Colors.blue.shade700],
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                    )
-                        : null,
+                    gradient:
+                        hasSellerInfo
+                            ? LinearGradient(
+                              colors: [Colors.blue, Colors.blue.shade700],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                            )
+                            : null,
                     color: hasSellerInfo ? null : Colors.grey[300],
                     borderRadius: BorderRadius.circular(12),
-                    boxShadow: hasSellerInfo ? [
-                      BoxShadow(
-                        color: Colors.blue.withOpacity(0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ] : null,
+                    boxShadow:
+                        hasSellerInfo
+                            ? [
+                              BoxShadow(
+                                color: Colors.blue.withValues(alpha: 0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ]
+                            : null,
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -819,18 +894,21 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        hasSellerInfo ? 'View Seller Profile' : 'Seller Profile Not Available',
+                        hasSellerInfo
+                            ? 'View Seller Profile'
+                            : 'Seller Profile Not Available',
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: hasSellerInfo ? Colors.white : Colors.grey[700],
+                          color:
+                              hasSellerInfo ? Colors.white : Colors.grey[700],
                         ),
                       ),
                       if (hasSellerInfo) ...[
                         const SizedBox(width: 8),
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(50),
                           ),
                           padding: const EdgeInsets.all(4),
@@ -892,233 +970,263 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
     return 'No ratings';
   }
 
-  Widget _buildReviewsTab(BuildContext context, Color textColor, Color cardColor, Color primaryColor) {
+  Widget _buildReviewsTab(
+    BuildContext context,
+    Color textColor,
+    Color cardColor,
+    Color primaryColor,
+  ) {
     return _isLoadingReviews
         ? const Center(child: CircularProgressIndicator())
         : ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        // Average Rating Card
-        Card(
-          color: cardColor,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: Colors.grey.withOpacity(0.2)),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                Text(
-                  'Customer Reviews',
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: textColor,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+          padding: const EdgeInsets.all(16),
+          children: [
+            // Average Rating Card
+            Card(
+              color: cardColor,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
                   children: [
                     Text(
-                      _averageRating.toStringAsFixed(1),
+                      'Customer Reviews',
                       style: GoogleFonts.poppins(
-                        fontSize: 48,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
                         color: textColor,
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Row(
-                          children: List.generate(5, (index) {
-                            return Icon(
-                              index < _averageRating.floor()
-                                  ? Icons.star
-                                  : (index < _averageRating.ceil() && index > _averageRating.floor())
-                                  ? Icons.star_half
-                                  : Icons.star_border,
-                              color: Colors.amber,
-                              size: 24,
-                            );
-                          }),
-                        ),
-                        const SizedBox(height: 4),
                         Text(
-                          'Based on ${_reviews.length} reviews',
+                          _averageRating.toStringAsFixed(1),
                           style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            color: Colors.grey[600],
+                            fontSize: 48,
+                            fontWeight: FontWeight.w700,
+                            color: textColor,
                           ),
+                        ),
+                        const SizedBox(width: 16),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: List.generate(5, (index) {
+                                return Icon(
+                                  index < _averageRating.floor()
+                                      ? Icons.star
+                                      : (index < _averageRating.ceil() &&
+                                          index > _averageRating.floor())
+                                      ? Icons.star_half
+                                      : Icons.star_border,
+                                  color: Colors.amber,
+                                  size: 24,
+                                );
+                              }),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Based on ${_reviews.length} reviews',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
 
-        const SizedBox(height: 24),
+            const SizedBox(height: 24),
 
-        // Write a Review Card
-        Card(
-          color: cardColor,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: Colors.grey.withOpacity(0.2)),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Write a Review',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: textColor,
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Star Rating
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(5, (index) {
-                    return IconButton(
-                      icon: Icon(
-                        index < _userRating.floor() ? Icons.star : Icons.star_border,
-                        color: Colors.amber,
-                        size: 32,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _userRating = index + 1.0;
-                        });
-                      },
-                    );
-                  }),
-                ),
-                const SizedBox(height: 16),
-
-                // Review Text Field
-                TextField(
-                  controller: _reviewController,
-                  maxLines: 3,
-                  decoration: InputDecoration(
-                    hintText: 'Share your experience with this product...',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey.withOpacity(0.3)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: primaryColor, width: 2),
-                    ),
-                    filled: true,
-                    fillColor: cardColor,
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Submit Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _isSubmittingReview ? null : _submitReview,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: _isSubmittingReview
-                        ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                        : Text(
-                      'Submit Review',
+            // Write a Review Card
+            Card(
+              color: cardColor,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Write a Review',
                       style: GoogleFonts.poppins(
-                        fontSize: 15,
+                        fontSize: 16,
                         fontWeight: FontWeight.w600,
+                        color: textColor,
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 16),
+
+                    // Star Rating
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(5, (index) {
+                        return IconButton(
+                          icon: Icon(
+                            index < _userRating.floor()
+                                ? Icons.star
+                                : Icons.star_border,
+                            color: Colors.amber,
+                            size: 32,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _userRating = index + 1.0;
+                            });
+                          },
+                        );
+                      }),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Review Text Field
+                    TextField(
+                      controller: _reviewController,
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        hintText: 'Share your experience with this product...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Colors.grey.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: primaryColor, width: 2),
+                        ),
+                        filled: true,
+                        fillColor: cardColor,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Submit Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _isSubmittingReview ? null : _submitReview,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryColor,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
+                        child:
+                            _isSubmittingReview
+                                ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                                : Text(
+                                  'Submit Review',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
 
-        const SizedBox(height: 24),
+            const SizedBox(height: 24),
 
-        // Reviews List
-        if (_reviews.isEmpty)
-          Center(
-            child: Column(
-              children: [
-                Icon(Icons.rate_review_outlined, size: 64, color: Colors.grey[400]),
-                const SizedBox(height: 16),
-                Text(
-                  'No reviews yet',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
+            // Reviews List
+            if (_reviews.isEmpty)
+              Center(
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.rate_review_outlined,
+                      size: 64,
+                      color: Colors.grey[400],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No reviews yet',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Be the first to review this product',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.grey[500],
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'Be the first to review this product',
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    color: Colors.grey[500],
-                  ),
-                ),
-              ],
-            ),
-          )
-        else
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: _reviews.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 16),
-            itemBuilder: (context, index) {
-              final review = _reviews[index];
-              return _buildReviewCard(review, textColor, cardColor, primaryColor);
-            },
-          ),
+              )
+            else
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _reviews.length,
+                separatorBuilder:
+                    (context, index) => const SizedBox(height: 16),
+                itemBuilder: (context, index) {
+                  final review = _reviews[index];
+                  return _buildReviewCard(
+                    review,
+                    textColor,
+                    cardColor,
+                    primaryColor,
+                  );
+                },
+              ),
 
-        const SizedBox(height: 100), // Bottom padding for the floating button
-      ],
-    );
+            const SizedBox(
+              height: 100,
+            ), // Bottom padding for the floating button
+          ],
+        );
   }
 
   // ENHANCED Review Card with more obvious clickable username
-  Widget _buildReviewCard(Review review, Color textColor, Color cardColor, Color primaryColor) {
+  Widget _buildReviewCard(
+    Review review,
+    Color textColor,
+    Color cardColor,
+    Color primaryColor,
+  ) {
     return Card(
       color: cardColor,
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Colors.grey.withOpacity(0.2)),
+        side: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -1132,56 +1240,60 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                 // Make username clickable when userId is available
                 review.userId != null
                     ? Tooltip(
-                  message: 'View user profile',
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => UserProfileScreen(
-                            userId: review.userId!,
-                            token: widget.token,
+                      message: 'View user profile',
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => UserProfileScreen(
+                                    userId: review.userId!,
+                                    token: widget.token,
+                                  ),
+                            ),
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: primaryColor.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                review.userName ?? 'Anonymous',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: primaryColor,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Icon(
+                                Icons.person_outline,
+                                size: 14,
+                                color: primaryColor,
+                              ),
+                            ],
                           ),
                         ),
-                      );
-                    },
-                    borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: primaryColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            review.userName ?? 'Anonymous',
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: primaryColor,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Icon(
-                            Icons.person_outline,
-                            size: 14,
-                            color: primaryColor,
-                          ),
-                        ],
+                    )
+                    : Text(
+                      review.userName ?? 'Anonymous',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: textColor,
                       ),
                     ),
-                  ),
-                )
-                    : Text(
-                  review.userName ?? 'Anonymous',
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: textColor,
-                  ),
-                ),
                 Text(
                   _formatDate(review.createdAt),
                   style: GoogleFonts.poppins(
@@ -1232,23 +1344,28 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircularProgressIndicator(color: Theme.of(context).primaryColor),
-              const SizedBox(width: 20),
-              Text(
-                "Adding to cart...",
-                style: GoogleFonts.poppins(fontSize: 16),
+      builder:
+          (context) => Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  const SizedBox(width: 20),
+                  Text(
+                    "Adding to cart...",
+                    style: GoogleFonts.poppins(fontSize: 16),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
     );
 
     try {
@@ -1261,7 +1378,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
           content: Text('${_product!.name} added to cart!'),
           duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
           action: SnackBarAction(
             label: 'View Cart',
             onPressed: () {
@@ -1280,7 +1399,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
         SnackBar(
           content: Text('Failed to add item: $e'),
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
     }
@@ -1301,15 +1422,17 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => tabBar.preferredSize.height;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      color: backgroundColor,
-      child: tabBar,
-    );
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Container(color: backgroundColor, child: tabBar);
   }
 
   @override
   bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
-    return tabBar != oldDelegate.tabBar || backgroundColor != oldDelegate.backgroundColor;
+    return tabBar != oldDelegate.tabBar ||
+        backgroundColor != oldDelegate.backgroundColor;
   }
 }

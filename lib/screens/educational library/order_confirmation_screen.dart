@@ -6,20 +6,19 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import 'model/ebook_model.dart';
 
-
 class OrderConfirmationScreen extends StatelessWidget {
   final List<Ebook> ebooks;
   final Map<String, dynamic> orderDetails;
 
   const OrderConfirmationScreen({
-    Key? key,
+    super.key,
     required this.ebooks,
     required this.orderDetails,
-  }) : super(key: key);
+  });
 
   // Helper method to get full URL if ApiService.getFullUrl doesn't work
   String _getFullUrl(String? path) {
-    const String baseUrlImage = 'http://51.75.31.246:3000';
+    const String baseUrlImage = 'http://192.168.1.126:3000';
 
     if (path == null || path.trim().isEmpty) {
       return '';
@@ -33,8 +32,8 @@ class OrderConfirmationScreen extends StatelessWidget {
     // Normalize: replace backslashes with slashes and remove multiple slashes
     String normalizedPath = path
         .replaceAll('\\', '/')
-        .replaceAll(RegExp(r'^/+'), '')      // remove leading slashes
-        .replaceAll(RegExp(r'/+'), '/');     // collapse multiple slashes
+        .replaceAll(RegExp(r'^/+'), '') // remove leading slashes
+        .replaceAll(RegExp(r'/+'), '/'); // collapse multiple slashes
 
     return '$baseUrlImage/$normalizedPath';
   }
@@ -78,7 +77,9 @@ class OrderConfirmationScreen extends StatelessWidget {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12), // Fixed value instead of AppConstants.borderRadius
+        borderRadius: BorderRadius.circular(
+          12,
+        ), // Fixed value instead of AppConstants.borderRadius
       ),
       child: Container(
         width: double.infinity,
@@ -101,7 +102,7 @@ class OrderConfirmationScreen extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   ),
@@ -128,7 +129,7 @@ class OrderConfirmationScreen extends StatelessWidget {
               textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
                 fontSize: 14,
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
               ),
             ),
           ],
@@ -157,7 +158,9 @@ class OrderConfirmationScreen extends StatelessWidget {
                   style: GoogleFonts.poppins(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87, // Fixed color instead of AppColorss.textPrimary
+                    color:
+                        Colors
+                            .black87, // Fixed color instead of AppColorss.textPrimary
                   ),
                 ),
               ],
@@ -166,8 +169,14 @@ class OrderConfirmationScreen extends StatelessWidget {
 
             _buildSummaryRow('Order ID:', orderDetails['orderId'] ?? 'N/A'),
             _buildSummaryRow('Date:', _formatDate(DateTime.now())),
-            _buildSummaryRow('Items:', '${ebooks.length} ebook${ebooks.length > 1 ? 's' : ''}'),
-            _buildSummaryRow('Payment Method:', _getPaymentMethodName(orderDetails['paymentMethod'])),
+            _buildSummaryRow(
+              'Items:',
+              '${ebooks.length} ebook${ebooks.length > 1 ? 's' : ''}',
+            ),
+            _buildSummaryRow(
+              'Payment Method:',
+              _getPaymentMethodName(orderDetails['paymentMethod']),
+            ),
 
             const Divider(height: 24),
 
@@ -208,7 +217,9 @@ class OrderConfirmationScreen extends StatelessWidget {
             label,
             style: GoogleFonts.poppins(
               fontSize: 14,
-              color: Colors.black54, // Fixed color instead of AppColorss.textSecondary
+              color:
+                  Colors
+                      .black54, // Fixed color instead of AppColorss.textSecondary
             ),
           ),
           Text(
@@ -251,11 +262,24 @@ class OrderConfirmationScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            _buildDetailRow(Icons.email, 'Email:', orderDetails['email'] ?? 'N/A'),
-            _buildDetailRow(Icons.phone, 'Phone:', orderDetails['phone'] ?? 'N/A'),
-            _buildDetailRow(Icons.location_on, 'Address:', orderDetails['address'] ?? 'N/A'),
+            _buildDetailRow(
+              Icons.email,
+              'Email:',
+              orderDetails['email'] ?? 'N/A',
+            ),
+            _buildDetailRow(
+              Icons.phone,
+              'Phone:',
+              orderDetails['phone'] ?? 'N/A',
+            ),
+            _buildDetailRow(
+              Icons.location_on,
+              'Address:',
+              orderDetails['address'] ?? 'N/A',
+            ),
 
-            if (orderDetails['note'] != null && orderDetails['note'].toString().isNotEmpty)
+            if (orderDetails['note'] != null &&
+                orderDetails['note'].toString().isNotEmpty)
               _buildDetailRow(Icons.note, 'Note:', orderDetails['note']),
           ],
         ),
@@ -332,17 +356,16 @@ class OrderConfirmationScreen extends StatelessWidget {
 
   Widget _buildPurchasedEbookItem(Ebook ebook) {
     // Use helper method instead of ApiService.getFullUrl
-    final coverImageUrl = ebook.coverImage != null
-        ? _getFullUrl(ebook.coverImage!)
-        : null;
+    final coverImageUrl =
+        ebook.coverImage != null ? _getFullUrl(ebook.coverImage!) : null;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.green.withOpacity(0.05),
+        color: Colors.green.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12), // Fixed value
-        border: Border.all(color: Colors.green.withOpacity(0.2)),
+        border: Border.all(color: Colors.green.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
@@ -354,7 +377,7 @@ class OrderConfirmationScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -362,25 +385,38 @@ class OrderConfirmationScreen extends StatelessWidget {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: coverImageUrl != null && coverImageUrl.isNotEmpty
-                  ? CachedNetworkImage(
-                imageUrl: coverImageUrl,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
-                  color: Colors.grey[200],
-                  child: const Center(
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  color: Colors.grey[200],
-                  child: Icon(Icons.book, color: Colors.grey[400], size: 20),
-                ),
-              )
-                  : Container(
-                color: Colors.grey[200],
-                child: Icon(Icons.book, color: Colors.grey[400], size: 20),
-              ),
+              child:
+                  coverImageUrl != null && coverImageUrl.isNotEmpty
+                      ? CachedNetworkImage(
+                        imageUrl: coverImageUrl,
+                        fit: BoxFit.cover,
+                        placeholder:
+                            (context, url) => Container(
+                              color: Colors.grey[200],
+                              child: const Center(
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                            ),
+                        errorWidget:
+                            (context, url, error) => Container(
+                              color: Colors.grey[200],
+                              child: Icon(
+                                Icons.book,
+                                color: Colors.grey[400],
+                                size: 20,
+                              ),
+                            ),
+                      )
+                      : Container(
+                        color: Colors.grey[200],
+                        child: Icon(
+                          Icons.book,
+                          color: Colors.grey[400],
+                          size: 20,
+                        ),
+                      ),
             ),
           ),
           const SizedBox(width: 12),
@@ -413,9 +449,12 @@ class OrderConfirmationScreen extends StatelessWidget {
                 ],
                 const SizedBox(height: 4),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.1),
+                    color: Colors.green.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -456,7 +495,10 @@ class OrderConfirmationScreen extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   minimumSize: Size.zero,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -500,21 +542,24 @@ class OrderConfirmationScreen extends StatelessWidget {
             _buildNextStepItem(
               icon: Icons.email,
               title: 'Check Your Email',
-              description: 'Download links will be sent to ${orderDetails['email'] ?? 'your email'} within 5 minutes.',
+              description:
+                  'Download links will be sent to ${orderDetails['email'] ?? 'your email'} within 5 minutes.',
               color: Colors.orange,
             ),
             const SizedBox(height: 12),
             _buildNextStepItem(
               icon: Icons.download,
               title: 'Download Your Ebooks',
-              description: 'Click the download buttons above or use the links in your email.',
+              description:
+                  'Click the download buttons above or use the links in your email.',
               color: Colors.blue,
             ),
             const SizedBox(height: 12),
             _buildNextStepItem(
               icon: Icons.support,
               title: 'Need Help?',
-              description: 'Contact our support team if you have any issues accessing your purchases.',
+              description:
+                  'Contact our support team if you have any issues accessing your purchases.',
               color: Colors.green,
             ),
           ],
@@ -535,7 +580,7 @@ class OrderConfirmationScreen extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: color, size: 20),
@@ -650,8 +695,18 @@ class OrderConfirmationScreen extends StatelessWidget {
 
   String _formatDate(DateTime date) {
     final months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
 
     return '${date.day} ${months[date.month - 1]} ${date.year}';

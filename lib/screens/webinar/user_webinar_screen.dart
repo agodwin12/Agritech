@@ -55,16 +55,14 @@ class _UserWebinarScreenState extends State<UserWebinarScreen>
 
   Future<void> fetchWebinars() async {
     setState(() => isLoading = true);
-    final url = Uri.parse('http://51.75.31.246:3000/api/webinars/upcoming');
+    final url = Uri.parse('http://192.168.1.126:3000/api/webinars/upcoming');
 
     debugPrint("📱 Fetching webinars from: $url");
 
     try {
       final response = await http.get(
         url,
-        headers: {
-          'Authorization': 'Bearer ${widget.token}',
-        },
+        headers: {'Authorization': 'Bearer ${widget.token}'},
       );
 
       debugPrint("✅ Response Status: ${response.statusCode}");
@@ -89,7 +87,9 @@ class _UserWebinarScreenState extends State<UserWebinarScreen>
   }
 
   Future<void> joinWebinar(int webinarId, String jitsiUrl) async {
-    final url = Uri.parse('http://51.75.31.246:3000/api/webinars/$webinarId/join');
+    final url = Uri.parse(
+      'http://192.168.1.126:3000/api/webinars/$webinarId/join',
+    );
 
     debugPrint("🎯 Attempting to join webinar: ID=$webinarId, URL=$jitsiUrl");
 
@@ -107,7 +107,10 @@ class _UserWebinarScreenState extends State<UserWebinarScreen>
       debugPrint("📟 Join POST Body: ${response.body}");
 
       if (response.statusCode == 200) {
-        final success = await launchUrlString(jitsiUrl, mode: LaunchMode.externalApplication);
+        final success = await launchUrlString(
+          jitsiUrl,
+          mode: LaunchMode.externalApplication,
+        );
         if (!success) {
           debugPrint("❌ Failed to launch webinar link: $jitsiUrl");
           showErrorSnackBar("Could not launch webinar link.");
@@ -143,19 +146,22 @@ class _UserWebinarScreenState extends State<UserWebinarScreen>
   }
 
   void _openRequestModal() {
-    debugPrint("📤 Opening RequestWebinarModal for user ${widget.userData['id']}");
+    debugPrint(
+      "📤 Opening RequestWebinarModal for user ${widget.userData['id']}",
+    );
     showModalBottomSheet(
       isScrollControlled: true,
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (_) => RequestWebinarModal(
-        token: widget.token,
-        userId: widget.userData['id'],
-        onSuccess: () {
-          fetchWebinars();
-          debugPrint("🔄 Webinar request submitted. Refreshing list...");
-        },
-      ),
+      builder:
+          (_) => RequestWebinarModal(
+            token: widget.token,
+            userId: widget.userData['id'],
+            onSuccess: () {
+              fetchWebinars();
+              debugPrint("🔄 Webinar request submitted. Refreshing list...");
+            },
+          ),
     );
   }
 
@@ -199,102 +205,108 @@ class _UserWebinarScreenState extends State<UserWebinarScreen>
           // Content
           SliverPadding(
             padding: const EdgeInsets.all(16),
-            sliver: isLoading
-                ? SliverFillRemaining(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4CAF50)), // Agriculture green
-                      strokeWidth: 3,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Loading webinars...',
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        color: const Color(0xFF558B2F), // Medium agriculture green
+            sliver:
+                isLoading
+                    ? SliverFillRemaining(
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Color(0xFF4CAF50),
+                              ), // Agriculture green
+                              strokeWidth: 3,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Loading webinars...',
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                color: const Color(
+                                  0xFF558B2F,
+                                ), // Medium agriculture green
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-            )
-                : webinars.isEmpty
-                ? SliverFillRemaining(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE8F5E8), // Light agriculture green
-                        shape: BoxShape.circle,
+                    )
+                    : webinars.isEmpty
+                    ? SliverFillRemaining(
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                color: const Color(
+                                  0xFFE8F5E8,
+                                ), // Light agriculture green
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.agriculture_outlined, // Agriculture icon
+                                size: 64,
+                                color: Color(0xFF4CAF50),
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              'No Agricultural Webinars',
+                              style: GoogleFonts.poppins(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w600,
+                                color: const Color(0xFF1B5E20), // Dark green
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Check back for farming tips, crop guidance, and expert sessions',
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                color: const Color(0xFF558B2F), // Medium green
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
                       ),
-                      child: const Icon(
-                        Icons.agriculture_outlined, // Agriculture icon
-                        size: 64,
-                        color: Color(0xFF4CAF50),
+                    )
+                    : SliverGrid(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        childAspectRatio: isTablet ? 0.8 : 0.75,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
                       ),
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final webinar = webinars[index];
+                        return _fadeAnimation != null
+                            ? FadeTransition(
+                              opacity: _fadeAnimation!,
+                              child: _WebinarCard(
+                                webinar: webinar,
+                                onJoin:
+                                    () => joinWebinar(
+                                      webinar['id'],
+                                      webinar['stream_url'] ?? '',
+                                    ),
+                                index: index,
+                              ),
+                            )
+                            : _WebinarCard(
+                              webinar: webinar,
+                              onJoin:
+                                  () => joinWebinar(
+                                    webinar['id'],
+                                    webinar['stream_url'] ?? '',
+                                  ),
+                              index: index,
+                            );
+                      }, childCount: webinars.length),
                     ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'No Agricultural Webinars',
-                      style: GoogleFonts.poppins(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF1B5E20), // Dark green
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Check back for farming tips, crop guidance, and expert sessions',
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        color: const Color(0xFF558B2F), // Medium green
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            )
-                : SliverGrid(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: crossAxisCount,
-                childAspectRatio: isTablet ? 0.8 : 0.75,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-              ),
-              delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                  final webinar = webinars[index];
-                  return _fadeAnimation != null
-                      ? FadeTransition(
-                    opacity: _fadeAnimation!,
-                    child: _WebinarCard(
-                      webinar: webinar,
-                      onJoin: () => joinWebinar(
-                        webinar['id'],
-                        webinar['stream_url'] ?? '',
-                      ),
-                      index: index,
-                    ),
-                  )
-                      : _WebinarCard(
-                    webinar: webinar,
-                    onJoin: () => joinWebinar(
-                      webinar['id'],
-                      webinar['stream_url'] ?? '',
-                    ),
-                    index: index,
-                  );
-                },
-                childCount: webinars.length,
-              ),
-            ),
           ),
         ],
       ),
@@ -302,13 +314,16 @@ class _UserWebinarScreenState extends State<UserWebinarScreen>
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           gradient: const LinearGradient(
-            colors: [Color(0xFF4CAF50), Color(0xFF2E7D32)], // Agriculture green gradient
+            colors: [
+              Color(0xFF4CAF50),
+              Color(0xFF2E7D32),
+            ], // Agriculture green gradient
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF4CAF50).withOpacity(0.3),
+              color: const Color(0xFF4CAF50).withValues(alpha: 0.3),
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),
@@ -360,7 +375,7 @@ class _WebinarCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF1E293B).withOpacity(0.1),
+              color: const Color(0xFF1E293B).withValues(alpha: 0.1),
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),
@@ -376,42 +391,51 @@ class _WebinarCard extends StatelessWidget {
                 height: 160,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  gradient: imageUrl == null
-                      ? const LinearGradient(
-                    colors: [Color(0xFF4CAF50), Color(0xFF66BB6A)], // Agriculture green gradient
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  )
-                      : null,
+                  gradient:
+                      imageUrl == null
+                          ? const LinearGradient(
+                            colors: [
+                              Color(0xFF4CAF50),
+                              Color(0xFF66BB6A),
+                            ], // Agriculture green gradient
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          )
+                          : null,
                 ),
-                child: imageUrl != null
-                    ? Image.network(
-                  imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Color(0xFF4CAF50), Color(0xFF66BB6A)], // Agriculture theme
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.eco_rounded, // Eco/agriculture icon
-                        size: 48,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                )
-                    : const Center(
-                  child: Icon(
-                    Icons.eco_rounded, // Agriculture/eco icon
-                    size: 48,
-                    color: Colors.white,
-                  ),
-                ),
+                child:
+                    imageUrl != null
+                        ? Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder:
+                              (context, error, stackTrace) => Container(
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Color(0xFF4CAF50),
+                                      Color(0xFF66BB6A),
+                                    ], // Agriculture theme
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.eco_rounded, // Eco/agriculture icon
+                                    size: 48,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                        )
+                        : const Center(
+                          child: Icon(
+                            Icons.eco_rounded, // Agriculture/eco icon
+                            size: 48,
+                            color: Colors.white,
+                          ),
+                        ),
               ),
 
               // Content Section
@@ -465,7 +489,9 @@ class _WebinarCard extends StatelessWidget {
                                 const Icon(
                                   Icons.schedule_rounded,
                                   size: 16,
-                                  color: Color(0xFF2E7D32), // Dark agriculture green
+                                  color: Color(
+                                    0xFF2E7D32,
+                                  ), // Dark agriculture green
                                 ),
                                 const SizedBox(width: 6),
                                 Expanded(
@@ -474,7 +500,9 @@ class _WebinarCard extends StatelessWidget {
                                     style: GoogleFonts.poppins(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
-                                      color: const Color(0xFF2E7D32), // Consistent dark green
+                                      color: const Color(
+                                        0xFF2E7D32,
+                                      ), // Consistent dark green
                                     ),
                                   ),
                                 ),
@@ -486,7 +514,9 @@ class _WebinarCard extends StatelessWidget {
                                 const Icon(
                                   Icons.person_rounded,
                                   size: 16,
-                                  color: Color(0xFF2E7D32), // Dark agriculture green
+                                  color: Color(
+                                    0xFF2E7D32,
+                                  ), // Dark agriculture green
                                 ),
                                 const SizedBox(width: 6),
                                 Expanded(
@@ -495,7 +525,9 @@ class _WebinarCard extends StatelessWidget {
                                     style: GoogleFonts.poppins(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
-                                      color: const Color(0xFF2E7D32), // Consistent dark green
+                                      color: const Color(
+                                        0xFF2E7D32,
+                                      ), // Consistent dark green
                                     ),
                                   ),
                                 ),
@@ -513,7 +545,10 @@ class _WebinarCard extends StatelessWidget {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                             gradient: const LinearGradient(
-                              colors: [Color(0xFF4CAF50), Color(0xFF2E7D32)], // Agriculture green gradient
+                              colors: [
+                                Color(0xFF4CAF50),
+                                Color(0xFF2E7D32),
+                              ], // Agriculture green gradient
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                             ),

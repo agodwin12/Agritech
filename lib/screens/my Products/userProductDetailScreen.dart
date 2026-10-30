@@ -10,15 +10,16 @@ class UserProductDetailsScreen extends StatefulWidget {
   final Function()? onProductDeleted;
 
   const UserProductDetailsScreen({
-    Key? key,
+    super.key,
     required this.product,
     required this.userData,
     required this.token,
     this.onProductDeleted,
-  }) : super(key: key);
+  });
 
   @override
-  State<UserProductDetailsScreen> createState() => _UserProductDetailsScreenState();
+  State<UserProductDetailsScreen> createState() =>
+      _UserProductDetailsScreenState();
 }
 
 class _UserProductDetailsScreenState extends State<UserProductDetailsScreen> {
@@ -33,7 +34,9 @@ class _UserProductDetailsScreenState extends State<UserProductDetailsScreen> {
 
     try {
       final response = await http.delete(
-        Uri.parse('http://51.75.31.246:3000/api/products/${widget.product['id']}'),
+        Uri.parse(
+          'http://192.168.1.126:3000/api/products/${widget.product['id']}',
+        ),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${widget.token}',
@@ -66,10 +69,7 @@ class _UserProductDetailsScreenState extends State<UserProductDetailsScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -84,35 +84,40 @@ class _UserProductDetailsScreenState extends State<UserProductDetailsScreen> {
   void _confirmDelete() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(
-          'Delete Product',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
-        ),
-        content: Text(
-          'Are you sure you want to delete this product? This action cannot be undone.',
-          style: GoogleFonts.poppins(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text('Cancel', style: GoogleFonts.poppins()),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _deleteProduct();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      builder:
+          (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-            child: Text('Delete', style: GoogleFonts.poppins()),
+            title: Text(
+              'Delete Product',
+              style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+            ),
+            content: Text(
+              'Are you sure you want to delete this product? This action cannot be undone.',
+              style: GoogleFonts.poppins(),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text('Cancel', style: GoogleFonts.poppins()),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _deleteProduct();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Text('Delete', style: GoogleFonts.poppins()),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -137,7 +142,7 @@ class _UserProductDetailsScreenState extends State<UserProductDetailsScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: CircleAvatar(
-          backgroundColor: Colors.black.withOpacity(0.3),
+          backgroundColor: Colors.black.withValues(alpha: 0.3),
           child: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => Navigator.of(context).pop(),
@@ -145,7 +150,7 @@ class _UserProductDetailsScreenState extends State<UserProductDetailsScreen> {
         ),
         actions: [
           CircleAvatar(
-            backgroundColor: Colors.black.withOpacity(0.3),
+            backgroundColor: Colors.black.withValues(alpha: 0.3),
             child: IconButton(
               icon: const Icon(Icons.delete_outline, color: Colors.white),
               onPressed: _confirmDelete,
@@ -164,28 +169,40 @@ class _UserProductDetailsScreenState extends State<UserProductDetailsScreen> {
                     Container(
                       height: 350,
                       color: Colors.black,
-                      child: imageUrls.isNotEmpty
-                          ? PageView.builder(
-                        controller: _pageController,
-                        itemCount: imageUrls.length,
-                        onPageChanged: (index) {
-                          setState(() {
-                            _currentImageIndex = index;
-                          });
-                        },
-                        itemBuilder: (context, index) {
-                          return Image.network(
-                            'http://51.75.31.246:3000${imageUrls[index]}',
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            errorBuilder: (context, error, stackTrace) =>
-                            const Center(child: Icon(Icons.broken_image, size: 50, color: Colors.white)),
-                          );
-                        },
-                      )
-                          : Center(
-                        child: Icon(Icons.image_not_supported, size: 50, color: Colors.white),
-                      ),
+                      child:
+                          imageUrls.isNotEmpty
+                              ? PageView.builder(
+                                controller: _pageController,
+                                itemCount: imageUrls.length,
+                                onPageChanged: (index) {
+                                  setState(() {
+                                    _currentImageIndex = index;
+                                  });
+                                },
+                                itemBuilder: (context, index) {
+                                  return Image.network(
+                                    'http://192.168.1.126:3000${imageUrls[index]}',
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            const Center(
+                                              child: Icon(
+                                                Icons.broken_image,
+                                                size: 50,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                  );
+                                },
+                              )
+                              : Center(
+                                child: Icon(
+                                  Icons.image_not_supported,
+                                  size: 50,
+                                  color: Colors.white,
+                                ),
+                              ),
                     ),
                     if (imageUrls.length > 1)
                       Positioned(
@@ -194,19 +211,24 @@ class _UserProductDetailsScreenState extends State<UserProductDetailsScreen> {
                         right: 0,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: imageUrls.asMap().entries.map((entry) {
-                            return Container(
-                              width: 8.0,
-                              height: 8.0,
-                              margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white.withOpacity(
-                                  _currentImageIndex == entry.key ? 0.9 : 0.4,
-                                ),
-                              ),
-                            );
-                          }).toList(),
+                          children:
+                              imageUrls.asMap().entries.map((entry) {
+                                return Container(
+                                  width: 8.0,
+                                  height: 8.0,
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 4.0,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.white.withValues(
+                                      alpha: _currentImageIndex == entry.key
+                                          ? 0.9
+                                          : 0.4,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
                         ),
                       ),
                   ],
@@ -216,7 +238,9 @@ class _UserProductDetailsScreenState extends State<UserProductDetailsScreen> {
                   transform: Matrix4.translationValues(0.0, -20.0, 0.0),
                   decoration: const BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(30),
+                    ),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(20, 24, 20, 100),
@@ -230,11 +254,17 @@ class _UserProductDetailsScreenState extends State<UserProductDetailsScreen> {
                             Expanded(
                               child: Text(
                                 widget.product['name'] ?? 'No Name',
-                                style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold),
+                                style: GoogleFonts.poppins(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.green[100],
                                 borderRadius: BorderRadius.circular(16),
@@ -261,15 +291,33 @@ class _UserProductDetailsScreenState extends State<UserProductDetailsScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              _buildStat('Stock', '${widget.product['stock_quantity']}', Icons.inventory),
-                              _buildStat('Category', widget.product['category'] ?? 'N/A', Icons.category),
-                              _buildStat('Status', widget.product['status'] ?? 'Active', Icons.check_circle_outline),
+                              _buildStat(
+                                'Stock',
+                                '${widget.product['stock_quantity']}',
+                                Icons.inventory,
+                              ),
+                              _buildStat(
+                                'Category',
+                                widget.product['category'] ?? 'N/A',
+                                Icons.category,
+                              ),
+                              _buildStat(
+                                'Status',
+                                widget.product['status'] ?? 'Active',
+                                Icons.check_circle_outline,
+                              ),
                             ],
                           ),
                         ),
                         const SizedBox(height: 24),
                         // Description
-                        Text('Description', style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text(
+                          'Description',
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         Container(
                           padding: const EdgeInsets.all(16),
@@ -279,8 +327,13 @@ class _UserProductDetailsScreenState extends State<UserProductDetailsScreen> {
                             border: Border.all(color: Colors.grey.shade200),
                           ),
                           child: Text(
-                            widget.product['description'] ?? 'No description available.',
-                            style: GoogleFonts.poppins(fontSize: 15, height: 1.5, color: Colors.black87),
+                            widget.product['description'] ??
+                                'No description available.',
+                            style: GoogleFonts.poppins(
+                              fontSize: 15,
+                              height: 1.5,
+                              color: Colors.black87,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 24),
@@ -289,21 +342,36 @@ class _UserProductDetailsScreenState extends State<UserProductDetailsScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Additional Information',
-                                  style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold)),
+                              Text(
+                                'Additional Information',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                               const SizedBox(height: 8),
                               Container(
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
                                   color: Colors.grey[50],
                                   borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: Colors.grey.shade200),
+                                  border: Border.all(
+                                    color: Colors.grey.shade200,
+                                  ),
                                 ),
                                 child: Column(
                                   children: [
-                                    _buildInfoRow('Created', _formatDate(widget.product['created_at'])),
+                                    _buildInfoRow(
+                                      'Created',
+                                      _formatDate(widget.product['created_at']),
+                                    ),
                                     if (widget.product['updated_at'] != null)
-                                      _buildInfoRow('Last Updated', _formatDate(widget.product['updated_at'])),
+                                      _buildInfoRow(
+                                        'Last Updated',
+                                        _formatDate(
+                                          widget.product['updated_at'],
+                                        ),
+                                      ),
                                   ],
                                 ),
                               ),
@@ -320,7 +388,9 @@ class _UserProductDetailsScreenState extends State<UserProductDetailsScreen> {
             Container(
               color: Colors.black54,
               child: const Center(
-                child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
               ),
             ),
         ],
@@ -328,11 +398,17 @@ class _UserProductDetailsScreenState extends State<UserProductDetailsScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Added to cart!'), backgroundColor: Colors.green),
+            const SnackBar(
+              content: Text('Added to cart!'),
+              backgroundColor: Colors.green,
+            ),
           );
         },
         backgroundColor: Colors.indigo[600],
-        label: Text('Add to Cart', style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
+        label: Text(
+          'Add to Cart',
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+        ),
         icon: const Icon(Icons.shopping_cart),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -344,8 +420,14 @@ class _UserProductDetailsScreenState extends State<UserProductDetailsScreen> {
       children: [
         Icon(icon, color: Colors.indigo[400]),
         const SizedBox(height: 8),
-        Text(title, style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey[600])),
-        Text(value, style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600)),
+        Text(
+          title,
+          style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey[600]),
+        ),
+        Text(
+          value,
+          style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600),
+        ),
       ],
     );
   }
@@ -356,8 +438,19 @@ class _UserProductDetailsScreenState extends State<UserProductDetailsScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('$label: ', style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: Colors.grey[700])),
-          Expanded(child: Text(value, style: GoogleFonts.poppins(color: Colors.black87))),
+          Text(
+            '$label: ',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[700],
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: GoogleFonts.poppins(color: Colors.black87),
+            ),
+          ),
         ],
       ),
     );

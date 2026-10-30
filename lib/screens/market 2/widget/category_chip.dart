@@ -10,13 +10,13 @@ class CategoryChip extends StatelessWidget {
   final Color textColor;
 
   const CategoryChip({
-    Key? key,
+    super.key,
     required this.label,
     required this.isSelected,
     required this.onSelected,
     required this.isDarkMode,
     required this.textColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

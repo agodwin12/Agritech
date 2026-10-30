@@ -6,7 +6,7 @@ import 'dart:convert';
 class NotificationScreen extends StatefulWidget {
   final String userId;
 
-  const NotificationScreen({Key? key, required this.userId}) : super(key: key);
+  const NotificationScreen({super.key, required this.userId});
 
   @override
   State<NotificationScreen> createState() => _NotificationScreenState();
@@ -47,7 +47,9 @@ class _NotificationScreenState extends State<NotificationScreen>
   }
 
   Future<void> fetchNotifications() async {
-    final url = Uri.parse("http://51.75.31.246:3000/notifications/${widget.userId}");
+    final url = Uri.parse(
+      "http://192.168.1.126:3000/notifications/${widget.userId}",
+    );
 
     try {
       setState(() {
@@ -108,7 +110,8 @@ class _NotificationScreenState extends State<NotificationScreen>
   }
 
   Color _getNotificationColor(String? type, String? priority) {
-    if (priority?.toLowerCase() == 'high' || priority?.toLowerCase() == 'critical') {
+    if (priority?.toLowerCase() == 'high' ||
+        priority?.toLowerCase() == 'critical') {
       return criticalRed;
     }
 
@@ -175,14 +178,20 @@ class _NotificationScreenState extends State<NotificationScreen>
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
                 ],
-                border: !isRead
-                    ? Border.all(color: _getNotificationColor(type, priority).withOpacity(0.3))
-                    : null,
+                border:
+                    !isRead
+                        ? Border.all(
+                          color: _getNotificationColor(
+                            type,
+                            priority,
+                          ).withValues(alpha: 0.3),
+                        )
+                        : null,
               ),
               child: Material(
                 color: Colors.transparent,
@@ -200,7 +209,10 @@ class _NotificationScreenState extends State<NotificationScreen>
                           width: 48,
                           height: 48,
                           decoration: BoxDecoration(
-                            color: _getNotificationColor(type, priority).withOpacity(0.1),
+                            color: _getNotificationColor(
+                              type,
+                              priority,
+                            ).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Icon(
@@ -221,7 +233,10 @@ class _NotificationScreenState extends State<NotificationScreen>
                                       title,
                                       style: GoogleFonts.poppins(
                                         fontSize: 16,
-                                        fontWeight: isRead ? FontWeight.w500 : FontWeight.w600,
+                                        fontWeight:
+                                            isRead
+                                                ? FontWeight.w500
+                                                : FontWeight.w600,
                                         color: Colors.grey[800],
                                       ),
                                     ),
@@ -231,7 +246,10 @@ class _NotificationScreenState extends State<NotificationScreen>
                                       width: 8,
                                       height: 8,
                                       decoration: BoxDecoration(
-                                        color: _getNotificationColor(type, priority),
+                                        color: _getNotificationColor(
+                                          type,
+                                          priority,
+                                        ),
                                         shape: BoxShape.circle,
                                       ),
                                     ),
@@ -258,7 +276,10 @@ class _NotificationScreenState extends State<NotificationScreen>
                                         vertical: 2,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: _getNotificationColor(type, priority).withOpacity(0.1),
+                                        color: _getNotificationColor(
+                                          type,
+                                          priority,
+                                        ).withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Text(
@@ -266,7 +287,10 @@ class _NotificationScreenState extends State<NotificationScreen>
                                         style: GoogleFonts.poppins(
                                           fontSize: 10,
                                           fontWeight: FontWeight.w600,
-                                          color: _getNotificationColor(type, priority),
+                                          color: _getNotificationColor(
+                                            type,
+                                            priority,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -305,13 +329,13 @@ class _NotificationScreenState extends State<NotificationScreen>
             width: 120,
             height: 120,
             decoration: BoxDecoration(
-              color: accentGreen.withOpacity(0.3),
+              color: accentGreen.withValues(alpha: 0.3),
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.notifications_none_outlined,
               size: 60,
-              color: primaryGreen.withOpacity(0.6),
+              color: primaryGreen.withValues(alpha: 0.6),
             ),
           ),
           const SizedBox(height: 24),
@@ -343,11 +367,7 @@ class _NotificationScreenState extends State<NotificationScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.error_outline,
-            size: 64,
-            color: Colors.grey[400],
-          ),
+          Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
             "Oops! Something went wrong",
@@ -361,10 +381,7 @@ class _NotificationScreenState extends State<NotificationScreen>
           Text(
             errorMessage,
             textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              color: Colors.grey[500],
-            ),
+            style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[500]),
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
@@ -390,7 +407,8 @@ class _NotificationScreenState extends State<NotificationScreen>
 
   @override
   Widget build(BuildContext context) {
-    final unreadCount = notifications.where((n) => !(n['is_read'] ?? false)).length;
+    final unreadCount =
+        notifications.where((n) => !(n['is_read'] ?? false)).length;
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -435,23 +453,24 @@ class _NotificationScreenState extends State<NotificationScreen>
       body: RefreshIndicator(
         onRefresh: fetchNotifications,
         color: primaryGreen,
-        child: isLoading
-            ? const Center(
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(primaryGreen),
-          ),
-        )
-            : hasError
-            ? _buildErrorState()
-            : notifications.isEmpty
-            ? _buildEmptyState()
-            : ListView.builder(
-          padding: const EdgeInsets.only(top: 8, bottom: 24),
-          itemCount: notifications.length,
-          itemBuilder: (context, index) {
-            return _buildNotificationItem(notifications[index], index);
-          },
-        ),
+        child:
+            isLoading
+                ? const Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(primaryGreen),
+                  ),
+                )
+                : hasError
+                ? _buildErrorState()
+                : notifications.isEmpty
+                ? _buildEmptyState()
+                : ListView.builder(
+                  padding: const EdgeInsets.only(top: 8, bottom: 24),
+                  itemCount: notifications.length,
+                  itemBuilder: (context, index) {
+                    return _buildNotificationItem(notifications[index], index);
+                  },
+                ),
       ),
     );
   }

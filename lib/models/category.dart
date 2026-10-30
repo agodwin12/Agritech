@@ -33,5 +33,5 @@ class Category {
     );
   }
 
-  get imageUrl => null;
+  Null get imageUrl => null;
 }

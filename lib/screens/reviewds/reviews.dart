@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class FeedbackScreen extends StatefulWidget {
-  const FeedbackScreen({Key? key}) : super(key: key);
+  const FeedbackScreen({super.key});
 
   @override
   State<FeedbackScreen> createState() => _FeedbackScreenState();
@@ -29,25 +29,25 @@ class _FeedbackScreenState extends State<FeedbackScreen>
       'type': 'Bug Report',
       'icon': Icons.bug_report,
       'color': Colors.red[400],
-      'description': 'Report issues or bugs'
+      'description': 'Report issues or bugs',
     },
     {
       'type': 'Feature Request',
       'icon': Icons.lightbulb_outline,
       'color': Colors.orange[400],
-      'description': 'Suggest new features'
+      'description': 'Suggest new features',
     },
     {
       'type': 'General Feedback',
       'icon': Icons.feedback_outlined,
       'color': Colors.blue[400],
-      'description': 'Share your thoughts'
+      'description': 'Share your thoughts',
     },
     {
       'type': 'Improvement',
       'icon': Icons.trending_up,
       'color': Colors.purple[400],
-      'description': 'Suggest improvements'
+      'description': 'Suggest improvements',
     },
   ];
 
@@ -89,7 +89,7 @@ class _FeedbackScreenState extends State<FeedbackScreen>
     _submitAnimationController.forward();
 
     try {
-      final uri = Uri.parse("http://51.75.31.246:3000/feedback/submit");
+      final uri = Uri.parse("http://192.168.1.126:3000/feedback/submit");
       final response = await http.post(
         uri,
         headers: {'Content-Type': 'application/json'},
@@ -97,7 +97,7 @@ class _FeedbackScreenState extends State<FeedbackScreen>
           "type": _selectedType,
           "message": _messageController.text.trim(),
           "rating": _rating.round(),
-          "contact_info": _contactController.text.trim()
+          "contact_info": _contactController.text.trim(),
         }),
       );
 
@@ -127,39 +127,42 @@ class _FeedbackScreenState extends State<FeedbackScreen>
   void _showSuccessDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
-                color: Color(0xFF4CAF50),
-                shape: BoxShape.circle,
+      builder:
+          (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF4CAF50),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.check, color: Colors.white, size: 32),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Thank You!',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Your feedback has been submitted successfully.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Close'),
               ),
-              child: const Icon(Icons.check, color: Colors.white, size: 32),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Thank You!',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Your feedback has been submitted successfully.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -185,11 +188,7 @@ class _FeedbackScreenState extends State<FeedbackScreen>
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF4CAF50),
-              Color(0xFF45A049),
-              Color(0xFF388E3C),
-            ],
+            colors: [Color(0xFF4CAF50), Color(0xFF45A049), Color(0xFF388E3C)],
           ),
         ),
         child: SafeArea(
@@ -255,10 +254,7 @@ class _FeedbackScreenState extends State<FeedbackScreen>
           const SizedBox(height: 10),
           const Text(
             'Help us make AgriTracker better for you',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 16,
-            ),
+            style: TextStyle(color: Colors.white70, fontSize: 16),
             textAlign: TextAlign.center,
           ),
         ],
@@ -304,7 +300,7 @@ class _FeedbackScreenState extends State<FeedbackScreen>
           ),
         ),
         const SizedBox(height: 12),
-        Container(
+        SizedBox(
           height: 120,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
@@ -320,26 +316,31 @@ class _FeedbackScreenState extends State<FeedbackScreen>
                   margin: const EdgeInsets.only(right: 12),
                   width: 100,
                   decoration: BoxDecoration(
-                    gradient: isSelected
-                        ? LinearGradient(
-                      colors: [type['color'], type['color'].withOpacity(0.7)],
-                    )
-                        : null,
+                    gradient:
+                        isSelected
+                            ? LinearGradient(
+                              colors: [
+                                type['color'],
+                                type['color'].withOpacity(0.7),
+                              ],
+                            )
+                            : null,
                     color: isSelected ? null : Colors.grey[100],
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: isSelected ? type['color'] : Colors.grey[300]!,
                       width: 2,
                     ),
-                    boxShadow: isSelected
-                        ? [
-                      BoxShadow(
-                        color: type['color'].withOpacity(0.3),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      )
-                    ]
-                        : null,
+                    boxShadow:
+                        isSelected
+                            ? [
+                              BoxShadow(
+                                color: type['color'].withOpacity(0.3),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ]
+                            : null,
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -397,7 +398,7 @@ class _FeedbackScreenState extends State<FeedbackScreen>
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
+                color: Colors.grey.withValues(alpha: 0.1),
                 blurRadius: 10,
                 offset: const Offset(0, 2),
               ),
@@ -413,7 +414,8 @@ class _FeedbackScreenState extends State<FeedbackScreen>
               return null;
             },
             decoration: InputDecoration(
-              hintText: 'Tell us about your experience, suggestions, or issues...',
+              hintText:
+                  'Tell us about your experience, suggestions, or issues...',
               hintStyle: TextStyle(color: Colors.grey[400]),
               filled: true,
               fillColor: Colors.grey[50],
@@ -423,7 +425,10 @@ class _FeedbackScreenState extends State<FeedbackScreen>
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(color: Color(0xFF4CAF50), width: 2),
+                borderSide: const BorderSide(
+                  color: Color(0xFF4CAF50),
+                  width: 2,
+                ),
               ),
               contentPadding: const EdgeInsets.all(20),
             ),
@@ -453,7 +458,7 @@ class _FeedbackScreenState extends State<FeedbackScreen>
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
+                color: Colors.grey.withValues(alpha: 0.1),
                 blurRadius: 10,
                 offset: const Offset(0, 2),
               ),
@@ -488,7 +493,7 @@ class _FeedbackScreenState extends State<FeedbackScreen>
                   activeTrackColor: const Color(0xFF4CAF50),
                   inactiveTrackColor: Colors.grey[300],
                   thumbColor: Colors.white,
-                  overlayColor: const Color(0xFF4CAF50).withOpacity(0.2),
+                  overlayColor: const Color(0xFF4CAF50).withValues(alpha: 0.2),
                   valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
                   valueIndicatorColor: const Color(0xFF4CAF50),
                   valueIndicatorTextStyle: const TextStyle(
@@ -513,12 +518,15 @@ class _FeedbackScreenState extends State<FeedbackScreen>
               const SizedBox(height: 12),
               // Current rating display
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
-                  color: _getRatingColor(_rating).withOpacity(0.1),
+                  color: _getRatingColor(_rating).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: _getRatingColor(_rating).withOpacity(0.3),
+                    color: _getRatingColor(_rating).withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(
@@ -581,7 +589,7 @@ class _FeedbackScreenState extends State<FeedbackScreen>
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
+                color: Colors.grey.withValues(alpha: 0.1),
                 blurRadius: 10,
                 offset: const Offset(0, 2),
               ),
@@ -598,7 +606,10 @@ class _FeedbackScreenState extends State<FeedbackScreen>
             decoration: InputDecoration(
               hintText: 'Email or phone number (Required)',
               hintStyle: TextStyle(color: Colors.grey[400]),
-              prefixIcon: const Icon(Icons.contact_mail, color: Color(0xFF4CAF50)),
+              prefixIcon: const Icon(
+                Icons.contact_mail,
+                color: Color(0xFF4CAF50),
+              ),
               filled: true,
               fillColor: Colors.grey[50],
               border: OutlineInputBorder(
@@ -607,7 +618,10 @@ class _FeedbackScreenState extends State<FeedbackScreen>
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(color: Color(0xFF4CAF50), width: 2),
+                borderSide: const BorderSide(
+                  color: Color(0xFF4CAF50),
+                  width: 2,
+                ),
               ),
               contentPadding: const EdgeInsets.all(20),
             ),
@@ -631,7 +645,7 @@ class _FeedbackScreenState extends State<FeedbackScreen>
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF4CAF50).withOpacity(0.3),
+                color: const Color(0xFF4CAF50).withValues(alpha: 0.3),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -646,23 +660,24 @@ class _FeedbackScreenState extends State<FeedbackScreen>
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
-            child: _isSubmitting
-                ? const SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(
-                color: Colors.white,
-                strokeWidth: 2,
-              ),
-            )
-                : const Text(
-              'Submit Feedback',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
+            child:
+                _isSubmitting
+                    ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                    : const Text(
+                      'Submit Feedback',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
           ),
         );
       },
@@ -673,19 +688,13 @@ class _FeedbackScreenState extends State<FeedbackScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.blue[50]!, Colors.green[50]!],
-        ),
+        gradient: LinearGradient(colors: [Colors.blue[50]!, Colors.green[50]!]),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.grey[200]!),
       ),
       child: Column(
         children: [
-          const Icon(
-            Icons.email_outlined,
-            color: Color(0xFF4CAF50),
-            size: 32,
-          ),
+          const Icon(Icons.email_outlined, color: Color(0xFF4CAF50), size: 32),
           const SizedBox(height: 12),
           const Text(
             'Need help or want to suggest something?',

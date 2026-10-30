@@ -10,10 +10,10 @@ class CartBadgeWidget extends StatefulWidget {
   final double? iconSize;
 
   const CartBadgeWidget({
-    Key? key,
+    super.key,
     this.iconColor,
     this.iconSize = 24,
-  }) : super(key: key);
+  });
 
   @override
   State<CartBadgeWidget> createState() => _CartBadgeWidgetState();
@@ -100,9 +100,9 @@ class CartCountBadge extends StatefulWidget {
   final Widget child;
 
   const CartCountBadge({
-    Key? key,
+    super.key,
     required this.child,
-  }) : super(key: key);
+  });
 
   @override
   State<CartCountBadge> createState() => _CartCountBadgeState();

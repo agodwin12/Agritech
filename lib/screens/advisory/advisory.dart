@@ -7,10 +7,10 @@ class AdvisoryScreen extends StatefulWidget {
   final String token;
 
   const AdvisoryScreen({
-    Key? key,
+    super.key,
     required this.userData,
     required this.token,
-  }) : super(key: key);
+  });
 
   @override
   State<AdvisoryScreen> createState() => _AdvisoryScreenState();
@@ -274,7 +274,7 @@ class _AdvisoryScreenState extends State<AdvisoryScreen>
             'Get personalized crop recommendations and financial advice based on your region, season, and soil type.',
             style: TextStyle(
               fontSize: isSmallScreen ? 14 : 16,
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withValues(alpha: 0.9),
               height: 1.4,
             ),
           ),
@@ -507,7 +507,7 @@ class _AdvisoryScreenState extends State<AdvisoryScreen>
             borderRadius: BorderRadius.circular(isSmallScreen ? 8 : 12),
           ),
           child: DropdownButtonFormField<String>(
-            value: value,
+            initialValue: value,
             decoration: InputDecoration(
               prefixIcon: Icon(
                 icon,

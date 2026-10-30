@@ -7,11 +7,7 @@ class ChatBotScreen extends StatefulWidget {
   final Map<String, dynamic> userData;
   final String token;
 
-  const ChatBotScreen({
-    super.key,
-    required this.userData,
-    required this.token,
-  });
+  const ChatBotScreen({super.key, required this.userData, required this.token});
 
   @override
   State<ChatBotScreen> createState() => _ChatBotScreenState();
@@ -26,7 +22,7 @@ class _ChatBotScreenState extends State<ChatBotScreen>
   late AnimationController _animationController;
 
   /// Update this for your server environment
-  final String apiUrl = "http://51.75.31.246:3000/api/chatbot";
+  final String apiUrl = "http://192.168.1.126:3000/api/chatbot";
 
   // AgriTech color scheme
   static const Color primaryGreen = Color(0xFF2E7D32);
@@ -46,7 +42,7 @@ class _ChatBotScreenState extends State<ChatBotScreen>
     _messages.add({
       "isUser": false,
       "text":
-      "🌱 Welcome to AgriTech AI! I'm here to help you with farming insights, crop advice, and agricultural solutions. How can I assist you today?",
+          "🌱 Welcome to AgriTech AI! I'm here to help you with farming insights, crop advice, and agricultural solutions. How can I assist you today?",
       "timestamp": DateTime.now(),
     });
   }
@@ -89,7 +85,8 @@ class _ChatBotScreenState extends State<ChatBotScreen>
         setState(() {
           _messages.add({
             "isUser": false,
-            "text": data["reply"] ??
+            "text":
+                data["reply"] ??
                 "🤖 Sorry, I didn't quite understand that. Try rephrasing!",
             "timestamp": DateTime.now(),
           });
@@ -99,7 +96,7 @@ class _ChatBotScreenState extends State<ChatBotScreen>
           _messages.add({
             "isUser": false,
             "text":
-            "⚠️ Server issue. Please try again later. (${response.statusCode})",
+                "⚠️ Server issue. Please try again later. (${response.statusCode})",
             "timestamp": DateTime.now(),
           });
         });
@@ -109,7 +106,7 @@ class _ChatBotScreenState extends State<ChatBotScreen>
         _messages.add({
           "isUser": false,
           "text":
-          "🌐 Connection error. Please check your internet connection and try again.",
+              "🌐 Connection error. Please check your internet connection and try again.",
           "timestamp": DateTime.now(),
         });
       });
@@ -160,7 +157,7 @@ class _ChatBotScreenState extends State<ChatBotScreen>
               ),
               child: Column(
                 crossAxisAlignment:
-                isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                    isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(
@@ -168,13 +165,14 @@ class _ChatBotScreenState extends State<ChatBotScreen>
                       vertical: 14,
                     ),
                     decoration: BoxDecoration(
-                      gradient: isUser
-                          ? LinearGradient(
-                        colors: [primaryGreen, lightGreen],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      )
-                          : null,
+                      gradient:
+                          isUser
+                              ? LinearGradient(
+                                colors: [primaryGreen, lightGreen],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              )
+                              : null,
                       color: isUser ? null : Colors.white,
                       borderRadius: BorderRadius.only(
                         topLeft: const Radius.circular(20),
@@ -184,7 +182,7 @@ class _ChatBotScreenState extends State<ChatBotScreen>
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -233,7 +231,7 @@ class _ChatBotScreenState extends State<ChatBotScreen>
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -284,11 +282,7 @@ class _ChatBotScreenState extends State<ChatBotScreen>
                 ),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(
-                Icons.eco,
-                color: Colors.white,
-                size: 20,
-              ),
+              child: const Icon(Icons.eco, color: Colors.white, size: 20),
             ),
             const SizedBox(width: 12),
             Column(
@@ -347,7 +341,7 @@ class _ChatBotScreenState extends State<ChatBotScreen>
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -361,10 +355,7 @@ class _ChatBotScreenState extends State<ChatBotScreen>
                 decoration: BoxDecoration(
                   color: backgroundColor,
                   borderRadius: BorderRadius.circular(25),
-                  border: Border.all(
-                    color: Colors.grey[200]!,
-                    width: 1,
-                  ),
+                  border: Border.all(color: Colors.grey[200]!, width: 1),
                 ),
                 child: TextField(
                   controller: _controller,
@@ -407,7 +398,7 @@ class _ChatBotScreenState extends State<ChatBotScreen>
                 borderRadius: BorderRadius.circular(25),
                 boxShadow: [
                   BoxShadow(
-                    color: primaryGreen.withOpacity(0.3),
+                    color: primaryGreen.withValues(alpha: 0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -417,12 +408,13 @@ class _ChatBotScreenState extends State<ChatBotScreen>
                 color: Colors.transparent,
                 child: InkWell(
                   borderRadius: BorderRadius.circular(25),
-                  onTap: isLoading
-                      ? null
-                      : () {
-                    sendMessage(_controller.text.trim());
-                    _controller.clear();
-                  },
+                  onTap:
+                      isLoading
+                          ? null
+                          : () {
+                            sendMessage(_controller.text.trim());
+                            _controller.clear();
+                          },
                   child: Icon(
                     isLoading ? Icons.hourglass_empty : Icons.send_rounded,
                     color: Colors.white,

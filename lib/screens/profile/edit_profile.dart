@@ -10,11 +10,11 @@ class EditProfileScreen extends StatefulWidget {
   final Function(Map<String, dynamic>) onProfileUpdated;
 
   const EditProfileScreen({
-    Key? key,
+    super.key,
     required this.userData,
     required this.token,
     required this.onProfileUpdated,
-  }) : super(key: key);
+  });
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
@@ -38,30 +38,48 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   // Modern color scheme (same as ProfileScreen)
   static const Color primaryColor = Color(0xFF2E7D32); // Deep forest green
-  static const Color accentColor = Color(0xFF66BB6A);  // Medium green
-  static const Color backgroundColor = Color(0xFFF5F5F5); // Light grey background
+  static const Color accentColor = Color(0xFF66BB6A); // Medium green
+  static const Color backgroundColor = Color(
+    0xFFF5F5F5,
+  ); // Light grey background
   static const Color cardColor = Colors.white;
   static const Color darkBackgroundColor = Color(0xFF121212);
   static const Color darkCardColor = Color(0xFF1E1E1E);
   static const Color darkTextColor = Color(0xFFE0E0E0);
   static const Color lightTextColor = Color(0xFF424242);
 
-  static const String apiUrl = 'http://51.75.31.246:3000/api/myprofile';
+  static const String apiUrl = 'http://192.168.1.126:3000/api/myprofile';
 
   @override
   void initState() {
     super.initState();
 
     // Initialize controllers with user data
-    _fullNameController = TextEditingController(text: widget.userData['full_name'] ?? '');
-    _phoneController = TextEditingController(text: widget.userData['phone'] ?? '');
-    _addressController = TextEditingController(text: widget.userData['address'] ?? '');
+    _fullNameController = TextEditingController(
+      text: widget.userData['full_name'] ?? '',
+    );
+    _phoneController = TextEditingController(
+      text: widget.userData['phone'] ?? '',
+    );
+    _addressController = TextEditingController(
+      text: widget.userData['address'] ?? '',
+    );
     _bioController = TextEditingController(text: widget.userData['bio'] ?? '');
-    _facebookController = TextEditingController(text: widget.userData['facebook'] ?? '');
-    _instagramController = TextEditingController(text: widget.userData['instagram'] ?? '');
-    _twitterController = TextEditingController(text: widget.userData['twitter'] ?? '');
-    _tiktokController = TextEditingController(text: widget.userData['tiktok'] ?? '');
-    _profileImageController = TextEditingController(text: widget.userData['profile_image'] ?? '');
+    _facebookController = TextEditingController(
+      text: widget.userData['facebook'] ?? '',
+    );
+    _instagramController = TextEditingController(
+      text: widget.userData['instagram'] ?? '',
+    );
+    _twitterController = TextEditingController(
+      text: widget.userData['twitter'] ?? '',
+    );
+    _tiktokController = TextEditingController(
+      text: widget.userData['tiktok'] ?? '',
+    );
+    _profileImageController = TextEditingController(
+      text: widget.userData['profile_image'] ?? '',
+    );
   }
 
   @override
@@ -128,10 +146,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         final updatedUser = responseData['user'];
 
         // Update the data in the parent screen
-        widget.onProfileUpdated({
-          ...widget.userData,
-          ...updatedUser,
-        });
+        widget.onProfileUpdated({...widget.userData, ...updatedUser});
 
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
@@ -199,174 +214,177 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ],
       ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator(color: primaryColor))
-          : Form(
-        key: _formKey,
-        child: ListView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.all(20),
-          children: [
-            // Profile Image URL
-            _buildSectionHeader('Profile Image URL', textColor),
-            _buildTextField(
-              controller: _profileImageController,
-              hintText: 'Enter image URL',
-              icon: Icons.image_outlined,
-              validator: (value) => null,
-              bgColor: cardBackgroundColor,
-              textColor: textColor,
-            ),
-            const SizedBox(height: 24),
+      body:
+          isLoading
+              ? Center(child: CircularProgressIndicator(color: primaryColor))
+              : Form(
+                key: _formKey,
+                child: ListView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.all(20),
+                  children: [
+                    // Profile Image URL
+                    _buildSectionHeader('Profile Image URL', textColor),
+                    _buildTextField(
+                      controller: _profileImageController,
+                      hintText: 'Enter image URL',
+                      icon: Icons.image_outlined,
+                      validator: (value) => null,
+                      bgColor: cardBackgroundColor,
+                      textColor: textColor,
+                    ),
+                    const SizedBox(height: 24),
 
-            // Personal Information
-            _buildSectionHeader('Personal Information', textColor),
+                    // Personal Information
+                    _buildSectionHeader('Personal Information', textColor),
 
-            // Full Name
-            _buildTextField(
-              controller: _fullNameController,
-              hintText: 'Full Name',
-              icon: Icons.person_outline,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your name';
-                }
-                return null;
-              },
-              bgColor: cardBackgroundColor,
-              textColor: textColor,
-            ),
-            const SizedBox(height: 16),
+                    // Full Name
+                    _buildTextField(
+                      controller: _fullNameController,
+                      hintText: 'Full Name',
+                      icon: Icons.person_outline,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your name';
+                        }
+                        return null;
+                      },
+                      bgColor: cardBackgroundColor,
+                      textColor: textColor,
+                    ),
+                    const SizedBox(height: 16),
 
-            // Phone
-            _buildTextField(
-              controller: _phoneController,
-              hintText: 'Phone Number',
-              icon: Icons.phone_outlined,
-              validator: (value) => null,
-              bgColor: cardBackgroundColor,
-              textColor: textColor,
-              keyboardType: TextInputType.phone,
-            ),
-            const SizedBox(height: 16),
+                    // Phone
+                    _buildTextField(
+                      controller: _phoneController,
+                      hintText: 'Phone Number',
+                      icon: Icons.phone_outlined,
+                      validator: (value) => null,
+                      bgColor: cardBackgroundColor,
+                      textColor: textColor,
+                      keyboardType: TextInputType.phone,
+                    ),
+                    const SizedBox(height: 16),
 
-            // Address
-            _buildTextField(
-              controller: _addressController,
-              hintText: 'Address',
-              icon: Icons.location_on_outlined,
-              validator: (value) => null,
-              bgColor: cardBackgroundColor,
-              textColor: textColor,
-              maxLines: 2,
-            ),
-            const SizedBox(height: 24),
+                    // Address
+                    _buildTextField(
+                      controller: _addressController,
+                      hintText: 'Address',
+                      icon: Icons.location_on_outlined,
+                      validator: (value) => null,
+                      bgColor: cardBackgroundColor,
+                      textColor: textColor,
+                      maxLines: 2,
+                    ),
+                    const SizedBox(height: 24),
 
-            // Bio
-            _buildSectionHeader('About Me', textColor),
-            _buildTextField(
-              controller: _bioController,
-              hintText: 'Tell something about yourself...',
-              icon: Icons.description_outlined,
-              validator: (value) => null,
-              bgColor: cardBackgroundColor,
-              textColor: textColor,
-              maxLines: 4,
-            ),
-            const SizedBox(height: 24),
+                    // Bio
+                    _buildSectionHeader('About Me', textColor),
+                    _buildTextField(
+                      controller: _bioController,
+                      hintText: 'Tell something about yourself...',
+                      icon: Icons.description_outlined,
+                      validator: (value) => null,
+                      bgColor: cardBackgroundColor,
+                      textColor: textColor,
+                      maxLines: 4,
+                    ),
+                    const SizedBox(height: 24),
 
-            // Social Media Links
-            _buildSectionHeader('Social Media Links', textColor),
+                    // Social Media Links
+                    _buildSectionHeader('Social Media Links', textColor),
 
-            // Facebook
-            _buildTextField(
-              controller: _facebookController,
-              hintText: 'Facebook username or link',
-              icon: Icons.facebook,
-              validator: (value) => null,
-              bgColor: cardBackgroundColor,
-              textColor: textColor,
-            ),
-            const SizedBox(height: 16),
+                    // Facebook
+                    _buildTextField(
+                      controller: _facebookController,
+                      hintText: 'Facebook username or link',
+                      icon: Icons.facebook,
+                      validator: (value) => null,
+                      bgColor: cardBackgroundColor,
+                      textColor: textColor,
+                    ),
+                    const SizedBox(height: 16),
 
-            // Instagram
-            _buildTextField(
-              controller: _instagramController,
-              hintText: 'Instagram username',
-              icon: Icons.camera_alt_outlined,
-              validator: (value) => null,
-              bgColor: cardBackgroundColor,
-              textColor: textColor,
-            ),
-            const SizedBox(height: 16),
+                    // Instagram
+                    _buildTextField(
+                      controller: _instagramController,
+                      hintText: 'Instagram username',
+                      icon: Icons.camera_alt_outlined,
+                      validator: (value) => null,
+                      bgColor: cardBackgroundColor,
+                      textColor: textColor,
+                    ),
+                    const SizedBox(height: 16),
 
-            // Twitter
-            _buildTextField(
-              controller: _twitterController,
-              hintText: 'Twitter/X username',
-              icon: Icons.messenger_outline,
-              validator: (value) => null,
-              bgColor: cardBackgroundColor,
-              textColor: textColor,
-            ),
-            const SizedBox(height: 16),
+                    // Twitter
+                    _buildTextField(
+                      controller: _twitterController,
+                      hintText: 'Twitter/X username',
+                      icon: Icons.messenger_outline,
+                      validator: (value) => null,
+                      bgColor: cardBackgroundColor,
+                      textColor: textColor,
+                    ),
+                    const SizedBox(height: 16),
 
-            // TikTok
-            _buildTextField(
-              controller: _tiktokController,
-              hintText: 'TikTok username',
-              icon: Icons.music_note_outlined,
-              validator: (value) => null,
-              bgColor: cardBackgroundColor,
-              textColor: textColor,
-            ),
+                    // TikTok
+                    _buildTextField(
+                      controller: _tiktokController,
+                      hintText: 'TikTok username',
+                      icon: Icons.music_note_outlined,
+                      validator: (value) => null,
+                      bgColor: cardBackgroundColor,
+                      textColor: textColor,
+                    ),
 
-            // Error message
-            if (errorMessage != null) ...[
-              const SizedBox(height: 24),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.red.withOpacity(0.3)),
-                ),
-                child: Text(
-                  errorMessage!,
-                  style: GoogleFonts.poppins(
-                    color: Colors.red,
-                    fontSize: 14,
-                  ),
+                    // Error message
+                    if (errorMessage != null) ...[
+                      const SizedBox(height: 24),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: Colors.red.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Text(
+                          errorMessage!,
+                          style: GoogleFonts.poppins(
+                            color: Colors.red,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ],
+
+                    const SizedBox(height: 40),
+
+                    // Save Button
+                    ElevatedButton(
+                      onPressed: isLoading ? null : _updateProfile,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        'Save Changes',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+                  ],
                 ),
               ),
-            ],
-
-            const SizedBox(height: 40),
-
-            // Save Button
-            ElevatedButton(
-              onPressed: isLoading ? null : _updateProfile,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 15),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Text(
-                'Save Changes',
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
     );
   }
 
@@ -400,7 +418,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 5,
             spreadRadius: 0,
             offset: const Offset(0, 2),
@@ -412,21 +430,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         validator: validator,
         keyboardType: keyboardType,
         maxLines: maxLines,
-        style: GoogleFonts.poppins(
-          color: textColor,
-          fontSize: 15,
-        ),
+        style: GoogleFonts.poppins(color: textColor, fontSize: 15),
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: GoogleFonts.poppins(
-            color: textColor.withOpacity(0.5),
+            color: textColor.withValues(alpha: 0.5),
             fontSize: 15,
           ),
-          prefixIcon: Icon(
-            icon,
-            color: primaryColor,
-            size: 22,
-          ),
+          prefixIcon: Icon(icon, color: primaryColor, size: 22),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,

@@ -10,17 +10,14 @@ class ForumScreen extends StatefulWidget {
   final Map<String, dynamic> userData;
   final String token;
 
-  const ForumScreen({
-    super.key,
-    required this.userData,
-    required this.token,
-  });
+  const ForumScreen({super.key, required this.userData, required this.token});
 
   @override
   State<ForumScreen> createState() => _ForumScreenState();
 }
 
-class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStateMixin {
+class _ForumScreenState extends State<ForumScreen>
+    with SingleTickerProviderStateMixin {
   List<dynamic> posts = [];
   bool isLoading = true;
   late AnimationController _animationController;
@@ -29,7 +26,7 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
   File? _selectedImage;
   final TextEditingController _postController = TextEditingController();
 
-  final String baseUrl = 'http://51.75.31.246:3000';
+  final String baseUrl = 'http://192.168.1.126:3000';
 
   // AgriTech Color Palette
   static const Color primaryGreen = Color(0xFF2E7D32);
@@ -73,13 +70,17 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
         print('🔧 Fixed doubled base URL: "$cleanPath"');
       }
 
-      // Check for malformed URLs like "http://51.75.31.246:3000uploads/"
-      if (cleanPath.contains('${baseUrl}uploads/') && !cleanPath.contains('$baseUrl/uploads/')) {
-        cleanPath = cleanPath.replaceFirst('${baseUrl}uploads/', '$baseUrl/uploads/');
+      // Check for malformed URLs like "http://192.168.1.126:3000uploads/"
+      if (cleanPath.contains('${baseUrl}uploads/') &&
+          !cleanPath.contains('$baseUrl/uploads/')) {
+        cleanPath = cleanPath.replaceFirst(
+          '${baseUrl}uploads/',
+          '$baseUrl/uploads/',
+        );
         print('🔧 Fixed missing slash in uploads: "$cleanPath"');
       }
 
-      // Fix port issues like "http://51.75.31.246:30001750101703312"
+      // Fix port issues like "http://192.168.1.126:30001750101703312"
       RegExp portIssueRegex = RegExp(r'http://[\d\.]+:3000(\d+.*)');
       if (portIssueRegex.hasMatch(cleanPath)) {
         cleanPath = cleanPath.replaceAllMapped(portIssueRegex, (match) {
@@ -110,9 +111,7 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
     try {
       final res = await http.get(
         Uri.parse('$baseUrl/api/posts'),
-        headers: {
-          'Authorization': 'Bearer ${widget.token}',
-        },
+        headers: {'Authorization': 'Bearer ${widget.token}'},
       );
       final data = jsonDecode(res.body);
       if (data['success']) {
@@ -177,10 +176,9 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
       req.fields['text'] = text;
 
       if (_selectedImage != null) {
-        req.files.add(await http.MultipartFile.fromPath(
-          'image',
-          _selectedImage!.path,
-        ));
+        req.files.add(
+          await http.MultipartFile.fromPath('image', _selectedImage!.path),
+        );
       }
 
       final res = await req.send();
@@ -301,7 +299,7 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: primaryGreen.withOpacity(0.1),
+            color: primaryGreen.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -316,7 +314,7 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -340,10 +338,14 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.7),
+                            color: Colors.black.withValues(alpha: 0.7),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.close, color: Colors.white, size: 18),
+                          child: const Icon(
+                            Icons.close,
+                            color: Colors.white,
+                            size: 18,
+                          ),
                         ),
                       ),
                     ),
@@ -360,18 +362,33 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
                     CircleAvatar(
                       radius: 20,
                       backgroundColor: cardGreen,
-                      child: userProfileImageUrl.isNotEmpty
-                          ? ClipOval(
-                        child: CachedNetworkImage(
-                          imageUrl: userProfileImageUrl,
-                          width: 40,
-                          height: 40,
-                          fit: BoxFit.cover,
-                          placeholder: (_, __) => Icon(Icons.agriculture, color: primaryGreen, size: 20),
-                          errorWidget: (_, __, ___) => Icon(Icons.agriculture, color: primaryGreen, size: 20),
-                        ),
-                      )
-                          : Icon(Icons.agriculture, color: primaryGreen, size: 20),
+                      child:
+                          userProfileImageUrl.isNotEmpty
+                              ? ClipOval(
+                                child: CachedNetworkImage(
+                                  imageUrl: userProfileImageUrl,
+                                  width: 40,
+                                  height: 40,
+                                  fit: BoxFit.cover,
+                                  placeholder:
+                                      (_, _) => Icon(
+                                        Icons.agriculture,
+                                        color: primaryGreen,
+                                        size: 20,
+                                      ),
+                                  errorWidget:
+                                      (_, _, _) => Icon(
+                                        Icons.agriculture,
+                                        color: primaryGreen,
+                                        size: 20,
+                                      ),
+                                ),
+                              )
+                              : Icon(
+                                Icons.agriculture,
+                                color: primaryGreen,
+                                size: 20,
+                              ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -387,7 +404,10 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
                             hintText: "Share your farming insights...",
                             hintStyle: TextStyle(color: Colors.grey.shade600),
                             border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
                           ),
                         ),
                       ),
@@ -433,7 +453,7 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -470,7 +490,7 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: primaryGreen.withOpacity(0.08),
+            color: primaryGreen.withValues(alpha: 0.08),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -487,18 +507,27 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
                 CircleAvatar(
                   radius: 22,
                   backgroundColor: cardGreen,
-                  child: userProfileImageUrl.isNotEmpty
-                      ? ClipOval(
-                    child: CachedNetworkImage(
-                      imageUrl: userProfileImageUrl,
-                      width: 44,
-                      height: 44,
-                      fit: BoxFit.cover,
-                      placeholder: (_, __) => Icon(Icons.agriculture, color: primaryGreen),
-                      errorWidget: (_, __, ___) => Icon(Icons.agriculture, color: primaryGreen),
-                    ),
-                  )
-                      : Icon(Icons.agriculture, color: primaryGreen),
+                  child:
+                      userProfileImageUrl.isNotEmpty
+                          ? ClipOval(
+                            child: CachedNetworkImage(
+                              imageUrl: userProfileImageUrl,
+                              width: 44,
+                              height: 44,
+                              fit: BoxFit.cover,
+                              placeholder:
+                                  (_, _) => Icon(
+                                    Icons.agriculture,
+                                    color: primaryGreen,
+                                  ),
+                              errorWidget:
+                                  (_, _, _) => Icon(
+                                    Icons.agriculture,
+                                    color: primaryGreen,
+                                  ),
+                            ),
+                          )
+                          : Icon(Icons.agriculture, color: primaryGreen),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -528,11 +557,7 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
                     color: backgroundGreen,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    Icons.eco,
-                    color: primaryGreen,
-                    size: 16,
-                  ),
+                  child: Icon(Icons.eco, color: primaryGreen, size: 16),
                 ),
               ],
             ),
@@ -544,10 +569,7 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Text(
                 post['text'],
-                style: const TextStyle(
-                  fontSize: 15,
-                  height: 1.4,
-                ),
+                style: const TextStyle(fontSize: 15, height: 1.4),
               ),
             ),
 
@@ -562,7 +584,7 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -574,20 +596,27 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
                   imageUrl: postImageUrl,
                   width: double.infinity,
                   fit: BoxFit.cover,
-                  placeholder: (_, __) => Container(
-                    height: 200,
-                    color: backgroundGreen,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(primaryGreen),
+                  placeholder:
+                      (_, _) => Container(
+                        height: 200,
+                        color: backgroundGreen,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              primaryGreen,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  errorWidget: (_, __, ___) => Container(
-                    height: 200,
-                    color: Colors.grey.shade200,
-                    child: Icon(Icons.broken_image, color: Colors.grey.shade400),
-                  ),
+                  errorWidget:
+                      (_, _, _) => Container(
+                        height: 200,
+                        color: Colors.grey.shade200,
+                        child: Icon(
+                          Icons.broken_image,
+                          color: Colors.grey.shade400,
+                        ),
+                      ),
                 ),
               ),
             ),
@@ -639,7 +668,9 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
                   const SizedBox(height: 12),
                   ...comments.take(3).map<Widget>((c) {
                     final commentUser = c['User'];
-                    final commentUserProfileImageUrl = getImageUrl(commentUser['profile_image']);
+                    final commentUserProfileImageUrl = getImageUrl(
+                      commentUser['profile_image'],
+                    );
 
                     return Container(
                       margin: const EdgeInsets.only(bottom: 12),
@@ -654,18 +685,33 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
                           CircleAvatar(
                             radius: 16,
                             backgroundColor: cardGreen,
-                            child: commentUserProfileImageUrl.isNotEmpty
-                                ? ClipOval(
-                              child: CachedNetworkImage(
-                                imageUrl: commentUserProfileImageUrl,
-                                width: 32,
-                                height: 32,
-                                fit: BoxFit.cover,
-                                placeholder: (_, __) => Icon(Icons.person, size: 16, color: primaryGreen),
-                                errorWidget: (_, __, ___) => Icon(Icons.person, size: 16, color: primaryGreen),
-                              ),
-                            )
-                                : Icon(Icons.person, size: 16, color: primaryGreen),
+                            child:
+                                commentUserProfileImageUrl.isNotEmpty
+                                    ? ClipOval(
+                                      child: CachedNetworkImage(
+                                        imageUrl: commentUserProfileImageUrl,
+                                        width: 32,
+                                        height: 32,
+                                        fit: BoxFit.cover,
+                                        placeholder:
+                                            (_, _) => Icon(
+                                              Icons.person,
+                                              size: 16,
+                                              color: primaryGreen,
+                                            ),
+                                        errorWidget:
+                                            (_, _, _) => Icon(
+                                              Icons.person,
+                                              size: 16,
+                                              color: primaryGreen,
+                                            ),
+                                      ),
+                                    )
+                                    : Icon(
+                                      Icons.person,
+                                      size: 16,
+                                      color: primaryGreen,
+                                    ),
                           ),
                           const SizedBox(width: 10),
                           Expanded(
@@ -733,18 +779,35 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
                 CircleAvatar(
                   radius: 16,
                   backgroundColor: cardGreen,
-                  child: getImageUrl(widget.userData['profile_image']).isNotEmpty
-                      ? ClipOval(
-                    child: CachedNetworkImage(
-                      imageUrl: getImageUrl(widget.userData['profile_image']),
-                      width: 32,
-                      height: 32,
-                      fit: BoxFit.cover,
-                      placeholder: (_, __) => Icon(Icons.agriculture, size: 16, color: primaryGreen),
-                      errorWidget: (_, __, ___) => Icon(Icons.agriculture, size: 16, color: primaryGreen),
-                    ),
-                  )
-                      : Icon(Icons.agriculture, size: 16, color: primaryGreen),
+                  child:
+                      getImageUrl(widget.userData['profile_image']).isNotEmpty
+                          ? ClipOval(
+                            child: CachedNetworkImage(
+                              imageUrl: getImageUrl(
+                                widget.userData['profile_image'],
+                              ),
+                              width: 32,
+                              height: 32,
+                              fit: BoxFit.cover,
+                              placeholder:
+                                  (_, _) => Icon(
+                                    Icons.agriculture,
+                                    size: 16,
+                                    color: primaryGreen,
+                                  ),
+                              errorWidget:
+                                  (_, _, _) => Icon(
+                                    Icons.agriculture,
+                                    size: 16,
+                                    color: primaryGreen,
+                                  ),
+                            ),
+                          )
+                          : Icon(
+                            Icons.agriculture,
+                            size: 16,
+                            color: primaryGreen,
+                          ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -757,9 +820,15 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
                       controller: commentController,
                       decoration: InputDecoration(
                         hintText: "Add a comment...",
-                        hintStyle: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 14,
+                        ),
                         border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                       ),
                     ),
                   ),
@@ -774,7 +843,10 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
                     icon: const Icon(Icons.send, color: Colors.white, size: 18),
                     onPressed: () {
                       if (commentController.text.trim().isNotEmpty) {
-                        createComment(post['id'], commentController.text.trim());
+                        createComment(
+                          post['id'],
+                          commentController.text.trim(),
+                        );
                         commentController.clear();
                       }
                     },
@@ -800,7 +872,7 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
@@ -837,7 +909,11 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
                 color: primaryGreen,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.agriculture, color: Colors.white, size: 20),
+              child: const Icon(
+                Icons.agriculture,
+                color: Colors.white,
+                size: 20,
+              ),
             ),
             const SizedBox(width: 12),
             const Text(
@@ -853,10 +929,7 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
         actions: [
           Container(
             margin: const EdgeInsets.only(right: 16),
-            decoration: BoxDecoration(
-              color: cardGreen,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: cardGreen, shape: BoxShape.circle),
             child: IconButton(
               icon: Icon(Icons.refresh, color: primaryGreen),
               onPressed: fetchPosts,
@@ -864,90 +937,86 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
           ),
         ],
       ),
-      body: isLoading
-          ? Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(primaryGreen),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              "Loading community posts...",
-              style: TextStyle(color: Colors.grey.shade600),
-            ),
-          ],
-        ),
-      )
-          : RefreshIndicator(
-        onRefresh: fetchPosts,
-        color: primaryGreen,
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: buildCreatePostCard(),
-            ),
-            if (posts.isEmpty)
-              SliverFillRemaining(
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.agriculture,
-                        size: 64,
-                        color: Colors.grey.shade400,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        "No posts yet",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "Be the first to share your farming insights!",
-                        style: TextStyle(color: Colors.grey.shade500),
-                      ),
-                    ],
-                  ),
+      body:
+          isLoading
+              ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(primaryGreen),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      "Loading community posts...",
+                      style: TextStyle(color: Colors.grey.shade600),
+                    ),
+                  ],
                 ),
               )
-            else
-              SliverList(
-                delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                    return FadeTransition(
-                      opacity: _animationController,
-                      child: SlideTransition(
-                        position: Tween<Offset>(
-                          begin: const Offset(0, 0.3),
-                          end: Offset.zero,
-                        ).animate(CurvedAnimation(
-                          parent: _animationController,
-                          curve: Interval(
-                            (index / posts.length) * 0.5,
-                            ((index + 1) / posts.length) * 0.5 + 0.5,
-                            curve: Curves.easeOut,
+              : RefreshIndicator(
+                onRefresh: fetchPosts,
+                color: primaryGreen,
+                child: CustomScrollView(
+                  slivers: [
+                    SliverToBoxAdapter(child: buildCreatePostCard()),
+                    if (posts.isEmpty)
+                      SliverFillRemaining(
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.agriculture,
+                                size: 64,
+                                color: Colors.grey.shade400,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                "No posts yet",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                "Be the first to share your farming insights!",
+                                style: TextStyle(color: Colors.grey.shade500),
+                              ),
+                            ],
                           ),
-                        )),
-                        child: buildPostCard(posts[index]),
+                        ),
+                      )
+                    else
+                      SliverList(
+                        delegate: SliverChildBuilderDelegate((context, index) {
+                          return FadeTransition(
+                            opacity: _animationController,
+                            child: SlideTransition(
+                              position: Tween<Offset>(
+                                begin: const Offset(0, 0.3),
+                                end: Offset.zero,
+                              ).animate(
+                                CurvedAnimation(
+                                  parent: _animationController,
+                                  curve: Interval(
+                                    (index / posts.length) * 0.5,
+                                    ((index + 1) / posts.length) * 0.5 + 0.5,
+                                    curve: Curves.easeOut,
+                                  ),
+                                ),
+                              ),
+                              child: buildPostCard(posts[index]),
+                            ),
+                          );
+                        }, childCount: posts.length),
                       ),
-                    );
-                  },
-                  childCount: posts.length,
+                    const SliverToBoxAdapter(child: SizedBox(height: 80)),
+                  ],
                 ),
               ),
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 80),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

@@ -9,11 +9,11 @@ class OrderConfirmationScreen extends StatelessWidget {
   final String orderNumber;
 
   const OrderConfirmationScreen({
-    Key? key,
+    super.key,
     required this.userData,
     required this.token,
     required this.orderNumber,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

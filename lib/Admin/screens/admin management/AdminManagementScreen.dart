@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminManagementScreen extends StatefulWidget {
-  const AdminManagementScreen({Key? key}) : super(key: key);
+  const AdminManagementScreen({super.key});
 
   @override
   State<AdminManagementScreen> createState() => _AdminManagementScreenState();
@@ -29,7 +29,7 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
     setState(() => isLoading = true);
     final token = await getToken();
     final response = await http.get(
-      Uri.parse('http://51.75.31.246:3000/api/admins'),
+      Uri.parse('http://192.168.1.126:3000/api/admins'),
       headers: {'Authorization': 'Bearer $token'},
     );
 
@@ -45,11 +45,16 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
     }
   }
 
-  Future<void> addAdmin(String fullName, String email, String phone, String password) async {
+  Future<void> addAdmin(
+    String fullName,
+    String email,
+    String phone,
+    String password,
+  ) async {
     setState(() => isLoading = true);
     final token = await getToken();
     final response = await http.post(
-      Uri.parse('http://51.75.31.246:3000/api/admins/add'),
+      Uri.parse('http://192.168.1.126:3000/api/admins/add'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -75,41 +80,49 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
   Future<void> deleteAdmin(int id, String name) async {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text("Confirm Deletion"),
-        content: Text("Are you sure you want to delete $name?"),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text("Cancel", style: TextStyle(color: Colors.grey[600])),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              setState(() => isLoading = true);
-              final token = await getToken();
-              final response = await http.delete(
-                Uri.parse('http://51.75.31.246:3000/api/admins/$id'),
-                headers: {'Authorization': 'Bearer $token'},
-              );
-
-              setState(() => isLoading = false);
-              if (response.statusCode == 200) {
-                _showSuccessSnackBar("Admin deleted successfully");
-                fetchAdmins(); // Refresh list
-              } else {
-                _showErrorSnackBar("Failed to delete admin");
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      builder:
+          (context) => AlertDialog(
+            title: Text("Confirm Deletion"),
+            content: Text("Are you sure you want to delete $name?"),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-            child: Text("Delete", style: TextStyle(color: Colors.white)),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  "Cancel",
+                  style: TextStyle(color: Colors.grey[600]),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  setState(() => isLoading = true);
+                  final token = await getToken();
+                  final response = await http.delete(
+                    Uri.parse('http://192.168.1.126:3000/api/admins/$id'),
+                    headers: {'Authorization': 'Bearer $token'},
+                  );
+
+                  setState(() => isLoading = false);
+                  if (response.statusCode == 200) {
+                    _showSuccessSnackBar("Admin deleted successfully");
+                    fetchAdmins(); // Refresh list
+                  } else {
+                    _showErrorSnackBar("Failed to delete admin");
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Text("Delete", style: TextStyle(color: Colors.white)),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -158,110 +171,120 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.person_add, color: Colors.green.shade700),
-            SizedBox(width: 8),
-            Text("Add New Admin"),
-          ],
-        ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        content: Container(
-          width: MediaQuery.of(context).size.width * 0.8,
-          child: Form(
-            key: formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildTextField(
-                    controller: nameController,
-                    label: 'Full Name',
-                    icon: Icons.person,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a name';
-                      }
-                      return null;
-                    },
+      builder:
+          (context) => AlertDialog(
+            title: Row(
+              children: [
+                Icon(Icons.person_add, color: Colors.green.shade700),
+                SizedBox(width: 8),
+                Text("Add New Admin"),
+              ],
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            content: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.8,
+              child: Form(
+                key: formKey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildTextField(
+                        controller: nameController,
+                        label: 'Full Name',
+                        icon: Icons.person,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a name';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 16),
+                      _buildTextField(
+                        controller: emailController,
+                        label: 'Email',
+                        icon: Icons.email,
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter an email';
+                          }
+                          final emailValid = RegExp(
+                            r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                          ).hasMatch(value);
+                          if (!emailValid) {
+                            return 'Please enter a valid email';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 16),
+                      _buildTextField(
+                        controller: phoneController,
+                        label: 'Phone',
+                        icon: Icons.phone,
+                        keyboardType: TextInputType.phone,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a phone number';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 16),
+                      _buildTextField(
+                        controller: passwordController,
+                        label: 'Password',
+                        icon: Icons.lock,
+                        obscureText: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a password';
+                          }
+                          if (value.length < 6) {
+                            return 'Password must be at least 6 characters';
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
                   ),
-                  SizedBox(height: 16),
-                  _buildTextField(
-                    controller: emailController,
-                    label: 'Email',
-                    icon: Icons.email,
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter an email';
-                      }
-                      final emailValid = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value);
-                      if (!emailValid) {
-                        return 'Please enter a valid email';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 16),
-                  _buildTextField(
-                    controller: phoneController,
-                    label: 'Phone',
-                    icon: Icons.phone,
-                    keyboardType: TextInputType.phone,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a phone number';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 16),
-                  _buildTextField(
-                    controller: passwordController,
-                    label: 'Password',
-                    icon: Icons.lock,
-                    obscureText: true,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a password';
-                      }
-                      if (value.length < 6) {
-                        return 'Password must be at least 6 characters';
-                      }
-                      return null;
-                    },
-                  ),
-                ],
+                ),
               ),
             ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  "Cancel",
+                  style: TextStyle(color: Colors.grey[600]),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  if (formKey.currentState!.validate()) {
+                    Navigator.pop(context);
+                    addAdmin(
+                      nameController.text.trim(),
+                      emailController.text.trim(),
+                      phoneController.text.trim(),
+                      passwordController.text.trim(),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green.shade700,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Text("Add Admin", style: TextStyle(color: Colors.white)),
+              ),
+            ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text("Cancel", style: TextStyle(color: Colors.grey[600])),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (formKey.currentState!.validate()) {
-                Navigator.pop(context);
-                addAdmin(
-                  nameController.text.trim(),
-                  emailController.text.trim(),
-                  phoneController.text.trim(),
-                  passwordController.text.trim(),
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green.shade700,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            child: Text("Add Admin", style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
     );
   }
 
@@ -323,10 +346,7 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      Colors.green.shade800,
-                      Colors.green.shade600,
-                    ],
+                    colors: [Colors.green.shade800, Colors.green.shade600],
                   ),
                 ),
               ),
@@ -356,10 +376,7 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
                   SizedBox(height: 4),
                   Text(
                     "Manage your team members and their access",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade600,
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                   ),
                   SizedBox(height: 16),
                 ],
@@ -370,7 +387,9 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
             SliverFillRemaining(
               child: Center(
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.green.shade700),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    Colors.green.shade700,
+                  ),
                 ),
               ),
             )
@@ -410,7 +429,10 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green.shade700,
                         foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -424,92 +446,104 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
             SliverPadding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                    final admin = admins[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12.0),
-                      child: Card(
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 60,
-                                height: 60,
-                                decoration: BoxDecoration(
-                                  color: Colors.green.shade50,
-                                  borderRadius: BorderRadius.circular(12),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final admin = admins[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12.0),
+                    child: Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 60,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                color: Colors.green.shade50,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  Icons.admin_panel_settings,
+                                  color: Colors.green.shade700,
+                                  size: 28,
                                 ),
-                                child: Center(
-                                  child: Icon(
-                                    Icons.admin_panel_settings,
-                                    color: Colors.green.shade700,
-                                    size: 28,
+                              ),
+                            ),
+                            SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    admin['full_name'],
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.green.shade800,
+                                    ),
                                   ),
-                                ),
-                              ),
-                              SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      admin['full_name'],
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.green.shade800,
+                                  SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.email_outlined,
+                                        size: 14,
+                                        color: Colors.grey.shade600,
                                       ),
-                                    ),
-                                    SizedBox(height: 4),
-                                    Row(
-                                      children: [
-                                        Icon(Icons.email_outlined, size: 14, color: Colors.grey.shade600),
-                                        SizedBox(width: 4),
-                                        Text(
-                                          admin['email'],
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.grey.shade600,
-                                          ),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        admin['email'],
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey.shade600,
                                         ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 2),
-                                    Row(
-                                      children: [
-                                        Icon(Icons.phone_outlined, size: 14, color: Colors.grey.shade600),
-                                        SizedBox(width: 4),
-                                        Text(
-                                          admin['phone'] ?? "No phone",
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.grey.shade600,
-                                          ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 2),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.phone_outlined,
+                                        size: 14,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        admin['phone'] ?? "No phone",
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey.shade600,
                                         ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
-                              IconButton(
-                                icon: Icon(Icons.delete_outline, color: Colors.red.shade400),
-                                tooltip: "Delete Admin",
-                                onPressed: () => deleteAdmin(admin['id'], admin['full_name']),
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                Icons.delete_outline,
+                                color: Colors.red.shade400,
                               ),
-                            ],
-                          ),
+                              tooltip: "Delete Admin",
+                              onPressed:
+                                  () => deleteAdmin(
+                                    admin['id'],
+                                    admin['full_name'],
+                                  ),
+                            ),
+                          ],
                         ),
                       ),
-                    );
-                  },
-                  childCount: admins.length,
-                ),
+                    ),
+                  );
+                }, childCount: admins.length),
               ),
             ),
         ],
@@ -517,8 +551,8 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddAdminDialog,
         backgroundColor: Colors.green.shade700,
-        child: Icon(Icons.person_add, color: Colors.white),
         tooltip: "Add New Admin",
+        child: Icon(Icons.person_add, color: Colors.white),
       ),
     );
   }

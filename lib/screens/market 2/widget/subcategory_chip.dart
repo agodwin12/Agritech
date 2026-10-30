@@ -10,13 +10,13 @@ class SubcategoryChip extends StatelessWidget {
   final Color textColor;
 
   const SubcategoryChip({
-    Key? key,
+    super.key,
     required this.label,
     required this.isSelected,
     required this.onSelected,
     required this.isDarkMode,
     required this.textColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,12 +28,12 @@ class SubcategoryChip extends StatelessWidget {
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w500,
             fontSize: 12,
-            color: isSelected ? Colors.white : textColor.withOpacity(0.7),
+            color: isSelected ? Colors.white : textColor.withValues(alpha: 0.7),
           ),
         ),
         selected: isSelected,
         selectedColor: MarketplaceTheme.accentColor,
-        backgroundColor: isDarkMode ? Colors.grey[800]!.withOpacity(0.5) : Colors.grey[200]!,
+        backgroundColor: isDarkMode ? Colors.grey[800]!.withValues(alpha: 0.5) : Colors.grey[200]!,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(50),

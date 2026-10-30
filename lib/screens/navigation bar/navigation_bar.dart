@@ -18,7 +18,7 @@ class FarmConnectNavBar extends StatelessWidget {
   final String token;
 
   const FarmConnectNavBar({
-    Key? key,
+    super.key,
     required this.isDarkMode,
     required this.darkColor,
     required this.primaryColor,
@@ -26,17 +26,17 @@ class FarmConnectNavBar extends StatelessWidget {
     required this.currentIndex,
     required this.userData,
     required this.token,
-  }) : super(key: key);
+  });
 
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: isDarkMode ? darkColor.withOpacity(0.8) : Colors.white,
+        color: isDarkMode ? darkColor.withValues(alpha: 0.8) : Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             spreadRadius: 0,
             offset: const Offset(0, -5),
@@ -48,7 +48,7 @@ class FarmConnectNavBar extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         selectedItemColor: primaryColor,
-        unselectedItemColor: textColor.withOpacity(0.5),
+        unselectedItemColor: textColor.withValues(alpha: 0.5),
         showSelectedLabels: true,
         showUnselectedLabels: true,
         items: const [

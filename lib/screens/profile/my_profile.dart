@@ -29,11 +29,7 @@ class ProfileScreen extends StatefulWidget {
   final Map<String, dynamic> userData;
   final String token;
 
-  const ProfileScreen({
-    Key? key,
-    required this.userData,
-    required this.token,
-  }) : super(key: key);
+  const ProfileScreen({super.key, required this.userData, required this.token});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -61,7 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   static const Color cardColor = Colors.white;
   static const Color warningOrange = Color(0xFFFF8A65);
 
-  static const String apiUrl = 'http://51.75.31.246:3000/api/myprofile';
+  static const String apiUrl = 'http://192.168.1.126:3000/api/myprofile';
 
   @override
   void initState() {
@@ -122,7 +118,9 @@ class _ProfileScreenState extends State<ProfileScreen>
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.clear();
-      Navigator.of(context).pushNamedAndRemoveUntil('/signin', (route) => false);
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil('/signin', (route) => false);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -133,10 +131,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     }
   }
 
-  Widget _buildAnimatedContainer({
-    required Widget child,
-    required int delay,
-  }) {
+  Widget _buildAnimatedContainer({required Widget child, required int delay}) {
     return TweenAnimationBuilder<double>(
       duration: Duration(milliseconds: 500 + (delay * 100)),
       tween: Tween(begin: 0.0, end: 1.0),
@@ -160,7 +155,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -174,13 +169,10 @@ class _ProfileScreenState extends State<ProfileScreen>
               height: 100,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: primaryGreen,
-                  width: 3,
-                ),
+                border: Border.all(color: primaryGreen, width: 3),
                 boxShadow: [
                   BoxShadow(
-                    color: primaryGreen.withOpacity(0.2),
+                    color: primaryGreen.withValues(alpha: 0.2),
                     blurRadius: 15,
                     offset: const Offset(0, 5),
                   ),
@@ -188,29 +180,30 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(50),
-                child: userData!['profile_image'] != null
-                    ? Image.network(
-                  userData!['profile_image'],
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: accentGreen.withOpacity(0.8),
-                      child: Icon(
-                        Icons.person,
-                        size: 50,
-                        color: Colors.white,
-                      ),
-                    );
-                  },
-                )
-                    : Container(
-                  color: accentGreen.withOpacity(0.8),
-                  child: Icon(
-                    Icons.person,
-                    size: 50,
-                    color: Colors.white,
-                  ),
-                ),
+                child:
+                    userData!['profile_image'] != null
+                        ? Image.network(
+                          userData!['profile_image'],
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: accentGreen.withValues(alpha: 0.8),
+                              child: Icon(
+                                Icons.person,
+                                size: 50,
+                                color: Colors.white,
+                              ),
+                            );
+                          },
+                        )
+                        : Container(
+                          color: accentGreen.withValues(alpha: 0.8),
+                          child: Icon(
+                            Icons.person,
+                            size: 50,
+                            color: Colors.white,
+                          ),
+                        ),
               ),
             ),
             const SizedBox(height: 16),
@@ -228,10 +221,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             // User Email
             Text(
               userData!['email'] ?? 'No email provided',
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
+              style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
@@ -241,15 +231,16 @@ class _ProfileScreenState extends State<ProfileScreen>
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => EditProfileScreen(
-                      userData: userData!,
-                      token: widget.token,
-                      onProfileUpdated: (updatedData) {
-                        setState(() {
-                          userData = updatedData;
-                        });
-                      },
-                    ),
+                    builder:
+                        (context) => EditProfileScreen(
+                          userData: userData!,
+                          token: widget.token,
+                          onProfileUpdated: (updatedData) {
+                            setState(() {
+                              userData = updatedData;
+                            });
+                          },
+                        ),
                   ),
                 );
               },
@@ -257,7 +248,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                 backgroundColor: primaryGreen,
                 foregroundColor: Colors.white,
                 elevation: 0,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -288,7 +282,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -302,7 +296,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: primaryGreen.withOpacity(0.1),
+                    color: primaryGreen.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
@@ -327,7 +321,8 @@ class _ProfileScreenState extends State<ProfileScreen>
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 // Facebook
-                if (userData!['facebook'] != null && userData!['facebook'].isNotEmpty)
+                if (userData!['facebook'] != null &&
+                    userData!['facebook'].isNotEmpty)
                   _buildSocialMediaIcon(
                     icon: Icons.facebook,
                     backgroundColor: const Color(0xFF1877F2),
@@ -337,7 +332,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                   ),
 
                 // Instagram
-                if (userData!['instagram'] != null && userData!['instagram'].isNotEmpty)
+                if (userData!['instagram'] != null &&
+                    userData!['instagram'].isNotEmpty)
                   _buildSocialMediaIcon(
                     icon: Icons.camera_alt_rounded,
                     backgroundColor: const Color(0xFFE1306C),
@@ -347,7 +343,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                   ),
 
                 // Twitter
-                if (userData!['twitter'] != null && userData!['twitter'].isNotEmpty)
+                if (userData!['twitter'] != null &&
+                    userData!['twitter'].isNotEmpty)
                   _buildSocialMediaIcon(
                     icon: Icons.alternate_email,
                     backgroundColor: const Color(0xFF1DA1F2),
@@ -357,7 +354,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                   ),
 
                 // TikTok
-                if (userData!['tiktok'] != null && userData!['tiktok'].isNotEmpty)
+                if (userData!['tiktok'] != null &&
+                    userData!['tiktok'].isNotEmpty)
                   _buildSocialMediaIcon(
                     icon: Icons.music_note_rounded,
                     backgroundColor: const Color(0xFF000000),
@@ -395,19 +393,13 @@ class _ProfileScreenState extends State<ProfileScreen>
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: backgroundColor.withOpacity(0.3),
+                    color: backgroundColor.withValues(alpha: 0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   ),
                 ],
               ),
-              child: Center(
-                child: Icon(
-                  icon,
-                  color: Colors.white,
-                  size: 28,
-                ),
-              ),
+              child: Center(child: Icon(icon, color: Colors.white, size: 28)),
             ),
           ),
         ),
@@ -425,7 +417,8 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   bool _hasSocialLinks() {
-    return (userData!['facebook'] != null && userData!['facebook'].isNotEmpty) ||
+    return (userData!['facebook'] != null &&
+            userData!['facebook'].isNotEmpty) ||
         (userData!['instagram'] != null && userData!['instagram'].isNotEmpty) ||
         (userData!['twitter'] != null && userData!['twitter'].isNotEmpty) ||
         (userData!['tiktok'] != null && userData!['tiktok'].isNotEmpty);
@@ -489,7 +482,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -509,10 +502,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
             Text(
               title,
-              style: GoogleFonts.poppins(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
+              style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey[600]),
             ),
           ],
         ),
@@ -539,7 +529,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -561,7 +551,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: (titleColor ?? primaryGreen).withOpacity(0.1),
+                          color: (titleColor ?? primaryGreen).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Icon(
@@ -584,7 +574,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                       if (badge != null)
                         Container(
                           margin: const EdgeInsets.only(right: 8),
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: warningOrange,
                             borderRadius: BorderRadius.circular(12),
@@ -631,12 +624,13 @@ class _ProfileScreenState extends State<ProfileScreen>
                       isLast: index == items.length - 1,
                       badge: item.badge,
                     );
-                  }).toList(),
+                  }),
                 ],
               ),
-              crossFadeState: isExpanded
-                  ? CrossFadeState.showSecond
-                  : CrossFadeState.showFirst,
+              crossFadeState:
+                  isExpanded
+                      ? CrossFadeState.showSecond
+                      : CrossFadeState.showFirst,
               duration: const Duration(milliseconds: 300),
             ),
           ],
@@ -668,14 +662,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: iconColor.withOpacity(0.1),
+                      color: iconColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(
-                      icon,
-                      color: iconColor,
-                      size: 20,
-                    ),
+                    child: Icon(icon, color: iconColor, size: 20),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -705,7 +695,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                   ),
                   if (badge != null)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: warningOrange,
                         borderRadius: BorderRadius.circular(12),
@@ -730,12 +723,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
           ),
         ),
-        if (!isLast)
-          const Divider(
-            indent: 66,
-            endIndent: 20,
-            height: 1,
-          ),
+        if (!isLast) const Divider(indent: 66, endIndent: 20, height: 1),
       ],
     );
   }
@@ -748,10 +736,10 @@ class _ProfileScreenState extends State<ProfileScreen>
         decoration: BoxDecoration(
           color: cardColor,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.red.withOpacity(0.2)),
+          border: Border.all(color: Colors.red.withValues(alpha: 0.2)),
           boxShadow: [
             BoxShadow(
-              color: Colors.red.withOpacity(0.1),
+              color: Colors.red.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -767,11 +755,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.logout_rounded,
-                    color: Colors.red,
-                    size: 22,
-                  ),
+                  Icon(Icons.logout_rounded, color: Colors.red, size: 22),
                   const SizedBox(width: 12),
                   Text(
                     'Logout',
@@ -808,9 +792,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
           content: Text(
             'Are you sure you want to logout?',
-            style: GoogleFonts.poppins(
-              color: Colors.grey[700],
-            ),
+            style: GoogleFonts.poppins(color: Colors.grey[700]),
           ),
           actions: <Widget>[
             TextButton(
@@ -835,9 +817,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
               child: Text(
                 'Logout',
-                style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.w500,
-                ),
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
               ),
               onPressed: () {
                 Navigator.of(context).pop();
@@ -855,11 +835,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     if (isLoading) {
       return Scaffold(
         backgroundColor: backgroundColor,
-        body: Center(
-          child: CircularProgressIndicator(
-            color: primaryGreen,
-          ),
-        ),
+        body: Center(child: CircularProgressIndicator(color: primaryGreen)),
       );
     }
 
@@ -873,7 +849,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               Icon(
                 Icons.error_outline_rounded,
                 size: 80,
-                color: primaryGreen.withOpacity(0.6),
+                color: primaryGreen.withValues(alpha: 0.6),
               ),
               const SizedBox(height: 16),
               Text(
@@ -890,7 +866,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primaryGreen,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -958,7 +937,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                     title: "My Business",
                     titleIcon: Icons.business_center_outlined,
                     isExpanded: isBusinessExpanded,
-                    onToggle: () => setState(() => isBusinessExpanded = !isBusinessExpanded),
+                    onToggle:
+                        () => setState(
+                          () => isBusinessExpanded = !isBusinessExpanded,
+                        ),
                     delay: 3,
                     badge: "3",
                     items: [
@@ -970,10 +952,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => MyProductsScreen(
-                                userData: widget.userData,
-                                token: widget.token,
-                              ),
+                              builder:
+                                  (_) => MyProductsScreen(
+                                    userData: widget.userData,
+                                    token: widget.token,
+                                  ),
                             ),
                           );
                         },
@@ -986,10 +969,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => MyOrdersScreen(
-                                userData: widget.userData,
-                                token: widget.token,
-                              ),
+                              builder:
+                                  (_) => MyOrdersScreen(
+                                    userData: widget.userData,
+                                    token: widget.token,
+                                  ),
                             ),
                           );
                         },
@@ -1003,7 +987,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                     title: "Learning & Support",
                     titleIcon: Icons.school_outlined,
                     isExpanded: isLearningExpanded,
-                    onToggle: () => setState(() => isLearningExpanded = !isLearningExpanded),
+                    onToggle:
+                        () => setState(
+                          () => isLearningExpanded = !isLearningExpanded,
+                        ),
                     delay: 4,
                     items: [
                       MenuItemData(
@@ -1014,10 +1001,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ForumScreen(
-                                userData: userData!,
-                                token: widget.token,
-                              ),
+                              builder:
+                                  (context) => ForumScreen(
+                                    userData: userData!,
+                                    token: widget.token,
+                                  ),
                             ),
                           );
                         },
@@ -1030,10 +1018,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => ChatBotScreen(
-                                userData: widget.userData,
-                                token: widget.token,
-                              ),
+                              builder:
+                                  (_) => ChatBotScreen(
+                                    userData: widget.userData,
+                                    token: widget.token,
+                                  ),
                             ),
                           );
                         },
@@ -1046,7 +1035,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => EducationalLibraryScreen(userData: {}, token: '',),
+                              builder:
+                                  (_) => EducationalLibraryScreen(
+                                    userData: {},
+                                    token: '',
+                                  ),
                             ),
                           );
                         },
@@ -1058,9 +1051,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                              builder: (_) => FeedbackScreen(),
-                            ),
+                            MaterialPageRoute(builder: (_) => FeedbackScreen()),
                           );
                         },
                       ),
@@ -1071,9 +1062,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                              builder: (_) => FAQSection(),
-                            ),
+                            MaterialPageRoute(builder: (_) => FAQSection()),
                           );
                         },
                       ),
@@ -1085,7 +1074,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                     title: "Smart Tools",
                     titleIcon: Icons.build_outlined,
                     isExpanded: isToolsExpanded,
-                    onToggle: () => setState(() => isToolsExpanded = !isToolsExpanded),
+                    onToggle:
+                        () =>
+                            setState(() => isToolsExpanded = !isToolsExpanded),
                     delay: 5,
                     titleColor: lightGreen,
                     items: [
@@ -1112,7 +1103,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => AdvisoryScreen(userData: {}, token: ''),
+                              builder:
+                                  (_) =>
+                                      AdvisoryScreen(userData: {}, token: ''),
                             ),
                           );
                         },
@@ -1125,7 +1118,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                     title: "Account Settings",
                     titleIcon: Icons.settings_outlined,
                     isExpanded: isSettingsExpanded,
-                    onToggle: () => setState(() => isSettingsExpanded = !isSettingsExpanded),
+                    onToggle:
+                        () => setState(
+                          () => isSettingsExpanded = !isSettingsExpanded,
+                        ),
                     delay: 6,
                     titleColor: Colors.blueGrey,
                     items: [
@@ -1147,7 +1143,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                           // Implement notifications settings
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('Notification settings coming soon!'),
+                              content: Text(
+                                'Notification settings coming soon!',
+                              ),
                               backgroundColor: primaryGreen,
                             ),
                           );
@@ -1161,7 +1159,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                     title: "Help & About",
                     titleIcon: Icons.help_outline,
                     isExpanded: isHelpExpanded,
-                    onToggle: () => setState(() => isHelpExpanded = !isHelpExpanded),
+                    onToggle:
+                        () => setState(() => isHelpExpanded = !isHelpExpanded),
                     delay: 7,
                     titleColor: Colors.grey,
                     items: [
@@ -1188,10 +1187,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => AboutUsScreen(
-                                userData: widget.userData,
-                                token: widget.token,
-                              ),
+                              builder:
+                                  (_) => AboutUsScreen(
+                                    userData: widget.userData,
+                                    token: widget.token,
+                                  ),
                             ),
                           );
                         },
@@ -1273,7 +1273,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 20,
                       spreadRadius: 5,
                     ),
@@ -1310,7 +1310,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                         controller: confirmPasswordController,
                         label: 'Confirm Password',
                         hideText: hideConfirm,
-                        onToggle: () => setState(() => hideConfirm = !hideConfirm),
+                        onToggle:
+                            () => setState(() => hideConfirm = !hideConfirm),
                       ),
                       SizedBox(height: 24),
                       Row(
@@ -1318,12 +1319,16 @@ class _ProfileScreenState extends State<ProfileScreen>
                         children: [
                           TextButton(
                             style: TextButton.styleFrom(
-                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 12,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
                             ),
-                            onPressed: isLoading ? null : () => Navigator.pop(context),
+                            onPressed:
+                                isLoading ? null : () => Navigator.pop(context),
                             child: Text(
                               'Cancel',
                               style: GoogleFonts.poppins(
@@ -1336,112 +1341,154 @@ class _ProfileScreenState extends State<ProfileScreen>
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: primaryGreen,
-                              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 12,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               elevation: 0,
                             ),
-                            onPressed: isLoading ? null : () async {
-                              final oldPass = oldPasswordController.text.trim();
-                              final newPass = newPasswordController.text.trim();
-                              final confirmPass = confirmPasswordController.text.trim();
+                            onPressed:
+                                isLoading
+                                    ? null
+                                    : () async {
+                                      final oldPass =
+                                          oldPasswordController.text.trim();
+                                      final newPass =
+                                          newPasswordController.text.trim();
+                                      final confirmPass =
+                                          confirmPasswordController.text.trim();
 
-                              if (newPass.isEmpty || confirmPass.isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Please fill all fields'),
-                                    behavior: SnackBarBehavior.floating,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                );
-                                return;
-                              }
+                                      if (newPass.isEmpty ||
+                                          confirmPass.isEmpty) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              'Please fill all fields',
+                                            ),
+                                            behavior: SnackBarBehavior.floating,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                          ),
+                                        );
+                                        return;
+                                      }
 
-                              if (newPass != confirmPass) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('New passwords do not match'),
-                                    behavior: SnackBarBehavior.floating,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                );
-                                return;
-                              }
+                                      if (newPass != confirmPass) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              'New passwords do not match',
+                                            ),
+                                            behavior: SnackBarBehavior.floating,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                          ),
+                                        );
+                                        return;
+                                      }
 
-                              setState(() => isLoading = true);
+                                      setState(() => isLoading = true);
 
-                              try {
-                                final response = await http.post(
-                                  Uri.parse('http://51.75.31.246:3000/api/users/change-password'),
-                                  headers: {
-                                    'Content-Type': 'application/json',
-                                    'Authorization': 'Bearer ${widget.token}',
-                                  },
-                                  body: jsonEncode({
-                                    'oldPassword': oldPass,
-                                    'newPassword': newPass,
-                                    'phone': userData?['phone'],
-                                  }),
-                                );
+                                      try {
+                                        final response = await http.post(
+                                          Uri.parse(
+                                            'http://192.168.1.126:3000/api/users/change-password',
+                                          ),
+                                          headers: {
+                                            'Content-Type': 'application/json',
+                                            'Authorization':
+                                                'Bearer ${widget.token}',
+                                          },
+                                          body: jsonEncode({
+                                            'oldPassword': oldPass,
+                                            'newPassword': newPass,
+                                            'phone': userData?['phone'],
+                                          }),
+                                        );
 
-                                if (response.statusCode == 200) {
-                                  Navigator.pop(context);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('Password changed successfully'),
-                                      behavior: SnackBarBehavior.floating,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
+                                        if (response.statusCode == 200) {
+                                          Navigator.pop(context);
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                'Password changed successfully',
+                                              ),
+                                              behavior:
+                                                  SnackBarBehavior.floating,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                            ),
+                                          );
+                                        } else {
+                                          final err = jsonDecode(response.body);
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                err['message'] ??
+                                                    'Password change failed',
+                                              ),
+                                              behavior:
+                                                  SnackBarBehavior.floating,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      } catch (e) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              'Network error occurred',
+                                            ),
+                                            behavior: SnackBarBehavior.floating,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                          ),
+                                        );
+                                      } finally {
+                                        setState(() => isLoading = false);
+                                      }
+                                    },
+                            child:
+                                isLoading
+                                    ? SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                    : Text(
+                                      'Update',
+                                      style: GoogleFonts.poppins(
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white,
                                       ),
                                     ),
-                                  );
-                                } else {
-                                  final err = jsonDecode(response.body);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(err['message'] ?? 'Password change failed'),
-                                      behavior: SnackBarBehavior.floating,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                    ),
-                                  );
-                                }
-                              } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Network error occurred'),
-                                    behavior: SnackBarBehavior.floating,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                );
-                              } finally {
-                                setState(() => isLoading = false);
-                              }
-                            },
-                            child: isLoading
-                                ? SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                                : Text(
-                              'Update',
-                              style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white,
-                              ),
-                            ),
                           ),
                         ],
                       ),

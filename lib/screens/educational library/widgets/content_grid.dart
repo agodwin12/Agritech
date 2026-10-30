@@ -18,7 +18,7 @@ class ContentGrid extends StatelessWidget {
   final String? emptyStateSubtitle;
 
   const ContentGrid({
-    Key? key,
+    super.key,
     required this.content,
     required this.isVideo,
     required this.isLoading,
@@ -27,7 +27,7 @@ class ContentGrid extends StatelessWidget {
     this.onPurchase,
     this.emptyStateTitle,
     this.emptyStateSubtitle,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -168,9 +168,9 @@ class ContentCardSkeleton extends StatefulWidget {
   final bool isVideo;
 
   const ContentCardSkeleton({
-    Key? key,
+    super.key,
     this.isVideo = false,
-  }) : super(key: key);
+  });
 
   @override
   State<ContentCardSkeleton> createState() => _ContentCardSkeletonState();
@@ -323,13 +323,13 @@ class EbookGrid extends StatelessWidget {
   final Function(Ebook) onPurchase;
 
   const EbookGrid({
-    Key? key,
+    super.key,
     required this.ebooks,
     required this.isLoading,
     required this.onRefresh,
     required this.onEbookTap,
     required this.onPurchase,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -353,12 +353,12 @@ class VideoGrid extends StatelessWidget {
   final Function(Video) onVideoTap;
 
   const VideoGrid({
-    Key? key,
+    super.key,
     required this.videos,
     required this.isLoading,
     required this.onRefresh,
     required this.onVideoTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -384,14 +384,14 @@ class SearchableContentGrid extends StatefulWidget {
   final Function(dynamic)? onPurchase;
 
   const SearchableContentGrid({
-    Key? key,
+    super.key,
     required this.allContent,
     required this.isVideo,
     required this.isLoading,
     required this.onRefresh,
     required this.onContentTap,
     this.onPurchase,
-  }) : super(key: key);
+  });
 
   @override
   State<SearchableContentGrid> createState() => _SearchableContentGridState();
@@ -524,14 +524,14 @@ class AdvancedContentGrid extends StatefulWidget {
   final Function(dynamic)? onPurchase;
 
   const AdvancedContentGrid({
-    Key? key,
+    super.key,
     required this.allContent,
     required this.isVideo,
     required this.isLoading,
     required this.onRefresh,
     required this.onContentTap,
     this.onPurchase,
-  }) : super(key: key);
+  });
 
   @override
   State<AdvancedContentGrid> createState() => _AdvancedContentGridState();

@@ -19,11 +19,11 @@ class MarketplaceDashboard extends StatefulWidget {
   final void Function(MenuItem)? onNavigateToSection;
 
   const MarketplaceDashboard({
-    Key? key,
+    super.key,
     required this.apiService,
     required this.isMobile,
     this.onNavigateToSection,
-  }) : super(key: key);
+  });
 
   @override
   State<MarketplaceDashboard> createState() => _MarketplaceDashboardState();
@@ -169,7 +169,7 @@ class _MarketplaceDashboardState extends State<MarketplaceDashboard>
         setState(() {
           _videos = results[0] as List<Video>;
           _ebooks = results[1] as List<Ebook>;
-          _webinars = results[2] as List<dynamic>;
+          _webinars = results[2];
           _isLoading = false;
         });
 
@@ -237,7 +237,7 @@ class _MarketplaceDashboardState extends State<MarketplaceDashboard>
               gradient: LinearGradient(
                 colors: [
                   AppColorss.primary,
-                  AppColorss.primary.withOpacity(0.6)
+                  AppColorss.primary.withValues(alpha: 0.6)
                 ],
               ),
               borderRadius: BorderRadius.circular(40),
@@ -271,7 +271,7 @@ class _MarketplaceDashboardState extends State<MarketplaceDashboard>
           Icon(
             Icons.error_outline,
             size: 64,
-            color: Colors.red.withOpacity(0.6),
+            color: Colors.red.withValues(alpha: 0.6),
           ),
           const SizedBox(height: 16),
           Text(
@@ -317,13 +317,13 @@ class _MarketplaceDashboardState extends State<MarketplaceDashboard>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppColorss.primary.withOpacity(0.1),
-            AppColorss.primary.withOpacity(0.05),
+            AppColorss.primary.withValues(alpha: 0.1),
+            AppColorss.primary.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppColorss.primary.withOpacity(0.1),
+          color: AppColorss.primary.withValues(alpha: 0.1),
         ),
       ),
       child: Row(
@@ -357,7 +357,7 @@ class _MarketplaceDashboardState extends State<MarketplaceDashboard>
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColorss.primary.withOpacity(0.1),
+                color: AppColorss.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(
@@ -411,10 +411,10 @@ class _MarketplaceDashboardState extends State<MarketplaceDashboard>
       decoration: BoxDecoration(
         color: AppColorss.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.1)),
+        border: Border.all(color: color.withValues(alpha: 0.1)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -425,7 +425,7 @@ class _MarketplaceDashboardState extends State<MarketplaceDashboard>
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: color, size: 24),
@@ -506,7 +506,7 @@ class _MarketplaceDashboardState extends State<MarketplaceDashboard>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(icon, color: color, size: 20),
@@ -578,15 +578,15 @@ class _MarketplaceDashboardState extends State<MarketplaceDashboard>
     return Container(
       height: 160,
       decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
+        color: color.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.1)),
+        border: Border.all(color: color.withValues(alpha: 0.1)),
       ),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 48, color: color.withOpacity(0.4)),
+            Icon(icon, size: 48, color: color.withValues(alpha: 0.4)),
             const SizedBox(height: 12),
             Text(
               message,
@@ -629,10 +629,10 @@ class _MarketplaceDashboardState extends State<MarketplaceDashboard>
         decoration: BoxDecoration(
           color: AppColorss.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.1)),
+          border: Border.all(color: color.withValues(alpha: 0.1)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -669,7 +669,7 @@ class _MarketplaceDashboardState extends State<MarketplaceDashboard>
                             end: Alignment.bottomCenter,
                             colors: [
                               Colors.transparent,
-                              Colors.black.withOpacity(0.3),
+                              Colors.black.withValues(alpha: 0.3),
                             ],
                           ),
                         ),
@@ -683,7 +683,7 @@ class _MarketplaceDashboardState extends State<MarketplaceDashboard>
                       child: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.6),
+                          color: Colors.black.withValues(alpha: 0.6),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(typeIcon, color: Colors.white, size: 16),
@@ -700,7 +700,7 @@ class _MarketplaceDashboardState extends State<MarketplaceDashboard>
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.7),
+                          color: Colors.black.withValues(alpha: 0.7),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
@@ -747,11 +747,11 @@ class _MarketplaceDashboardState extends State<MarketplaceDashboard>
                           width: 50,
                           height: 50,
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
+                                color: Colors.black.withValues(alpha: 0.2),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
@@ -878,7 +878,7 @@ class _MarketplaceDashboardState extends State<MarketplaceDashboard>
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: color.withOpacity(0.1),
+                            color: color.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
@@ -920,8 +920,8 @@ class _MarketplaceDashboardState extends State<MarketplaceDashboard>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  fallbackColor.withOpacity(0.8),
-                  fallbackColor.withOpacity(0.6),
+                  fallbackColor.withValues(alpha: 0.8),
+                  fallbackColor.withValues(alpha: 0.6),
                 ],
               ),
             ),
@@ -951,8 +951,8 @@ class _MarketplaceDashboardState extends State<MarketplaceDashboard>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            fallbackColor.withOpacity(0.8),
-            fallbackColor.withOpacity(0.6),
+            fallbackColor.withValues(alpha: 0.8),
+            fallbackColor.withValues(alpha: 0.6),
           ],
         ),
       ),
@@ -962,7 +962,7 @@ class _MarketplaceDashboardState extends State<MarketplaceDashboard>
           Positioned.fill(
             child: CustomPaint(
               painter: CardPatternPainter(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
               ),
             ),
           ),
@@ -970,7 +970,7 @@ class _MarketplaceDashboardState extends State<MarketplaceDashboard>
           Center(
             child: Icon(
               icon,
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withValues(alpha: 0.7),
               size: 48,
             ),
           ),
@@ -1132,7 +1132,7 @@ class CardPatternPainter extends CustomPainter {
       canvas.drawCircle(
         Offset(x, y),
         random.nextDouble() * 15 + 5,
-        paint..color = color.withOpacity(0.3),
+        paint..color = color.withValues(alpha: 0.3),
       );
 
       // Draw small rectangles
@@ -1145,7 +1145,7 @@ class CardPatternPainter extends CustomPainter {
           ),
           const Radius.circular(4),
         ),
-        paint..color = color.withOpacity(0.2),
+        paint..color = color.withValues(alpha: 0.2),
       );
     }
   }

@@ -12,30 +12,18 @@ class PaymentCheckoutScreen extends StatefulWidget {
   final bool isFromCart; // Whether this came from cart checkout
 
   const PaymentCheckoutScreen({
-    Key? key,
+    super.key,
     required this.ebooks,
     this.isFromCart = false,
-  }) : super(key: key);
+  });
 
   // Constructor for single ebook purchase
-  PaymentCheckoutScreen.singleEbook({
-    Key? key,
-    required Ebook ebook,
-  }) : this(
-    key: key,
-    ebooks: [ebook],
-    isFromCart: false,
-  );
+  PaymentCheckoutScreen.singleEbook({Key? key, required Ebook ebook})
+    : this(key: key, ebooks: [ebook], isFromCart: false);
 
   // Constructor for cart checkout
-  PaymentCheckoutScreen.fromCart({
-    Key? key,
-    required List<Ebook> cartEbooks,
-  }) : this(
-    key: key,
-    ebooks: cartEbooks,
-    isFromCart: true,
-  );
+  const PaymentCheckoutScreen.fromCart({Key? key, required List<Ebook> cartEbooks})
+    : this(key: key, ebooks: cartEbooks, isFromCart: true);
 
   @override
   State<PaymentCheckoutScreen> createState() => _PaymentCheckoutScreenState();
@@ -51,12 +39,14 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
   String _selectedPaymentMethod = 'mobile_money';
   bool _isProcessing = false;
 
-  double get _totalAmount => widget.ebooks.fold(0.0, (sum, ebook) =>
-  sum + (double.tryParse(ebook.price.toString()) ?? 0.0));
+  double get _totalAmount => widget.ebooks.fold(
+    0.0,
+    (sum, ebook) => sum + (double.tryParse(ebook.price.toString()) ?? 0.0),
+  );
 
   // Helper method to get full URL
   String _getFullUrl(String? path) {
-    const String baseUrlImage = 'http://51.75.31.246:3000';
+    const String baseUrlImage = 'http://192.168.1.126:3000';
 
     if (path == null || path.trim().isEmpty) {
       return '';
@@ -70,8 +60,8 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
     // Normalize: replace backslashes with slashes and remove multiple slashes
     String normalizedPath = path
         .replaceAll('\\', '/')
-        .replaceAll(RegExp(r'^/+'), '')      // remove leading slashes
-        .replaceAll(RegExp(r'/+'), '/');     // collapse multiple slashes
+        .replaceAll(RegExp(r'^/+'), '') // remove leading slashes
+        .replaceAll(RegExp(r'/+'), '/'); // collapse multiple slashes
 
     return '$baseUrlImage/$normalizedPath';
   }
@@ -129,7 +119,9 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12), // Fixed value instead of AppConstants.borderRadius
+        borderRadius: BorderRadius.circular(
+          12,
+        ), // Fixed value instead of AppConstants.borderRadius
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -145,7 +137,9 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
                   style: GoogleFonts.poppins(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87, // Fixed color instead of AppColorss.textPrimary
+                    color:
+                        Colors
+                            .black87, // Fixed color instead of AppColorss.textPrimary
                   ),
                 ),
               ],
@@ -187,9 +181,8 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
 
   Widget _buildEbookItem(Ebook ebook) {
     // Use helper method instead of ApiService.getFullUrl
-    final coverImageUrl = ebook.coverImage != null
-        ? _getFullUrl(ebook.coverImage!)
-        : null;
+    final coverImageUrl =
+        ebook.coverImage != null ? _getFullUrl(ebook.coverImage!) : null;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -203,7 +196,7 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -211,25 +204,38 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: coverImageUrl != null && coverImageUrl.isNotEmpty
-                  ? CachedNetworkImage(
-                imageUrl: coverImageUrl,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
-                  color: Colors.grey[200],
-                  child: const Center(
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  color: Colors.grey[200],
-                  child: Icon(Icons.book, color: Colors.grey[400], size: 20),
-                ),
-              )
-                  : Container(
-                color: Colors.grey[200],
-                child: Icon(Icons.book, color: Colors.grey[400], size: 20),
-              ),
+              child:
+                  coverImageUrl != null && coverImageUrl.isNotEmpty
+                      ? CachedNetworkImage(
+                        imageUrl: coverImageUrl,
+                        fit: BoxFit.cover,
+                        placeholder:
+                            (context, url) => Container(
+                              color: Colors.grey[200],
+                              child: const Center(
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                            ),
+                        errorWidget:
+                            (context, url, error) => Container(
+                              color: Colors.grey[200],
+                              child: Icon(
+                                Icons.book,
+                                color: Colors.grey[400],
+                                size: 20,
+                              ),
+                            ),
+                      )
+                      : Container(
+                        color: Colors.grey[200],
+                        child: Icon(
+                          Icons.book,
+                          color: Colors.grey[400],
+                          size: 20,
+                        ),
+                      ),
             ),
           ),
           const SizedBox(width: 12),
@@ -321,7 +327,9 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your email address';
                 }
-                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                if (!RegExp(
+                  r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                ).hasMatch(value)) {
                   return 'Please enter a valid email address';
                 }
                 return null;
@@ -356,7 +364,8 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
               maxLines: 3,
               decoration: InputDecoration(
                 labelText: 'Delivery Address',
-                hintText: 'Enter your full address for digital delivery confirmation',
+                hintText:
+                    'Enter your full address for digital delivery confirmation',
                 prefixIcon: const Icon(Icons.location_on),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12), // Fixed value
@@ -450,16 +459,17 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
             color: _selectedPaymentMethod == value ? color : Colors.grey[300]!,
             width: 2,
           ),
-          color: _selectedPaymentMethod == value
-              ? color.withOpacity(0.05)
-              : Colors.transparent,
+          color:
+              _selectedPaymentMethod == value
+                  ? color.withValues(alpha: 0.05)
+                  : Colors.transparent,
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(icon, color: color, size: 24),
@@ -490,7 +500,8 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
             Radio<String>(
               value: value,
               groupValue: _selectedPaymentMethod,
-              onChanged: (value) => setState(() => _selectedPaymentMethod = value!),
+              onChanged:
+                  (value) => setState(() => _selectedPaymentMethod = value!),
               activeColor: color,
             ),
           ],
@@ -548,7 +559,7 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, -2),
           ),
@@ -584,16 +595,19 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: _isProcessing ? null : _processPayment,
-                icon: _isProcessing
-                    ? SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                )
-                    : const Icon(Icons.lock),
+                icon:
+                    _isProcessing
+                        ? SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        )
+                        : const Icon(Icons.lock),
                 label: Text(
                   _isProcessing ? 'Processing...' : 'Complete Purchase',
                   style: GoogleFonts.poppins(
@@ -638,18 +652,19 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (_) => OrderConfirmationScreen(
-              ebooks: widget.ebooks,
-              orderDetails: {
-                'email': _emailController.text,
-                'phone': _phoneController.text,
-                'address': _addressController.text,
-                'paymentMethod': _selectedPaymentMethod,
-                'note': _noteController.text,
-                'totalAmount': _totalAmount,
-                'orderId': 'ORD${DateTime.now().millisecondsSinceEpoch}',
-              },
-            ),
+            builder:
+                (_) => OrderConfirmationScreen(
+                  ebooks: widget.ebooks,
+                  orderDetails: {
+                    'email': _emailController.text,
+                    'phone': _phoneController.text,
+                    'address': _addressController.text,
+                    'paymentMethod': _selectedPaymentMethod,
+                    'note': _noteController.text,
+                    'totalAmount': _totalAmount,
+                    'orderId': 'ORD${DateTime.now().millisecondsSinceEpoch}',
+                  },
+                ),
           ),
         );
       }
@@ -663,25 +678,23 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
   void _showErrorDialog(String message) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          'Payment Error',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-        ),
-        content: Text(
-          message,
-          style: GoogleFonts.poppins(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'OK',
-              style: GoogleFonts.poppins(color: Colors.blue),
+      builder:
+          (context) => AlertDialog(
+            title: Text(
+              'Payment Error',
+              style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
             ),
+            content: Text(message, style: GoogleFonts.poppins()),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  'OK',
+                  style: GoogleFonts.poppins(color: Colors.blue),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 }

@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class WelcomeScreen extends StatefulWidget {
-  const WelcomeScreen({Key? key}) : super(key: key);
+  const WelcomeScreen({super.key});
 
   @override
   State<WelcomeScreen> createState() => _WelcomeScreenState();
@@ -117,10 +117,10 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               ),
               color: isSecondary ? Colors.transparent : null,
               borderRadius: BorderRadius.circular(28),
-              border: isSecondary ? Border.all(color: Colors.white.withOpacity(0.3), width: 1.5) : null,
+              border: isSecondary ? Border.all(color: Colors.white.withValues(alpha: 0.3), width: 1.5) : null,
               boxShadow: isSecondary ? null : [
                 BoxShadow(
-                  color: gradientColors.first.withOpacity(0.4),
+                  color: gradientColors.first.withValues(alpha: 0.4),
                   blurRadius: 12,
                   offset: const Offset(0, 6),
                 ),
@@ -174,17 +174,17 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               margin: const EdgeInsets.symmetric(horizontal: 20),
               padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.95),
+                color: Colors.white.withValues(alpha: 0.95),
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
                 ],
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   width: 1,
                 ),
               ),
@@ -204,7 +204,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: primaryGreen.withOpacity(0.3),
+                          color: primaryGreen.withValues(alpha: 0.3),
                           blurRadius: 12,
                           offset: const Offset(0, 6),
                         ),
@@ -328,9 +328,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Colors.black.withOpacity(0.3),
-                Colors.black.withOpacity(0.6),
-                Colors.black.withOpacity(0.8),
+                Colors.black.withValues(alpha: 0.3),
+                Colors.black.withValues(alpha: 0.6),
+                Colors.black.withValues(alpha: 0.8),
               ],
             ),
           ),
@@ -359,7 +359,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 width: 8,
                                 height: 8,
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.6),
+                                  color: Colors.white.withValues(alpha: 0.6),
                                   shape: BoxShape.circle,
                                 ),
                               ),
@@ -377,7 +377,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 width: 8,
                                 height: 8,
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.6),
+                                  color: Colors.white.withValues(alpha: 0.6),
                                   shape: BoxShape.circle,
                                 ),
                               ),
@@ -388,7 +388,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             "Swipe to explore features",
                             style: GoogleFonts.poppins(
                               fontSize: 12,
-                              color: Colors.white.withOpacity(0.8),
+                              color: Colors.white.withValues(alpha: 0.8),
                               fontWeight: FontWeight.w400,
                             ),
                           ),

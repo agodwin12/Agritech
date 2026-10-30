@@ -12,13 +12,14 @@ import 'package:path/path.dart' as path;
 import '../sign in/signIn.dart';
 
 class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({Key? key}) : super(key: key);
+  const SignUpScreen({super.key});
 
   @override
   _SignUpScreenState createState() => _SignUpScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderStateMixin {
+class _SignUpScreenState extends State<SignUpScreen>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -60,10 +61,7 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
 
     // Scale animation
     _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeOutCubic,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
     );
 
     // Fade animation
@@ -79,10 +77,7 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
       begin: const Offset(0, 0.3),
       end: Offset.zero,
     ).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeOutQuint,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutQuint),
     );
 
     // Start the animation
@@ -92,7 +87,8 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
   // Pick image from gallery
   Future<void> _pickImage() async {
     final XFile? pickedFile = await _picker.pickImage(
-        source: ImageSource.gallery);
+      source: ImageSource.gallery,
+    );
 
     if (pickedFile != null) {
       setState(() {
@@ -104,7 +100,8 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
   // Pick image from camera
   Future<void> _takePhoto() async {
     final XFile? pickedFile = await _picker.pickImage(
-        source: ImageSource.camera);
+      source: ImageSource.camera,
+    );
 
     if (pickedFile != null) {
       setState(() {
@@ -116,8 +113,8 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
   // Date picker
   Future<void> _selectDate(BuildContext context) async {
     final DateTime now = DateTime.now();
-    final DateTime initialDate = _selectedDate ??
-        DateTime(now.year - 18, now.month, now.day);
+    final DateTime initialDate =
+        _selectedDate ?? DateTime(now.year - 18, now.month, now.day);
 
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -133,9 +130,7 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
               onSurface: Colors.black,
             ),
             textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: _primaryGreen,
-              ),
+              style: TextButton.styleFrom(foregroundColor: _primaryGreen),
             ),
           ),
           child: child!,
@@ -154,9 +149,7 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
   void _navigateToLogin() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(
-        builder: (context) => const AuthScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const AuthScreen()),
     );
   }
 
@@ -170,7 +163,7 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
     required File profileImage,
     required String accountType,
   }) async {
-    final uri = Uri.parse('http://51.75.31.246:3000/api/users/register');
+    final uri = Uri.parse('http://192.168.1.126:3000/api/users/register');
 
     var request = http.MultipartRequest('POST', uri);
 
@@ -200,7 +193,6 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
     }
   }
 
-
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       if (_profileImage == null) {
@@ -217,7 +209,6 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
         return;
       }
 
-
       try {
         await registerUser(
           fullName: _nameController.text.trim(),
@@ -230,26 +221,23 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
           accountType: _selectedAccountType!, // ✅ Pass it
         );
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Account created successfully')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Account created successfully')));
 
         // Optional: Navigate to login
         _navigateToLogin();
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Registration failed: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Registration failed: $e')));
       }
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery
-        .of(context)
-        .size;
+    final size = MediaQuery.of(context).size;
 
     return Scaffold(
       body: Stack(
@@ -290,7 +278,7 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: _lightGreen.withOpacity(0.6),
+                                    color: _lightGreen.withValues(alpha: 0.6),
                                     blurRadius: 25,
                                     spreadRadius: 5,
                                   ),
@@ -328,7 +316,7 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                               textAlign: TextAlign.center,
                               style: GoogleFonts.poppins(
                                 fontSize: 16,
-                                color: Colors.white.withOpacity(0.8),
+                                color: Colors.white.withValues(alpha: 0.8),
                                 fontWeight: FontWeight.w300,
                               ),
                             ),
@@ -352,10 +340,11 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                                   backgroundColor: Colors.white,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.vertical(
-                                        top: Radius.circular(25)),
+                                      top: Radius.circular(25),
+                                    ),
                                   ),
-                                  builder: (context) =>
-                                      Container(
+                                  builder:
+                                      (context) => Container(
                                         padding: EdgeInsets.all(20),
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
@@ -370,24 +359,27 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                                             ),
                                             SizedBox(height: 20),
                                             Row(
-                                              mainAxisAlignment: MainAxisAlignment
-                                                  .spaceEvenly,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceEvenly,
                                               children: [
                                                 // Camera option
                                                 Column(
                                                   children: [
                                                     CircleAvatar(
                                                       radius: 30,
-                                                      backgroundColor: _lightGreen
-                                                          .withOpacity(0.2),
+                                                      backgroundColor:
+                                                          _lightGreen
+                                                              .withValues(alpha: 0.2),
                                                       child: IconButton(
                                                         icon: Icon(
-                                                            Icons.camera_alt,
-                                                            color: _primaryGreen,
-                                                            size: 28),
+                                                          Icons.camera_alt,
+                                                          color: _primaryGreen,
+                                                          size: 28,
+                                                        ),
                                                         onPressed: () {
                                                           Navigator.pop(
-                                                              context);
+                                                            context,
+                                                          );
                                                           _takePhoto();
                                                         },
                                                       ),
@@ -395,12 +387,13 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                                                     SizedBox(height: 8),
                                                     Text(
                                                       "Camera",
-                                                      style: GoogleFonts
-                                                          .poppins(
-                                                        color: Colors.black87,
-                                                        fontWeight: FontWeight
-                                                            .w500,
-                                                      ),
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                            color:
+                                                                Colors.black87,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                          ),
                                                     ),
                                                   ],
                                                 ),
@@ -409,16 +402,19 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                                                   children: [
                                                     CircleAvatar(
                                                       radius: 30,
-                                                      backgroundColor: _lightGreen
-                                                          .withOpacity(0.2),
+                                                      backgroundColor:
+                                                          _lightGreen
+                                                              .withValues(alpha: 0.2),
                                                       child: IconButton(
                                                         icon: Icon(
-                                                            Icons.photo_library,
-                                                            color: _primaryGreen,
-                                                            size: 28),
+                                                          Icons.photo_library,
+                                                          color: _primaryGreen,
+                                                          size: 28,
+                                                        ),
                                                         onPressed: () {
                                                           Navigator.pop(
-                                                              context);
+                                                            context,
+                                                          );
                                                           _pickImage();
                                                         },
                                                       ),
@@ -426,12 +422,13 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                                                     SizedBox(height: 8),
                                                     Text(
                                                       "Gallery",
-                                                      style: GoogleFonts
-                                                          .poppins(
-                                                        color: Colors.black87,
-                                                        fontWeight: FontWeight
-                                                            .w500,
-                                                      ),
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                            color:
+                                                                Colors.black87,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                          ),
                                                     ),
                                                   ],
                                                 ),
@@ -453,28 +450,29 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                                       color: Colors.white,
                                       boxShadow: [
                                         BoxShadow(
-                                          color: _primaryGreen.withOpacity(0.3),
+                                          color: _primaryGreen.withValues(alpha: 0.3),
                                           blurRadius: 15,
                                           spreadRadius: 2,
                                         ),
                                       ],
                                     ),
                                     child: ClipOval(
-                                      child: _profileImage != null
-                                          ? Image.file(
-                                        _profileImage!,
-                                        fit: BoxFit.cover,
-                                        width: 120,
-                                        height: 120,
-                                      )
-                                          : Container(
-                                        color: Colors.grey.shade200,
-                                        child: Icon(
-                                          Icons.person,
-                                          size: 70,
-                                          color: Colors.grey.shade400,
-                                        ),
-                                      ),
+                                      child:
+                                          _profileImage != null
+                                              ? Image.file(
+                                                _profileImage!,
+                                                fit: BoxFit.cover,
+                                                width: 120,
+                                                height: 120,
+                                              )
+                                              : Container(
+                                                color: Colors.grey.shade200,
+                                                child: Icon(
+                                                  Icons.person,
+                                                  size: 70,
+                                                  color: Colors.grey.shade400,
+                                                ),
+                                              ),
                                     ),
                                   ),
                                   Positioned(
@@ -524,7 +522,7 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
-                          shadowColor: Colors.black.withOpacity(0.3),
+                          shadowColor: Colors.black.withValues(alpha: 0.3),
                           child: Container(
                             padding: const EdgeInsets.all(30),
                             decoration: BoxDecoration(
@@ -532,7 +530,7 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                               borderRadius: BorderRadius.circular(30),
                               boxShadow: [
                                 BoxShadow(
-                                  color: _primaryGreen.withOpacity(0.1),
+                                  color: _primaryGreen.withValues(alpha: 0.1),
                                   blurRadius: 20,
                                   spreadRadius: 2,
                                   offset: const Offset(0, 5),
@@ -562,24 +560,30 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                                       borderRadius: BorderRadius.circular(15),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.grey.withOpacity(0.1),
+                                          color: Colors.grey.withValues(alpha: 0.1),
                                           blurRadius: 5,
                                           offset: const Offset(0, 2),
                                         ),
                                       ],
                                     ),
-                                    padding: EdgeInsets.symmetric(horizontal: 16),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
                                     child: DropdownButtonFormField<String>(
-                                      value: _selectedAccountType,
-                                      items: _accountTypes.map((type) {
-                                        return DropdownMenuItem<String>(
-                                          value: type,
-                                          child: Text(
-                                            type[0].toUpperCase() + type.substring(1),
-                                            style: GoogleFonts.poppins(fontSize: 16),
-                                          ),
-                                        );
-                                      }).toList(),
+                                      initialValue: _selectedAccountType,
+                                      items:
+                                          _accountTypes.map((type) {
+                                            return DropdownMenuItem<String>(
+                                              value: type,
+                                              child: Text(
+                                                type[0].toUpperCase() +
+                                                    type.substring(1),
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 16,
+                                                ),
+                                              ),
+                                            );
+                                          }).toList(),
                                       onChanged: (value) {
                                         setState(() {
                                           _selectedAccountType = value;
@@ -587,22 +591,39 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                                       },
                                       decoration: InputDecoration(
                                         labelText: 'Account Type',
-                                        labelStyle: GoogleFonts.poppins(color: Colors.grey.shade600),
+                                        labelStyle: GoogleFonts.poppins(
+                                          color: Colors.grey.shade600,
+                                        ),
                                         border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(15),
+                                          borderRadius: BorderRadius.circular(
+                                            15,
+                                          ),
                                           borderSide: BorderSide.none,
                                         ),
                                         enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(15),
-                                          borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
+                                          borderRadius: BorderRadius.circular(
+                                            15,
+                                          ),
+                                          borderSide: BorderSide(
+                                            color: Colors.grey.shade200,
+                                            width: 1.5,
+                                          ),
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(15),
-                                          borderSide: BorderSide(color: _primaryGreen, width: 1.5),
+                                          borderRadius: BorderRadius.circular(
+                                            15,
+                                          ),
+                                          borderSide: BorderSide(
+                                            color: _primaryGreen,
+                                            width: 1.5,
+                                          ),
                                         ),
                                         filled: true,
                                         fillColor: Colors.grey.shade50,
-                                        prefixIcon: Icon(Icons.account_circle_outlined, color: _primaryGreen),
+                                        prefixIcon: Icon(
+                                          Icons.account_circle_outlined,
+                                          color: _primaryGreen,
+                                        ),
                                       ),
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
@@ -613,8 +634,6 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                                     ),
                                   ),
                                   const SizedBox(height: 16),
-
-
 
                                   // Full Name Field
                                   _buildTextField(
@@ -641,8 +660,8 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                                         return 'Please enter your email';
                                       }
                                       if (!RegExp(
-                                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                                          .hasMatch(value)) {
+                                        r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                                      ).hasMatch(value)) {
                                         return 'Please enter a valid email';
                                       }
                                       return null;
@@ -660,8 +679,9 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                                       if (value == null || value.isEmpty) {
                                         return 'Please enter your phone number';
                                       }
-                                      if (!RegExp(r'^\+?[0-9]{10,15}$')
-                                          .hasMatch(value)) {
+                                      if (!RegExp(
+                                        r'^\+?[0-9]{10,15}$',
+                                      ).hasMatch(value)) {
                                         return 'Please enter a valid phone number';
                                       }
                                       return null;
@@ -715,7 +735,7 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                                         borderRadius: BorderRadius.circular(15),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.grey.withOpacity(0.1),
+                                            color: Colors.grey.withValues(alpha: 0.1),
                                             blurRadius: 5,
                                             offset: const Offset(0, 2),
                                           ),
@@ -726,25 +746,27 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                                         ),
                                       ),
                                       padding: EdgeInsets.symmetric(
-                                          vertical: 16, horizontal: 16),
+                                        vertical: 16,
+                                        horizontal: 16,
+                                      ),
                                       child: Row(
                                         children: [
-                                          Icon(Icons.calendar_today,
-                                              color: _primaryGreen),
+                                          Icon(
+                                            Icons.calendar_today,
+                                            color: _primaryGreen,
+                                          ),
                                           SizedBox(width: 12),
                                           Expanded(
                                             child: Text(
                                               _selectedDate == null
                                                   ? 'Date of Birth'
-                                                  : '${_selectedDate!
-                                                  .day}/${_selectedDate!
-                                                  .month}/${_selectedDate!
-                                                  .year}',
+                                                  : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
                                               style: GoogleFonts.poppins(
                                                 fontSize: 16,
-                                                color: _selectedDate == null
-                                                    ? Colors.grey.shade600
-                                                    : Colors.black87,
+                                                color:
+                                                    _selectedDate == null
+                                                        ? Colors.grey.shade600
+                                                        : Colors.black87,
                                               ),
                                             ),
                                           ),
@@ -783,8 +805,8 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                                             data: ThemeData(
                                               checkboxTheme: CheckboxThemeData(
                                                 shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius
-                                                      .circular(4),
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
                                                 ),
                                               ),
                                             ),
@@ -807,13 +829,14 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                                                 ),
                                                 children: [
                                                   const TextSpan(
-                                                      text: 'I agree to the '),
+                                                    text: 'I agree to the ',
+                                                  ),
                                                   TextSpan(
                                                     text: 'Terms of Service',
                                                     style: TextStyle(
                                                       color: _primaryGreen,
-                                                      fontWeight: FontWeight
-                                                          .w600,
+                                                      fontWeight:
+                                                          FontWeight.w600,
                                                     ),
                                                   ),
                                                   const TextSpan(text: ' and '),
@@ -821,8 +844,8 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                                                     text: 'Privacy Policy',
                                                     style: TextStyle(
                                                       color: _primaryGreen,
-                                                      fontWeight: FontWeight
-                                                          .w600,
+                                                      fontWeight:
+                                                          FontWeight.w600,
                                                     ),
                                                   ),
                                                 ],
@@ -836,21 +859,25 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                                   const SizedBox(height: 24),
 
                                   // Sign Up Button with double infinity
-                                  Container(
+                                  SizedBox(
                                     width: double.infinity, // Full width
                                     child: ElevatedButton(
                                       onPressed: _submitForm,
                                       style: ElevatedButton.styleFrom(
                                         padding: const EdgeInsets.symmetric(
-                                            vertical: 16),
+                                          vertical: 16,
+                                        ),
                                         backgroundColor: Colors.transparent,
                                         shadowColor: Colors.transparent,
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
-                                              15),
+                                            15,
+                                          ),
                                         ),
                                         minimumSize: Size(
-                                            double.infinity, 50), // Full width
+                                          double.infinity,
+                                          50,
+                                        ), // Full width
                                       ),
                                       child: Ink(
                                         decoration: BoxDecoration(
@@ -860,13 +887,15 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                                             end: Alignment.centerRight,
                                           ),
                                           borderRadius: BorderRadius.circular(
-                                              15),
+                                            15,
+                                          ),
                                         ),
                                         child: Container(
                                           width: double.infinity,
                                           // Ensure inner container takes full width
                                           padding: const EdgeInsets.symmetric(
-                                              vertical: 15),
+                                            vertical: 15,
+                                          ),
                                           child: Text(
                                             'CREATE ACCOUNT',
                                             textAlign: TextAlign.center,
@@ -898,7 +927,7 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                         children: [
                           Expanded(
                             child: Divider(
-                              color: Colors.white.withOpacity(0.5),
+                              color: Colors.white.withValues(alpha: 0.5),
                               thickness: 1,
                             ),
                           ),
@@ -907,14 +936,14 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                             child: Text(
                               'OR',
                               style: GoogleFonts.poppins(
-                                color: Colors.white.withOpacity(0.8),
+                                color: Colors.white.withValues(alpha: 0.8),
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
                           Expanded(
                             child: Divider(
-                              color: Colors.white.withOpacity(0.5),
+                              color: Colors.white.withValues(alpha: 0.5),
                               thickness: 1,
                             ),
                           ),
@@ -934,7 +963,7 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                           borderRadius: BorderRadius.circular(15),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withValues(alpha: 0.1),
                               blurRadius: 10,
                               spreadRadius: 1,
                             ),
@@ -960,12 +989,16 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                           ),
                           style: TextButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
-                                vertical: 16, horizontal: 24),
+                              vertical: 16,
+                              horizontal: 24,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15),
                             ),
                             minimumSize: Size(
-                                double.infinity, 50), // Full width
+                              double.infinity,
+                              50,
+                            ), // Full width
                           ),
                         ),
                       ),
@@ -989,7 +1022,7 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
                                 text: 'Already have an account? ',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w400,
-                                  color: Colors.white.withOpacity(0.9),
+                                  color: Colors.white.withValues(alpha: 0.9),
                                 ),
                               ),
                               const TextSpan(
@@ -1033,7 +1066,7 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 5,
             offset: const Offset(0, 2),
           ),
@@ -1043,10 +1076,7 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
         controller: controller,
         obscureText: isPassword,
         keyboardType: keyboardType,
-        style: GoogleFonts.poppins(
-          fontSize: 16,
-          color: Colors.black87,
-        ),
+        style: GoogleFonts.poppins(fontSize: 16, color: Colors.black87),
         decoration: InputDecoration(
           labelText: label,
           labelStyle: GoogleFonts.poppins(
@@ -1077,7 +1107,9 @@ class _SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderSt
           filled: true,
           fillColor: Colors.grey.shade50,
           contentPadding: const EdgeInsets.symmetric(
-              vertical: 16, horizontal: 16),
+            vertical: 16,
+            horizontal: 16,
+          ),
         ),
         validator: validator,
       ),
@@ -1118,18 +1150,22 @@ class BackgroundPatternPainter extends CustomPainter {
       final radius = random.nextDouble() * 20 + 5;
       final opacity = random.nextDouble() * 0.2 + 0.05;
 
-      final paint = Paint()
-        ..color = (i % 2 == 0 ? primaryColor : secondaryColor).withOpacity(opacity)
-        ..style = PaintingStyle.fill;
+      final paint =
+          Paint()
+            ..color = (i % 2 == 0 ? primaryColor : secondaryColor).withValues(
+              alpha: opacity,
+            )
+            ..style = PaintingStyle.fill;
 
       canvas.drawCircle(Offset(x, y), radius, paint);
     }
 
     // Draw curved lines
-    final linePaint = Paint()
-      ..color = Colors.white.withOpacity(0.08)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
+    final linePaint =
+        Paint()
+          ..color = Colors.white.withValues(alpha: 0.08)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.5;
 
     for (int i = 0; i < 8; i++) {
       final path = Path();
@@ -1140,10 +1176,10 @@ class BackgroundPatternPainter extends CustomPainter {
       for (double x = 0; x < size.width; x += size.width / 4) {
         final y = startY + (random.nextDouble() * 100 - 50);
         path.quadraticBezierTo(
-            x + size.width / 8,
-            y + (random.nextDouble() * 100 - 50),
-            x + size.width / 4,
-            y
+          x + size.width / 8,
+          y + (random.nextDouble() * 100 - 50),
+          x + size.width / 4,
+          y,
         );
       }
 

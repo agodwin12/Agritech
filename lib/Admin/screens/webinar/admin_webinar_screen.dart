@@ -16,10 +16,12 @@ class AdminWebinarManagementScreen extends StatefulWidget {
   });
 
   @override
-  State<AdminWebinarManagementScreen> createState() => _AdminWebinarManagementScreenState();
+  State<AdminWebinarManagementScreen> createState() =>
+      _AdminWebinarManagementScreenState();
 }
 
-class _AdminWebinarManagementScreenState extends State<AdminWebinarManagementScreen> {
+class _AdminWebinarManagementScreenState
+    extends State<AdminWebinarManagementScreen> {
   List<dynamic> pendingRequests = [];
   bool isLoading = true;
 
@@ -43,11 +45,14 @@ class _AdminWebinarManagementScreenState extends State<AdminWebinarManagementScr
 
   Future<void> fetchPendingRequests() async {
     setState(() => isLoading = true);
-    final url = Uri.parse('http://51.75.31.246:3000/api/webinars/requests/pending');
+    final url = Uri.parse(
+      'http://192.168.1.126:3000/api/webinars/requests/pending',
+    );
 
-    final response = await http.get(url, headers: {
-      'Authorization': 'Bearer ${widget.token}',
-    });
+    final response = await http.get(
+      url,
+      headers: {'Authorization': 'Bearer ${widget.token}'},
+    );
 
     if (response.statusCode == 200) {
       setState(() {
@@ -61,11 +66,14 @@ class _AdminWebinarManagementScreenState extends State<AdminWebinarManagementScr
   }
 
   Future<void> approveRequest(int requestId) async {
-    final url = Uri.parse('http://51.75.31.246:3000/api/webinars/approve/$requestId');
+    final url = Uri.parse(
+      'http://192.168.1.126:3000/api/webinars/approve/$requestId',
+    );
 
-    final response = await http.post(url, headers: {
-      'Authorization': 'Bearer ${widget.token}',
-    });
+    final response = await http.post(
+      url,
+      headers: {'Authorization': 'Bearer ${widget.token}'},
+    );
 
     if (response.statusCode == 201) {
       _showSuccessSnackBar('✅ Webinar approved and created!');
@@ -77,7 +85,9 @@ class _AdminWebinarManagementScreenState extends State<AdminWebinarManagementScr
   }
 
   Future<void> rejectRequest(int requestId, String reason) async {
-    final url = Uri.parse('http://51.75.31.246:3000/api/webinars/reject/$requestId');
+    final url = Uri.parse(
+      'http://192.168.1.126:3000/api/webinars/reject/$requestId',
+    );
 
     final response = await http.post(
       url,
@@ -102,9 +112,7 @@ class _AdminWebinarManagementScreenState extends State<AdminWebinarManagementScr
       SnackBar(
         content: Text(
           message,
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w500,
-          ),
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
         ),
         backgroundColor: Colors.green,
         behavior: SnackBarBehavior.floating,
@@ -118,9 +126,7 @@ class _AdminWebinarManagementScreenState extends State<AdminWebinarManagementScr
       SnackBar(
         content: Text(
           message,
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w500,
-          ),
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
         ),
         backgroundColor: Colors.red,
         behavior: SnackBarBehavior.floating,
@@ -135,85 +141,92 @@ class _AdminWebinarManagementScreenState extends State<AdminWebinarManagementScr
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(
-          'Reject Webinar Request',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-            fontSize: _getResponsiveFontSize(context, 20),
-            color: Colors.red[700],
-          ),
-        ),
-        content: Container(
-          constraints: BoxConstraints(
-            maxWidth: _getResponsiveWidth(context, 400),
-          ),
-          child: TextFormField(
-            controller: reasonController,
-            maxLines: 4,
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w400,
+      builder:
+          (_) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
             ),
-            decoration: InputDecoration(
-              labelText: 'Reason for rejection',
-              labelStyle: GoogleFonts.poppins(
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[600],
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.grey[300]!),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.red[400]!, width: 2),
-              ),
-              filled: true,
-              fillColor: Colors.grey[50],
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            ),
-            child: Text(
-              'Cancel',
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[600],
-              ),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final reason = reasonController.text.trim();
-              if (reason.isNotEmpty) {
-                Navigator.pop(context);
-                rejectRequest(requestId, reason);
-              } else {
-                _showErrorSnackBar('Please enter a reason.');
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red[600],
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              elevation: 3,
-            ),
-            child: Text(
-              'Reject',
+            title: Text(
+              'Reject Webinar Request',
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.w600,
+                fontSize: _getResponsiveFontSize(context, 20),
+                color: Colors.red[700],
               ),
             ),
+            content: Container(
+              constraints: BoxConstraints(
+                maxWidth: _getResponsiveWidth(context, 400),
+              ),
+              child: TextFormField(
+                controller: reasonController,
+                maxLines: 4,
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w400),
+                decoration: InputDecoration(
+                  labelText: 'Reason for rejection',
+                  labelStyle: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey[600],
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey[300]!),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.red[400]!, width: 2),
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey[50],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                ),
+                child: Text(
+                  'Cancel',
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final reason = reasonController.text.trim();
+                  if (reason.isNotEmpty) {
+                    Navigator.pop(context);
+                    rejectRequest(requestId, reason);
+                  } else {
+                    _showErrorSnackBar('Please enter a reason.');
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red[600],
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 3,
+                ),
+                child: Text(
+                  'Reject',
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -221,80 +234,89 @@ class _AdminWebinarManagementScreenState extends State<AdminWebinarManagementScr
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(
-          'Create New Webinar',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-            fontSize: _getResponsiveFontSize(context, 22),
-            color: Colors.blue[700],
-          ),
-        ),
-        content: Container(
-          constraints: BoxConstraints(
-            maxWidth: _getResponsiveWidth(context, 500),
-            maxHeight: MediaQuery.of(context).size.height * 0.7,
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildTextField(
-                  controller: titleController,
-                  label: 'Webinar Title',
-                  icon: Icons.title,
-                ),
-                const SizedBox(height: 16),
-                _buildTextField(
-                  controller: descriptionController,
-                  label: 'Description',
-                  icon: Icons.description,
-                  maxLines: 3,
-                ),
-                const SizedBox(height: 20),
-                _buildImagePickerButton(),
-                const SizedBox(height: 16),
-                _buildDateTimePickerButton(),
-              ],
+      builder:
+          (_) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
             ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _clearForm();
-            },
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            ),
-            child: Text(
-              'Cancel',
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[600],
-              ),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: createWebinar,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue[600],
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              elevation: 3,
-            ),
-            child: Text(
-              'Create Webinar',
+            title: Text(
+              'Create New Webinar',
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.w600,
+                fontSize: _getResponsiveFontSize(context, 22),
+                color: Colors.blue[700],
               ),
             ),
+            content: Container(
+              constraints: BoxConstraints(
+                maxWidth: _getResponsiveWidth(context, 500),
+                maxHeight: MediaQuery.of(context).size.height * 0.7,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildTextField(
+                      controller: titleController,
+                      label: 'Webinar Title',
+                      icon: Icons.title,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildTextField(
+                      controller: descriptionController,
+                      label: 'Description',
+                      icon: Icons.description,
+                      maxLines: 3,
+                    ),
+                    const SizedBox(height: 20),
+                    _buildImagePickerButton(),
+                    const SizedBox(height: 16),
+                    _buildDateTimePickerButton(),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _clearForm();
+                },
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                ),
+                child: Text(
+                  'Cancel',
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: createWebinar,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue[600],
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 3,
+                ),
+                child: Text(
+                  'Create Webinar',
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -307,9 +329,7 @@ class _AdminWebinarManagementScreenState extends State<AdminWebinarManagementScr
     return TextField(
       controller: controller,
       maxLines: maxLines,
-      style: GoogleFonts.poppins(
-        fontWeight: FontWeight.w400,
-      ),
+      style: GoogleFonts.poppins(fontWeight: FontWeight.w400),
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon, color: Colors.blue[600]),
@@ -350,18 +370,21 @@ class _AdminWebinarManagementScreenState extends State<AdminWebinarManagementScr
             color: selectedImage != null ? Colors.green : Colors.grey[700],
           ),
         ),
-        subtitle: selectedImage != null
-            ? Text(
-          selectedImage!.path.split('/').last,
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w400,
-            fontSize: 12,
-          ),
-        )
-            : null,
+        subtitle:
+            selectedImage != null
+                ? Text(
+                  selectedImage!.path.split('/').last,
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 12,
+                  ),
+                )
+                : null,
         trailing: const Icon(Icons.chevron_right),
         onTap: () async {
-          final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+          final picked = await ImagePicker().pickImage(
+            source: ImageSource.gallery,
+          );
           if (picked != null) {
             setState(() {
               selectedImage = File(picked.path);
@@ -391,15 +414,16 @@ class _AdminWebinarManagementScreenState extends State<AdminWebinarManagementScr
             color: selectedDate != null ? Colors.green : Colors.grey[700],
           ),
         ),
-        subtitle: selectedDate != null
-            ? Text(
-          '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year} at ${selectedDate!.hour}:${selectedDate!.minute.toString().padLeft(2, '0')}',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w400,
-            fontSize: 12,
-          ),
-        )
-            : null,
+        subtitle:
+            selectedDate != null
+                ? Text(
+                  '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year} at ${selectedDate!.hour}:${selectedDate!.minute.toString().padLeft(2, '0')}',
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 12,
+                  ),
+                )
+                : null,
         trailing: const Icon(Icons.chevron_right),
         onTap: () async {
           final date = await showDatePicker(
@@ -445,7 +469,7 @@ class _AdminWebinarManagementScreenState extends State<AdminWebinarManagementScr
       return;
     }
 
-    final url = Uri.parse('http://51.75.31.246:3000/api/webinars');
+    final url = Uri.parse('http://192.168.1.126:3000/api/webinars');
     final request = http.MultipartRequest('POST', url);
     request.headers['Authorization'] = 'Bearer ${widget.token}';
 
@@ -454,7 +478,9 @@ class _AdminWebinarManagementScreenState extends State<AdminWebinarManagementScr
     request.fields['date'] = selectedDate!.toIso8601String();
 
     if (selectedImage != null) {
-      request.files.add(await http.MultipartFile.fromPath('image', selectedImage!.path));
+      request.files.add(
+        await http.MultipartFile.fromPath('image', selectedImage!.path),
+      );
     }
 
     final response = await request.send();
@@ -519,14 +545,14 @@ class _AdminWebinarManagementScreenState extends State<AdminWebinarManagementScr
               icon: const Icon(Icons.add, size: 20),
               label: Text(
                 isWideScreen ? 'Create Webinar' : 'Create',
-                style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue[600],
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 elevation: 2,
                 padding: EdgeInsets.symmetric(
                   horizontal: isWideScreen ? 20 : 16,
@@ -539,15 +565,16 @@ class _AdminWebinarManagementScreenState extends State<AdminWebinarManagementScr
       ),
       body: RefreshIndicator(
         onRefresh: fetchPendingRequests,
-        child: isLoading
-            ? const Center(
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-          ),
-        )
-            : pendingRequests.isEmpty
-            ? _buildEmptyState()
-            : _buildRequestsList(),
+        child:
+            isLoading
+                ? const Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                  ),
+                )
+                : pendingRequests.isEmpty
+                ? _buildEmptyState()
+                : _buildRequestsList(),
       ),
     );
   }
@@ -557,11 +584,7 @@ class _AdminWebinarManagementScreenState extends State<AdminWebinarManagementScr
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.inbox_outlined,
-            size: 80,
-            color: Colors.grey[400],
-          ),
+          Icon(Icons.inbox_outlined, size: 80, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
             'No Pending Requests',
@@ -600,7 +623,8 @@ class _AdminWebinarManagementScreenState extends State<AdminWebinarManagementScr
             childAspectRatio: 0.85,
           ),
           itemCount: pendingRequests.length,
-          itemBuilder: (context, index) => _buildRequestCard(pendingRequests[index]),
+          itemBuilder:
+              (context, index) => _buildRequestCard(pendingRequests[index]),
         ),
       );
     } else {
@@ -608,10 +632,11 @@ class _AdminWebinarManagementScreenState extends State<AdminWebinarManagementScr
       return ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: pendingRequests.length,
-        itemBuilder: (context, index) => Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: _buildRequestCard(pendingRequests[index]),
-        ),
+        itemBuilder:
+            (context, index) => Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: _buildRequestCard(pendingRequests[index]),
+            ),
       );
     }
   }
@@ -654,10 +679,13 @@ class _AdminWebinarManagementScreenState extends State<AdminWebinarManagementScr
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child:                     Text(
+                    child: Text(
                       request['title'] ?? 'Untitled Webinar',
                       style: GoogleFonts.poppins(
-                        fontSize: _getResponsiveFontSize(context, isCompact ? 16 : 18),
+                        fontSize: _getResponsiveFontSize(
+                          context,
+                          isCompact ? 16 : 18,
+                        ),
                         fontWeight: FontWeight.w600,
                         color: Colors.grey[800],
                       ),
@@ -705,18 +733,19 @@ class _AdminWebinarManagementScreenState extends State<AdminWebinarManagementScr
                     child: Image.network(
                       request['image_url'],
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        height: 120,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          Icons.broken_image,
-                          color: Colors.grey[400],
-                          size: 40,
-                        ),
-                      ),
+                      errorBuilder:
+                          (context, error, stackTrace) => Container(
+                            height: 120,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              Icons.broken_image,
+                              color: Colors.grey[400],
+                              size: 40,
+                            ),
+                          ),
                     ),
                   ),
                 ),
@@ -738,19 +767,12 @@ class _AdminWebinarManagementScreenState extends State<AdminWebinarManagementScr
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(
-          icon,
-          size: 16,
-          color: Colors.grey[500],
-        ),
+        Icon(icon, size: 16, color: Colors.grey[500]),
         const SizedBox(width: 8),
         Expanded(
           child: RichText(
             text: TextSpan(
-              style: GoogleFonts.poppins(
-                fontSize: 13,
-                color: Colors.grey[600],
-              ),
+              style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey[600]),
               children: [
                 TextSpan(
                   text: '$label: ',
@@ -778,15 +800,15 @@ class _AdminWebinarManagementScreenState extends State<AdminWebinarManagementScr
             icon: const Icon(Icons.check, size: 18),
             label: Text(
               'Approve',
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.w600,
-              ),
+              style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green[600],
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               elevation: 2,
             ),
           ),
@@ -796,15 +818,15 @@ class _AdminWebinarManagementScreenState extends State<AdminWebinarManagementScr
             icon: const Icon(Icons.close, size: 18),
             label: Text(
               'Reject',
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.w600,
-              ),
+              style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
             ),
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.red[600],
               side: BorderSide(color: Colors.red[300]!),
               padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           ),
         ],
@@ -818,15 +840,15 @@ class _AdminWebinarManagementScreenState extends State<AdminWebinarManagementScr
               icon: const Icon(Icons.check, size: 18),
               label: Text(
                 'Approve',
-                style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green[600],
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 elevation: 2,
               ),
             ),
@@ -838,15 +860,15 @@ class _AdminWebinarManagementScreenState extends State<AdminWebinarManagementScr
               icon: const Icon(Icons.close, size: 18),
               label: Text(
                 'Reject',
-                style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
               ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.red[600],
                 side: BorderSide(color: Colors.red[300]!),
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ),

@@ -59,7 +59,7 @@ class CartService {
   CartService._();
 
   List<CartItem> _cartItems = [];
-  List<Function()> _listeners = [];
+  final List<Function()> _listeners = [];
 
   List<CartItem> get cartItems => List.unmodifiable(_cartItems);
   int get itemCount => _cartItems.length;

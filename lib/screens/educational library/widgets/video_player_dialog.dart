@@ -12,11 +12,11 @@ class VideoPlayerDialog extends StatelessWidget {
   final VoidCallback? onVideoPlay;
 
   const VideoPlayerDialog({
-    Key? key,
+    super.key,
     required this.video,
     required this.baseUrl,
     this.onVideoPlay,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -133,7 +133,7 @@ class VideoPlayerDialog extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.7),
+        color: Colors.black.withValues(alpha: 0.7),
         shape: BoxShape.circle,
       ),
       child: const Icon(
@@ -151,7 +151,7 @@ class VideoPlayerDialog extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.8),
+          color: Colors.black.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
@@ -176,7 +176,7 @@ class VideoPlayerDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: AppColorss.primary.withOpacity(0.1),
+                color: AppColorss.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(

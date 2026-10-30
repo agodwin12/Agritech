@@ -24,10 +24,10 @@ class EducationalLibraryScreen extends StatefulWidget {
   final String token;
 
   const EducationalLibraryScreen({
-    Key? key,
+    super.key,
     required this.userData,
     required this.token,
-  }) : super(key: key);
+  });
 
   @override
   State<EducationalLibraryScreen> createState() => _EducationalLibraryScreenState();
@@ -698,12 +698,12 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen>
                 end: Alignment.bottomRight,
                 colors: [
                   AppColorss.primary,
-                  AppColorss.primary.withOpacity(0.8),
+                  AppColorss.primary.withValues(alpha: 0.8),
                 ],
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.15),
+                  color: Colors.black.withValues(alpha: 0.15),
                   blurRadius: isDesktop ? 20 : 15,
                   offset: Offset(isDesktop ? 4 : 2, 0),
                 ),
@@ -727,7 +727,7 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen>
           width: primaryIconSize * 1.5,
           height: primaryIconSize * 1.5,
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
+            color: Colors.white.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
@@ -765,7 +765,7 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen>
               width: primaryIconSize * 1.5,
               height: primaryIconSize * 1.5,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
@@ -794,11 +794,11 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen>
           height: primaryIconSize * 1.5,
           decoration: BoxDecoration(
             color: isSelected
-                ? Colors.white.withOpacity(0.3)
-                : Colors.white.withOpacity(0.1),
+                ? Colors.white.withValues(alpha: 0.3)
+                : Colors.white.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
             border: isSelected
-                ? Border.all(color: Colors.white.withOpacity(0.5))
+                ? Border.all(color: Colors.white.withValues(alpha: 0.5))
                 : null,
           ),
           child: Icon(
@@ -827,7 +827,7 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen>
                     width: primaryIconSize * 1.5,
                     height: primaryIconSize * 1.5,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
@@ -843,7 +843,7 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen>
                     child: Container(
                       padding: EdgeInsets.all(secondarySpacing / 2),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
@@ -871,7 +871,7 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen>
                 style: GoogleFonts.poppins(
                   fontSize: captionFontSize,
                   fontWeight: FontWeight.w400,
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white.withValues(alpha: 0.8),
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -894,7 +894,7 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen>
                     style: GoogleFonts.poppins(
                       fontSize: captionFontSize - 1,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                       letterSpacing: 1.0,
                     ),
                   ),
@@ -955,17 +955,17 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen>
           margin: EdgeInsets.all(sidebarPadding.left),
           padding: EdgeInsets.all(secondarySpacing),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
+            color: Colors.white.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
             ),
           ),
           child: Row(
             children: [
               CircleAvatar(
                 radius: primaryIconSize * 0.7,
-                backgroundColor: Colors.white.withOpacity(0.2),
+                backgroundColor: Colors.white.withValues(alpha: 0.2),
                 child: Text(
                   (widget.userData['name'] ?? 'U')[0].toUpperCase(),
                   style: GoogleFonts.poppins(
@@ -994,7 +994,7 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen>
                     Text(
                       'Premium Member',
                       style: GoogleFonts.poppins(
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white.withValues(alpha: 0.8),
                         fontSize: captionFontSize - 1,
                       ),
                       overflow: TextOverflow.ellipsis,
@@ -1026,11 +1026,11 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen>
         padding: EdgeInsets.all(secondarySpacing),
         decoration: BoxDecoration(
           color: isSelected
-              ? Colors.white.withOpacity(0.2)
+              ? Colors.white.withValues(alpha: 0.2)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
           border: isSelected
-              ? Border.all(color: Colors.white.withOpacity(0.3))
+              ? Border.all(color: Colors.white.withValues(alpha: 0.3))
               : null,
         ),
         child: Row(
@@ -1040,8 +1040,8 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen>
               height: primaryIconSize * 1.2,
               decoration: BoxDecoration(
                 color: isSelected
-                    ? Colors.white.withOpacity(0.3)
-                    : Colors.white.withOpacity(0.1),
+                    ? Colors.white.withValues(alpha: 0.3)
+                    : Colors.white.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -1070,7 +1070,7 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen>
                     Text(
                       subtitle,
                       style: GoogleFonts.poppins(
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white.withValues(alpha: 0.8),
                         fontSize: captionFontSize,
                       ),
                       overflow: TextOverflow.ellipsis,
@@ -1103,7 +1103,7 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen>
             style: GoogleFonts.poppins(
               fontSize: captionFontSize - 1,
               fontWeight: FontWeight.w600,
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withValues(alpha: 0.7),
               letterSpacing: 1.0,
             ),
           ),
@@ -1159,7 +1159,7 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen>
         margin: EdgeInsets.only(bottom: secondarySpacing / 4),
         decoration: BoxDecoration(
           color: isSelected
-              ? Colors.white.withOpacity(0.2)
+              ? Colors.white.withValues(alpha: 0.2)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(6),
         ),
@@ -1171,7 +1171,7 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen>
               decoration: BoxDecoration(
                 color: isSelected
                     ? Colors.white
-                    : Colors.white.withOpacity(0.5),
+                    : Colors.white.withValues(alpha: 0.5),
                 shape: BoxShape.circle,
               ),
             ),
@@ -1182,7 +1182,7 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen>
                 style: GoogleFonts.poppins(
                   color: isSelected
                       ? Colors.white
-                      : Colors.white.withOpacity(0.8),
+                      : Colors.white.withValues(alpha: 0.8),
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                   fontSize: captionFontSize,
                 ),
@@ -1221,7 +1221,7 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen>
         color: AppColorss.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -1237,7 +1237,7 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen>
               child: Container(
                 padding: EdgeInsets.all(secondarySpacing),
                 decoration: BoxDecoration(
-                  color: AppColorss.primary.withOpacity(0.1),
+                  color: AppColorss.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
@@ -1254,7 +1254,7 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen>
           Container(
             padding: EdgeInsets.all(secondarySpacing),
             decoration: BoxDecoration(
-              color: AppColorss.primary.withOpacity(0.1),
+              color: AppColorss.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
@@ -1299,7 +1299,7 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen>
             if (_selectedMenuItem == MenuItem.ebooks || _selectedMenuItem == MenuItem.videos) ...[
               Container(
                 decoration: BoxDecoration(
-                  color: AppColorss.primary.withOpacity(0.1),
+                  color: AppColorss.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: IconButton(
@@ -1320,7 +1320,7 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen>
             ],
             Container(
               decoration: BoxDecoration(
-                color: AppColorss.primary.withOpacity(0.1),
+                color: AppColorss.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: IconButton(
@@ -1390,7 +1390,7 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen>
                         ? Icons.video_call
                         : Icons.support_agent,
                     size: primaryIconSize * 2.5,
-                    color: AppColorss.primary.withOpacity(0.6),
+                    color: AppColorss.primary.withValues(alpha: 0.6),
                   ),
                   SizedBox(height: primarySpacing),
                   Text(
@@ -1471,7 +1471,7 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen>
                 width: primaryIconSize * (isExtraSmall ? 3 : 4),
                 height: primaryIconSize * (isExtraSmall ? 3 : 4),
                 decoration: BoxDecoration(
-                  color: AppColorss.error.withOpacity(0.1),
+                  color: AppColorss.error.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -1552,12 +1552,12 @@ class _EducationalLibraryScreenState extends State<EducationalLibraryScreen>
         backgroundColor: AppColorss.primary,
         foregroundColor: Colors.white,
         elevation: 8,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
         child: Icon(
           Icons.add,
           size: primaryIconSize,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
         ),
       );
     }

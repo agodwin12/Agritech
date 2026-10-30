@@ -15,12 +15,12 @@ class UploadDialog extends StatefulWidget {
   final Function(String) onUploadError;
 
   const UploadDialog({
-    Key? key,
+    super.key,
     required this.categories,
     required this.apiService,
     required this.onUploadSuccess,
     required this.onUploadError,
-  }) : super(key: key);
+  });
 
   @override
   State<UploadDialog> createState() => _UploadDialogState();
@@ -297,9 +297,9 @@ class _UploadDialogState extends State<UploadDialog>
       final price = _priceController.text.trim();
 
       print('📝 Form field validation:');
-      print('  Title: "${title}" (length: ${title.length}, empty: ${title.isEmpty})');
-      print('  Description: "${description}" (length: ${description.length}, empty: ${description.isEmpty})');
-      print('  Price: "${price}" (length: ${price.length}, empty: ${price.isEmpty})');
+      print('  Title: "$title" (length: ${title.length}, empty: ${title.isEmpty})');
+      print('  Description: "$description" (length: ${description.length}, empty: ${description.isEmpty})');
+      print('  Price: "$price" (length: ${price.length}, empty: ${price.isEmpty})');
       print('  Category ID: $_selectedCategoryId (zero: ${_selectedCategoryId == 0})');
       print('  Cover image: ${_selectedCover != null ? "✅ Selected" : "❌ Missing"}');
       print('  PDF file: ${_selectedFile != null ? "✅ Selected" : "ℹ️ Optional"}');
@@ -646,9 +646,9 @@ class _UploadDialogState extends State<UploadDialog>
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
+                  color: Colors.blue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                  border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [
@@ -827,7 +827,7 @@ class _UploadDialogState extends State<UploadDialog>
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: isSelected
-              ? AppColorss.primary.withOpacity(0.1)
+              ? AppColorss.primary.withValues(alpha: 0.1)
               : Colors.grey[100],
           foregroundColor: isSelected
               ? AppColorss.primary
@@ -874,9 +874,9 @@ class _UploadDialogState extends State<UploadDialog>
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.1),
+              color: Colors.blue.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.blue.withOpacity(0.3)),
+              border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
             ),
             child: Column(
               children: [

@@ -42,20 +42,24 @@ class Product {
 
     // ✅ Safely parse and prefix images
     List<String>? imagesList;
-    const baseUrl = 'http://51.75.31.246:3000/uploads';
+    const baseUrl = 'http://192.168.1.126:3000/uploads';
 
     if (json['images'] != null) {
       if (json['images'] is List) {
-        imagesList = (json['images'] as List)
-            .map((e) => e is String
-            ? (e.startsWith('http') ? e : '$baseUrl/$e')
-            : e.toString())
-            .toList();
+        imagesList =
+            (json['images'] as List)
+                .map(
+                  (e) =>
+                      e is String
+                          ? (e.startsWith('http') ? e : '$baseUrl/$e')
+                          : e.toString(),
+                )
+                .toList();
       } else if (json['images'] is String) {
         imagesList = [
           json['images'].startsWith('http')
               ? json['images']
-              : '$baseUrl/${json['images']}'
+              : '$baseUrl/${json['images']}',
         ];
       } else {
         print('⚠️ Unexpected format for images: ${json['images']}');
@@ -105,17 +109,20 @@ class Product {
 
     int? userId;
     if (json['UserId'] != null) {
-      userId = json['UserId'] is String
-          ? int.tryParse(json['UserId'])
-          : json['UserId'];
+      userId =
+          json['UserId'] is String
+              ? int.tryParse(json['UserId'])
+              : json['UserId'];
     } else if (json['user_id'] != null) {
-      userId = json['user_id'] is String
-          ? int.tryParse(json['user_id'])
-          : json['user_id'];
+      userId =
+          json['user_id'] is String
+              ? int.tryParse(json['user_id'])
+              : json['user_id'];
     } else if (json['userId'] != null) {
-      userId = json['userId'] is String
-          ? int.tryParse(json['userId'])
-          : json['userId'];
+      userId =
+          json['userId'] is String
+              ? int.tryParse(json['userId'])
+              : json['userId'];
     }
 
     String? sellerName;
@@ -132,7 +139,8 @@ class Product {
       sellerImage = user['image'];
       sellerProfileImage = user['profile_image'] ?? user['profileImage'];
 
-      final rating = user['rating'] ?? user['average_rating'] ?? user['averageRating'];
+      final rating =
+          user['rating'] ?? user['average_rating'] ?? user['averageRating'];
       if (rating != null) {
         try {
           final parsed = double.parse(rating.toString());
@@ -146,9 +154,11 @@ class Product {
       sellerName = json['seller_name'] ?? json['sellerName'];
       sellerFullName = json['seller_full_name'] ?? json['sellerFullName'];
       sellerImage = json['seller_image'] ?? json['sellerImage'];
-      sellerProfileImage = json['seller_profile_image'] ?? json['sellerProfileImage'];
+      sellerProfileImage =
+          json['seller_profile_image'] ?? json['sellerProfileImage'];
 
-      final rating = json['seller_rating'] ??
+      final rating =
+          json['seller_rating'] ??
           json['sellerRating'] ??
           json['seller_average_rating'] ??
           json['sellerAverageRating'];
@@ -164,9 +174,10 @@ class Product {
     }
 
     return Product(
-      id: json['id'] is String
-          ? int.tryParse(json['id']) ?? 0
-          : json['id'] ?? 0,
+      id:
+          json['id'] is String
+              ? int.tryParse(json['id']) ?? 0
+              : json['id'] ?? 0,
       name: json['name'] ?? 'Unknown Product',
       description: json['description'],
       price: parsePrice(json['price']),
@@ -174,7 +185,8 @@ class Product {
       categoryName: json['category_name'],
       subCategoryName: json['sub_category_name'],
       images: imagesList,
-      isNew: parseIsNew(json['is_new'] ?? json['isNew']),      userId: userId,
+      isNew: parseIsNew(json['is_new'] ?? json['isNew']),
+      userId: userId,
       sellerName: sellerName,
       sellerFullName: sellerFullName,
       sellerImage: sellerImage,

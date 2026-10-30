@@ -7,7 +7,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'payment_checkout_screen.dart';
 
 class CartScreen extends StatefulWidget {
-  const CartScreen({Key? key}) : super(key: key);
+  const CartScreen({super.key});
 
   @override
   State<CartScreen> createState() => _CartScreenState();
@@ -16,7 +16,7 @@ class CartScreen extends StatefulWidget {
 class _CartScreenState extends State<CartScreen> {
   // Helper method to get full URL - add this if ApiService import doesn't work
   String _getFullUrl(String? path) {
-    const String baseUrlImage = 'http://51.75.31.246:3000';
+    const String baseUrlImage = 'http://192.168.1.126:3000';
 
     if (path == null || path.trim().isEmpty) {
       return '';
@@ -63,9 +63,7 @@ class _CartScreenState extends State<CartScreen> {
       appBar: AppBar(
         title: Text(
           'Shopping Cart',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-          ),
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
         ),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
@@ -78,23 +76,24 @@ class _CartScreenState extends State<CartScreen> {
             ),
         ],
       ),
-      body: cartItems.isEmpty
-          ? _buildEmptyCart()
-          : Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: cartItems.length,
-              itemBuilder: (context, index) {
-                final cartItem = cartItems[index];
-                return _buildCartItem(cartItem);
-              },
-            ),
-          ),
-          _buildCartSummary(totalPrice),
-        ],
-      ),
+      body:
+          cartItems.isEmpty
+              ? _buildEmptyCart()
+              : Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: cartItems.length,
+                      itemBuilder: (context, index) {
+                        final cartItem = cartItems[index];
+                        return _buildCartItem(cartItem);
+                      },
+                    ),
+                  ),
+                  _buildCartSummary(totalPrice),
+                ],
+              ),
     );
   }
 
@@ -103,11 +102,7 @@ class _CartScreenState extends State<CartScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.shopping_cart_outlined,
-            size: 80,
-            color: Colors.grey[400],
-          ),
+          Icon(Icons.shopping_cart_outlined, size: 80, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
             'Your cart is empty',
@@ -120,10 +115,7 @@ class _CartScreenState extends State<CartScreen> {
           const SizedBox(height: 8),
           Text(
             'Add some ebooks to get started!',
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              color: Colors.grey[500],
-            ),
+            style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[500]),
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
@@ -138,7 +130,9 @@ class _CartScreenState extends State<CartScreen> {
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12), // Use a fixed value instead of AppConstants.borderRadius
+                borderRadius: BorderRadius.circular(
+                  12,
+                ), // Use a fixed value instead of AppConstants.borderRadius
               ),
             ),
           ),
@@ -149,9 +143,8 @@ class _CartScreenState extends State<CartScreen> {
 
   Widget _buildCartItem(CartItem cartItem) {
     // Use the helper method instead of ApiService.getFullUrl
-    final coverImageUrl = cartItem.coverImage != null
-        ? _getFullUrl(cartItem.coverImage!)
-        : null;
+    final coverImageUrl =
+        cartItem.coverImage != null ? _getFullUrl(cartItem.coverImage!) : null;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -172,7 +165,7 @@ class _CartScreenState extends State<CartScreen> {
                 borderRadius: BorderRadius.circular(8),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -180,33 +173,38 @@ class _CartScreenState extends State<CartScreen> {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: coverImageUrl != null && coverImageUrl.isNotEmpty
-                    ? CachedNetworkImage(
-                  imageUrl: coverImageUrl,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(
-                    color: Colors.grey[200],
-                    child: const Center(
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  ),
-                  errorWidget: (context, url, error) => Container(
-                    color: Colors.grey[200],
-                    child: Icon(
-                      Icons.book,
-                      color: Colors.grey[400],
-                      size: 24,
-                    ),
-                  ),
-                )
-                    : Container(
-                  color: Colors.grey[200],
-                  child: Icon(
-                    Icons.book,
-                    color: Colors.grey[400],
-                    size: 24,
-                  ),
-                ),
+                child:
+                    coverImageUrl != null && coverImageUrl.isNotEmpty
+                        ? CachedNetworkImage(
+                          imageUrl: coverImageUrl,
+                          fit: BoxFit.cover,
+                          placeholder:
+                              (context, url) => Container(
+                                color: Colors.grey[200],
+                                child: const Center(
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              ),
+                          errorWidget:
+                              (context, url, error) => Container(
+                                color: Colors.grey[200],
+                                child: Icon(
+                                  Icons.book,
+                                  color: Colors.grey[400],
+                                  size: 24,
+                                ),
+                              ),
+                        )
+                        : Container(
+                          color: Colors.grey[200],
+                          child: Icon(
+                            Icons.book,
+                            color: Colors.grey[400],
+                            size: 24,
+                          ),
+                        ),
               ),
             ),
             const SizedBox(width: 16),
@@ -221,7 +219,9 @@ class _CartScreenState extends State<CartScreen> {
                     style: GoogleFonts.poppins(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87, // Use a fixed color instead of AppColorss.textPrimary
+                      color:
+                          Colors
+                              .black87, // Use a fixed color instead of AppColorss.textPrimary
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -229,9 +229,12 @@ class _CartScreenState extends State<CartScreen> {
                   const SizedBox(height: 4),
                   if (cartItem.categoryName != null)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
-                        color: Colors.blue.withOpacity(0.1),
+                        color: Colors.blue.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -248,7 +251,9 @@ class _CartScreenState extends State<CartScreen> {
                     cartItem.description,
                     style: GoogleFonts.poppins(
                       fontSize: 12,
-                      color: Colors.black54, // Use a fixed color instead of AppColorss.textSecondary
+                      color:
+                          Colors
+                              .black54, // Use a fixed color instead of AppColorss.textSecondary
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -257,9 +262,12 @@ class _CartScreenState extends State<CartScreen> {
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.1),
+                          color: Colors.green.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -305,7 +313,7 @@ class _CartScreenState extends State<CartScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, -2),
           ),
@@ -352,7 +360,9 @@ class _CartScreenState extends State<CartScreen> {
                       side: const BorderSide(color: Colors.blue),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12), // Use a fixed value
+                        borderRadius: BorderRadius.circular(
+                          12,
+                        ), // Use a fixed value
                       ),
                     ),
                   ),
@@ -372,7 +382,9 @@ class _CartScreenState extends State<CartScreen> {
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12), // Use a fixed value
+                        borderRadius: BorderRadius.circular(
+                          12,
+                        ), // Use a fixed value
                       ),
                     ),
                   ),
@@ -408,36 +420,37 @@ class _CartScreenState extends State<CartScreen> {
   Future<void> _showClearCartDialog() async {
     final result = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          'Clear Cart',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-        ),
-        content: Text(
-          'Are you sure you want to remove all items from your cart?',
-          style: GoogleFonts.poppins(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(
-              'Cancel',
-              style: GoogleFonts.poppins(color: Colors.grey[600]),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: Text(
+      builder:
+          (context) => AlertDialog(
+            title: Text(
               'Clear Cart',
               style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
             ),
+            content: Text(
+              'Are you sure you want to remove all items from your cart?',
+              style: GoogleFonts.poppins(),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text(
+                  'Cancel',
+                  style: GoogleFonts.poppins(color: Colors.grey[600]),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                ),
+                child: Text(
+                  'Clear Cart',
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
     );
 
     if (result == true) {

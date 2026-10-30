@@ -73,7 +73,7 @@ class ContactUsScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.green.withOpacity(0.2),
+                      color: Colors.green.withValues(alpha: 0.2),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -84,7 +84,7 @@ class ContactUsScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -107,7 +107,7 @@ class ContactUsScreen extends StatelessWidget {
                       "We're here to help you grow better",
                       style: TextStyle(
                         fontSize: 16,
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                       ),
                     ),
                   ],
@@ -156,10 +156,10 @@ class ContactUsScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.green.withOpacity(0.2)),
+                  border: Border.all(color: Colors.green.withValues(alpha: 0.2)),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
+                      color: Colors.grey.withValues(alpha: 0.1),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -173,7 +173,7 @@ class ContactUsScreen extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF4CAF50).withOpacity(0.1),
+                            color: const Color(0xFF4CAF50).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Icon(
@@ -222,14 +222,14 @@ class ContactUsScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: const Color(0xFFF1F8E9),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFF8BC34A).withOpacity(0.3)),
+                  border: Border.all(color: const Color(0xFF8BC34A).withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF8BC34A).withOpacity(0.2),
+                        color: const Color(0xFF8BC34A).withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(
@@ -292,19 +292,19 @@ class ContactUsScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
+                color: Colors.grey.withValues(alpha: 0.1),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
             ],
-            border: Border.all(color: Colors.grey.withOpacity(0.1)),
+            border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
           ),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(

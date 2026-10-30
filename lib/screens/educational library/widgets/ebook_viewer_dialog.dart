@@ -15,13 +15,13 @@ class EbookViewerDialog extends StatefulWidget {
   final VoidCallback? onCartUpdate;
 
   const EbookViewerDialog({
-    Key? key,
+    super.key,
     required this.ebook,
     required this.baseUrl,
     this.onPurchase,
     this.onPreview,
     this.onCartUpdate,
-  }) : super(key: key);
+  });
 
   @override
   State<EbookViewerDialog> createState() => _EbookViewerDialogState();
@@ -144,7 +144,7 @@ class _EbookViewerDialogState extends State<EbookViewerDialog> {
               margin: const EdgeInsets.only(right: 8),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -246,7 +246,7 @@ class _EbookViewerDialogState extends State<EbookViewerDialog> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.1),
+                    color: Colors.blue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -265,9 +265,9 @@ class _EbookViewerDialogState extends State<EbookViewerDialog> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.1),
+                  color: Colors.green.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.green.withOpacity(0.3)),
+                  border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -298,7 +298,7 @@ class _EbookViewerDialogState extends State<EbookViewerDialog> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.1),
+                        color: Colors.green.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -314,7 +314,7 @@ class _EbookViewerDialogState extends State<EbookViewerDialog> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: Colors.orange.withOpacity(0.1),
+                      color: Colors.orange.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(

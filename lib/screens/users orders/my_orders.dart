@@ -8,11 +8,7 @@ class MyOrdersScreen extends StatefulWidget {
   final String token;
   final Map<String, dynamic> userData;
 
-  const MyOrdersScreen({
-    Key? key,
-    required this.token,
-    required this.userData,
-  }) : super(key: key);
+  const MyOrdersScreen({super.key, required this.token, required this.userData});
 
   @override
   State<MyOrdersScreen> createState() => _MyOrdersScreenState();
@@ -42,10 +38,14 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     setState(() => isLoading = true);
 
     try {
-      final response = await http.get(
-        Uri.parse('http://51.75.31.246:3000/api/orders/my-products/orders'),
-        headers: {'Authorization': 'Bearer ${widget.token}'},
-      ).timeout(const Duration(seconds: 30));
+      final response = await http
+          .get(
+            Uri.parse(
+              'http://192.168.1.126:3000/api/orders/my-products/orders',
+            ),
+            headers: {'Authorization': 'Bearer ${widget.token}'},
+          )
+          .timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -74,47 +74,57 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
 
   void applyFilters() {
     setState(() {
-      filteredOrders = orders.where((order) {
-        final matchesStatus = statusFilter == null ||
-            order['status'] == statusFilter;
-        final matchesSearch = order['order_number']
-            .toString()
-            .toLowerCase()
-            .contains(searchTerm.toLowerCase());
-        return matchesStatus && matchesSearch;
-      }).toList();
+      filteredOrders =
+          orders.where((order) {
+            final matchesStatus =
+                statusFilter == null || order['status'] == statusFilter;
+            final matchesSearch = order['order_number']
+                .toString()
+                .toLowerCase()
+                .contains(searchTerm.toLowerCase());
+            return matchesStatus && matchesSearch;
+          }).toList();
     });
   }
 
   Future<void> cancelOrder(int orderId) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Confirm Cancellation',
-            style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-        content: Text('Are you sure you want to cancel this order?',
-            style: GoogleFonts.poppins()),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text('No', style: GoogleFonts.poppins()),
+      builder:
+          (context) => AlertDialog(
+            title: Text(
+              'Confirm Cancellation',
+              style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+            ),
+            content: Text(
+              'Are you sure you want to cancel this order?',
+              style: GoogleFonts.poppins(),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text('No', style: GoogleFonts.poppins()),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: Text(
+                  'Yes',
+                  style: GoogleFonts.poppins(color: Colors.red),
+                ),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text('Yes',
-                style: GoogleFonts.poppins(color: Colors.red)),
-          ),
-        ],
-      ),
     );
 
     if (confirmed != true) return;
 
     try {
-      final response = await http.put(
-        Uri.parse('http://51.75.31.246:3000/api/orders/$orderId/cancel'),
-        headers: {'Authorization': 'Bearer ${widget.token}'},
-      ).timeout(const Duration(seconds: 30));
+      final response = await http
+          .put(
+            Uri.parse('http://192.168.1.126:3000/api/orders/$orderId/cancel'),
+            headers: {'Authorization': 'Bearer ${widget.token}'},
+          )
+          .timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         await fetchOrders();
@@ -159,17 +169,16 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: Text('Manage Your Orders',
-            style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+        title: Text(
+          'Manage Your Orders',
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+        ),
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.black,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: fetchOrders,
-          ),
+          IconButton(icon: const Icon(Icons.refresh), onPressed: fetchOrders),
         ],
       ),
       body: Column(
@@ -209,26 +218,39 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                       applyFilters();
                     });
                   },
-                  itemBuilder: (context) => [
-                    'All', 'pending', 'processing', 'shipped', 'delivered', 'cancelled'
-                  ].map((status) => PopupMenuItem(
-                    value: status,
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 12,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            color: _getStatusColor(status),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(status.capitalize(),
-                            style: GoogleFonts.poppins()),
-                      ],
-                    ),
-                  )).toList(),
+                  itemBuilder:
+                      (context) =>
+                          [
+                                'All',
+                                'pending',
+                                'processing',
+                                'shipped',
+                                'delivered',
+                                'cancelled',
+                              ]
+                              .map(
+                                (status) => PopupMenuItem(
+                                  value: status,
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 12,
+                                        height: 12,
+                                        decoration: BoxDecoration(
+                                          color: _getStatusColor(status),
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        status.capitalize(),
+                                        style: GoogleFonts.poppins(),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                              .toList(),
                   child: Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
@@ -261,58 +283,61 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
 
           // Order List
           Expanded(
-            child: isLoading
-                ? const Center(
-              child: CircularProgressIndicator(
-                color: Colors.indigo,
-              ),
-            )
-                : filteredOrders.isEmpty
-                ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.receipt_long,
-                      size: 60, color: Colors.grey[400]),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No orders found',
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                  if (searchTerm.isNotEmpty || statusFilter != null)
-                    TextButton(
-                      onPressed: () {
-                        _searchController.clear();
-                        setState(() {
-                          searchTerm = '';
-                          statusFilter = null;
-                          applyFilters();
-                        });
-                      },
-                      child: Text(
-                        'Clear filters',
-                        style: GoogleFonts.poppins(
-                            color: Colors.indigo),
+            child:
+                isLoading
+                    ? const Center(
+                      child: CircularProgressIndicator(color: Colors.indigo),
+                    )
+                    : filteredOrders.isEmpty
+                    ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.receipt_long,
+                            size: 60,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No orders found',
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          if (searchTerm.isNotEmpty || statusFilter != null)
+                            TextButton(
+                              onPressed: () {
+                                _searchController.clear();
+                                setState(() {
+                                  searchTerm = '';
+                                  statusFilter = null;
+                                  applyFilters();
+                                });
+                              },
+                              child: Text(
+                                'Clear filters',
+                                style: GoogleFonts.poppins(
+                                  color: Colors.indigo,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    )
+                    : RefreshIndicator(
+                      onRefresh: fetchOrders,
+                      color: Colors.indigo,
+                      child: ListView.builder(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        itemCount: filteredOrders.length,
+                        itemBuilder: (context, index) {
+                          final order = filteredOrders[index];
+                          return _buildOrderCard(order);
+                        },
                       ),
                     ),
-                ],
-              ),
-            )
-                : RefreshIndicator(
-              onRefresh: fetchOrders,
-              color: Colors.indigo,
-              child: ListView.builder(
-                padding: const EdgeInsets.only(bottom: 16),
-                itemCount: filteredOrders.length,
-                itemBuilder: (context, index) {
-                  final order = filteredOrders[index];
-                  return _buildOrderCard(order);
-                },
-              ),
-            ),
           ),
         ],
       ),
@@ -336,9 +361,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         labelStyle: GoogleFonts.poppins(
           color: selected ? Colors.indigo[800] : Colors.grey[800],
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
     );
   }
@@ -346,7 +369,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   Widget _buildOrderCard(Map<String, dynamic> order) {
     final orderItems = order['OrderItems'] ?? [];
     final buyer = order['User'] ?? {};
-    final canCancel = order['status'] != 'cancelled' &&
+    final canCancel =
+        order['status'] != 'cancelled' &&
         order['status'] != 'delivered' &&
         order['status'] != 'shipped';
 
@@ -357,7 +381,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -384,9 +408,13 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
-                        color: _getStatusColor(order['status']).withOpacity(0.1),
+                        color: _getStatusColor(
+                          order['status'],
+                        ).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -402,8 +430,9 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  DateFormat("MMM dd, yyyy 'at' hh:mm a")
-                      .format(DateTime.parse(order['createdAt'])),
+                  DateFormat(
+                    "MMM dd, yyyy 'at' hh:mm a",
+                  ).format(DateTime.parse(order['createdAt'])),
                   style: GoogleFonts.poppins(
                     color: Colors.grey[600],
                     fontSize: 12,
@@ -418,11 +447,15 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               children: [
-                _buildOrderRow('Total', '\XAF${order['total_amount']}'),
-                _buildOrderRow('Payment',
-                    order['payment_status'].toString().capitalize()),
-                _buildOrderRow('Shipping',
-                    order['shipping_method']?.toString().capitalize() ?? 'N/A'),
+                _buildOrderRow('Total', 'XAF${order['total_amount']}'),
+                _buildOrderRow(
+                  'Payment',
+                  order['payment_status'].toString().capitalize(),
+                ),
+                _buildOrderRow(
+                  'Shipping',
+                  order['shipping_method']?.toString().capitalize() ?? 'N/A',
+                ),
               ],
             ),
           ),
@@ -435,11 +468,13 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Buyer Information:',
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      )),
+                  Text(
+                    'Buyer Information:',
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   _buildInfoRow('Name', buyer['full_name'] ?? 'Not provided'),
                   _buildInfoRow('Phone', buyer['phone'] ?? 'Not provided'),
@@ -457,11 +492,13 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Products Ordered:',
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      )),
+                  Text(
+                    'Products Ordered:',
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   ...orderItems.map<Widget>((item) {
                     final product = item['Product'] ?? {};
@@ -476,12 +513,13 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                               width: 50,
                               height: 50,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Container(
-                                width: 50,
-                                height: 50,
-                                color: Colors.grey[200],
-                                child: const Icon(Icons.image),
-                              ),
+                              errorBuilder:
+                                  (_, _, _) => Container(
+                                    width: 50,
+                                    height: 50,
+                                    color: Colors.grey[200],
+                                    child: const Icon(Icons.image),
+                                  ),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -508,7 +546,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                           Text(
                             '\$${item['subtotal']}',
                             style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.w500),
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ],
                       ),
@@ -537,8 +576,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                   ),
                   child: Text(
                     'Cancel Order',
-                    style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w500),
+                    style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
                   ),
                 ),
               ),
@@ -556,10 +594,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         children: [
           Text(
             label,
-            style: GoogleFonts.poppins(
-              color: Colors.grey[600],
-              fontSize: 13,
-            ),
+            style: GoogleFonts.poppins(color: Colors.grey[600], fontSize: 13),
           ),
           Text(
             value,
@@ -583,19 +618,11 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             width: 80,
             child: Text(
               '$label:',
-              style: GoogleFonts.poppins(
-                color: Colors.grey[600],
-                fontSize: 13,
-              ),
+              style: GoogleFonts.poppins(color: Colors.grey[600], fontSize: 13),
             ),
           ),
           Expanded(
-            child: Text(
-              value,
-              style: GoogleFonts.poppins(
-                fontSize: 13,
-              ),
-            ),
+            child: Text(value, style: GoogleFonts.poppins(fontSize: 13)),
           ),
         ],
       ),
@@ -604,5 +631,6 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
 }
 
 extension StringCasingExtension on String {
-  String capitalize() => isNotEmpty ? '${this[0].toUpperCase()}${substring(1).toLowerCase()}' : '';
+  String capitalize() =>
+      isNotEmpty ? '${this[0].toUpperCase()}${substring(1).toLowerCase()}' : '';
 }

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class AppConstants {
   // API Configuration
-  static const String baseUrl = 'http://51.75.31.246:3000/api';
+  static const String baseUrl = 'http://192.168.1.126:3000/api';
   static const Duration apiTimeout = Duration(seconds: 15);
   static const Duration uploadTimeout = Duration(minutes: 5);
 
@@ -33,11 +33,13 @@ class AppConstants {
   static const Duration longAnimation = Duration(milliseconds: 500);
 
   // Error Messages
-  static const String networkError = 'Network error. Please check your connection.';
+  static const String networkError =
+      'Network error. Please check your connection.';
   static const String serverError = 'Server error. Please try again later.';
   static const String unknownError = 'An unknown error occurred.';
   static const String uploadError = 'Upload failed. Please try again.';
-  static const String permissionError = 'Permission denied. Please enable permissions in settings.';
+  static const String permissionError =
+      'Permission denied. Please enable permissions in settings.';
   static const String fileError = 'Invalid file. Please select a valid file.';
 
   // Success Messages
@@ -46,8 +48,23 @@ class AppConstants {
   static const String downloadSuccess = 'Download completed!';
 
   // File Extensions
-  static const List<String> allowedImageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
-  static const List<String> allowedVideoExtensions = ['mp4', 'avi', 'mov', 'wmv', 'flv', '3gp', 'mkv'];
+  static const List<String> allowedImageExtensions = [
+    'jpg',
+    'jpeg',
+    'png',
+    'gif',
+    'bmp',
+    'webp',
+  ];
+  static const List<String> allowedVideoExtensions = [
+    'mp4',
+    'avi',
+    'mov',
+    'wmv',
+    'flv',
+    '3gp',
+    'mkv',
+  ];
   static const List<String> allowedDocumentExtensions = ['pdf'];
 
   // Content Types
@@ -63,14 +80,14 @@ class AppConstants {
   static const String coverImageRequired = 'Please select a cover image';
   static const String videoFileRequired = 'Please select a video file';
   static const String invalidPrice = 'Please enter a valid price';
-  static const String fileTooLarge = 'File size is too large. Maximum size is 100MB.';
+  static const String fileTooLarge =
+      'File size is too large. Maximum size is 100MB.';
 }
 
 class AppColorss {
   static const Color primary = Color(0xFF388E3C);
   static const Color primaryLight = Color(0xFF81C784); // Light green
-  static const Color primaryDark = Color(0xFF388E3C);  // Deep green
-
+  static const Color primaryDark = Color(0xFF388E3C); // Deep green
 
   static const Color secondary = Colors.orange;
   static const Color secondaryLight = Color(0xFFFF9800);
@@ -85,8 +102,8 @@ class AppColorss {
   static const Color surface = Colors.white;
   static const Color cardBackground = Colors.white;
 
-  static final Color shadowColor = Colors.black.withOpacity(0.08);
-  static final Color overlayColor = Colors.black.withOpacity(0.3);
+  static final Color shadowColor = Colors.black.withValues(alpha: 0.08);
+  static final Color overlayColor = Colors.black.withValues(alpha: 0.3);
 
   // Text Colors
   static const Color textPrimary = Color(0xFF212121);

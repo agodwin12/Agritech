@@ -214,14 +214,17 @@ class _RequestWebinarModalState extends State<RequestWebinarModal>
     debugPrint("  User ID: ${widget.userId}");
     debugPrint("  Image Path: ${imageFile?.path}");
 
-    final uri = Uri.parse('http://51.75.31.246:3000/api/webinars/request');
-    final request = http.MultipartRequest('POST', uri)
-      ..headers['Authorization'] = 'Bearer ${widget.token}'
-      ..fields['title'] = _titleController.text
-      ..fields['description'] = _descriptionController.text
-      ..fields['preferred_date'] = selectedDateTime!.toIso8601String()
-      ..fields['user_id'] = widget.userId.toString()
-      ..files.add(await http.MultipartFile.fromPath('image', imageFile!.path));
+    final uri = Uri.parse('http://192.168.1.126:3000/api/webinars/request');
+    final request =
+        http.MultipartRequest('POST', uri)
+          ..headers['Authorization'] = 'Bearer ${widget.token}'
+          ..fields['title'] = _titleController.text
+          ..fields['description'] = _descriptionController.text
+          ..fields['preferred_date'] = selectedDateTime!.toIso8601String()
+          ..fields['user_id'] = widget.userId.toString()
+          ..files.add(
+            await http.MultipartFile.fromPath('image', imageFile!.path),
+          );
 
     try {
       final streamedResponse = await request.send();
@@ -296,7 +299,10 @@ class _RequestWebinarModalState extends State<RequestWebinarModal>
                         top: 20,
                         bottom: MediaQuery.of(context).viewInsets.bottom + 24,
                       ),
-                      child: isSubmitting ? _buildLoadingState() : _buildFormContent(),
+                      child:
+                          isSubmitting
+                              ? _buildLoadingState()
+                              : _buildFormContent(),
                     ),
                   ),
                 ],
@@ -309,7 +315,7 @@ class _RequestWebinarModalState extends State<RequestWebinarModal>
   }
 
   Widget _buildLoadingState() {
-    return Container(
+    return SizedBox(
       height: 400,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -402,7 +408,9 @@ class _RequestWebinarModalState extends State<RequestWebinarModal>
             hint: 'e.g., "Modern Irrigation Techniques"',
             controller: _titleController,
             icon: Icons.title_rounded,
-            validator: (val) => val == null || val.isEmpty ? 'Title is required' : null,
+            validator:
+                (val) =>
+                    val == null || val.isEmpty ? 'Title is required' : null,
           ),
           const SizedBox(height: 20),
 
@@ -413,7 +421,11 @@ class _RequestWebinarModalState extends State<RequestWebinarModal>
             controller: _descriptionController,
             icon: Icons.description_outlined,
             maxLines: 4,
-            validator: (val) => val == null || val.isEmpty ? 'Description is required' : null,
+            validator:
+                (val) =>
+                    val == null || val.isEmpty
+                        ? 'Description is required'
+                        : null,
           ),
           const SizedBox(height: 20),
 
@@ -518,27 +530,44 @@ class _RequestWebinarModalState extends State<RequestWebinarModal>
           ),
           child: ListTile(
             onTap: pickDateTime,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 8,
+            ),
             leading: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: selectedDateTime != null ? const Color(0xFF4CAF50) : const Color(0xFFE8F5E8),
+                color:
+                    selectedDateTime != null
+                        ? const Color(0xFF4CAF50)
+                        : const Color(0xFFE8F5E8),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
                 Icons.schedule_rounded,
-                color: selectedDateTime != null ? Colors.white : const Color(0xFF4CAF50),
+                color:
+                    selectedDateTime != null
+                        ? Colors.white
+                        : const Color(0xFF4CAF50),
                 size: 20,
               ),
             ),
             title: Text(
               selectedDateTime == null
                   ? 'Select preferred date & time'
-                  : DateFormat('EEEE, MMM dd, yyyy – hh:mm a').format(selectedDateTime!),
+                  : DateFormat(
+                    'EEEE, MMM dd, yyyy – hh:mm a',
+                  ).format(selectedDateTime!),
               style: GoogleFonts.poppins(
                 fontSize: 14,
-                fontWeight: selectedDateTime != null ? FontWeight.w600 : FontWeight.w400,
-                color: selectedDateTime != null ? const Color(0xFF1B5E20) : const Color(0xFF94A3B8),
+                fontWeight:
+                    selectedDateTime != null
+                        ? FontWeight.w600
+                        : FontWeight.w400,
+                color:
+                    selectedDateTime != null
+                        ? const Color(0xFF1B5E20)
+                        : const Color(0xFF94A3B8),
               ),
             ),
             trailing: const Icon(
@@ -573,73 +602,77 @@ class _RequestWebinarModalState extends State<RequestWebinarModal>
               color: const Color(0xFFF8FDF8),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: imageFile != null ? const Color(0xFF4CAF50) : const Color(0xFFE8F5E8),
+                color:
+                    imageFile != null
+                        ? const Color(0xFF4CAF50)
+                        : const Color(0xFFE8F5E8),
                 width: imageFile != null ? 2 : 1,
               ),
             ),
-            child: imageFile != null
-                ? ClipRRect(
-              borderRadius: BorderRadius.circular(15),
-              child: Stack(
-                children: [
-                  Image.file(
-                    imageFile!,
-                    width: double.infinity,
-                    height: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF4CAF50),
-                        shape: BoxShape.circle,
+            child:
+                imageFile != null
+                    ? ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: Stack(
+                        children: [
+                          Image.file(
+                            imageFile!,
+                            width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                          Positioned(
+                            top: 8,
+                            right: 8,
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF4CAF50),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.check_rounded,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      child: const Icon(
-                        Icons.check_rounded,
-                        color: Colors.white,
-                        size: 16,
-                      ),
+                    )
+                    : Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE8F5E8),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.add_photo_alternate_outlined,
+                            color: Color(0xFF4CAF50),
+                            size: 32,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Tap to add cover image',
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: const Color(0xFF4CAF50),
+                          ),
+                        ),
+                        Text(
+                          'Help others visualize your webinar',
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: const Color(0xFF94A3B8),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
-            )
-                : Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE8F5E8),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.add_photo_alternate_outlined,
-                    color: Color(0xFF4CAF50),
-                    size: 32,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Tap to add cover image',
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: const Color(0xFF4CAF50),
-                  ),
-                ),
-                Text(
-                  'Help others visualize your webinar',
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    color: const Color(0xFF94A3B8),
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
       ],
@@ -659,7 +692,7 @@ class _RequestWebinarModalState extends State<RequestWebinarModal>
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF4CAF50).withOpacity(0.3),
+            color: const Color(0xFF4CAF50).withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -677,11 +710,7 @@ class _RequestWebinarModalState extends State<RequestWebinarModal>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.send_rounded,
-              color: Colors.white,
-              size: 20,
-            ),
+            const Icon(Icons.send_rounded, color: Colors.white, size: 20),
             const SizedBox(width: 12),
             Text(
               'Submit Request',

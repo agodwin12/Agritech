@@ -7,6 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CameraCaptureScreen extends StatefulWidget {
+  const CameraCaptureScreen({super.key});
+
   @override
   _CameraCaptureScreenState createState() => _CameraCaptureScreenState();
 }
@@ -57,9 +59,10 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
     final prefs = await SharedPreferences.getInstance();
     final analysisJson = prefs.getStringList('recent_analysis') ?? [];
     setState(() {
-      _recentAnalysis = analysisJson
-          .map((json) => Map<String, dynamic>.from(jsonDecode(json)))
-          .toList();
+      _recentAnalysis =
+          analysisJson
+              .map((json) => Map<String, dynamic>.from(jsonDecode(json)))
+              .toList();
     });
   }
 
@@ -77,13 +80,17 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
       _recentAnalysis = _recentAnalysis.take(5).toList();
     }
 
-    final analysisJson = _recentAnalysis.map((data) => jsonEncode(data)).toList();
+    final analysisJson =
+        _recentAnalysis.map((data) => jsonEncode(data)).toList();
     await prefs.setStringList('recent_analysis', analysisJson);
     setState(() {});
   }
 
   Future<void> _pickImage(ImageSource source) async {
-    final pickedFile = await _picker.pickImage(source: source, imageQuality: 80);
+    final pickedFile = await _picker.pickImage(
+      source: source,
+      imageQuality: 80,
+    );
 
     if (pickedFile != null) {
       setState(() {
@@ -104,7 +111,7 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
     try {
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse("http://51.75.31.246:3000/api/detect-plant-disease"),
+        Uri.parse("http://192.168.1.126:3000/api/detect-plant-disease"),
       );
 
       request.files.add(
@@ -167,9 +174,15 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
             ],
           ),
           const SizedBox(height: 12),
-          _buildInstructionItem("📸", "Take a clear photo of the affected plant"),
+          _buildInstructionItem(
+            "📸",
+            "Take a clear photo of the affected plant",
+          ),
           _buildInstructionItem("🔍", "Ensure good lighting and focus"),
-          _buildInstructionItem("📱", "Keep the camera steady for best results"),
+          _buildInstructionItem(
+            "📱",
+            "Keep the camera steady for best results",
+          ),
           _buildInstructionItem("🌿", "Include leaves and affected areas"),
         ],
       ),
@@ -246,11 +259,9 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
         backgroundColor: color,
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: 4,
-        shadowColor: color.withOpacity(0.4),
+        shadowColor: color.withValues(alpha: 0.4),
       ),
     );
   }
@@ -266,7 +277,7 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),
@@ -354,7 +365,7 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -407,7 +418,9 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
               ),
             ),
             const SizedBox(height: 12),
-            ...suggestions.map((suggestion) => _buildSuggestionItem(suggestion)),
+            ...suggestions.map(
+              (suggestion) => _buildSuggestionItem(suggestion),
+            ),
           ],
         ],
       ),
@@ -465,7 +478,11 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
     );
   }
 
-  Widget _buildTreatmentSection(String title, List<dynamic> treatments, IconData icon) {
+  Widget _buildTreatmentSection(
+    String title,
+    List<dynamic> treatments,
+    IconData icon,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Column(
@@ -504,11 +521,7 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            Icons.lightbulb_outline,
-            size: 16,
-            color: Colors.green.shade600,
-          ),
+          Icon(Icons.lightbulb_outline, size: 16, color: Colors.green.shade600),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -535,7 +548,7 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -559,7 +572,9 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
             ],
           ),
           const SizedBox(height: 16),
-          ..._recentAnalysis.map((analysis) => _buildRecentAnalysisItem(analysis)),
+          ..._recentAnalysis.map(
+            (analysis) => _buildRecentAnalysisItem(analysis),
+          ),
         ],
       ),
     );
@@ -635,20 +650,14 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
       appBar: AppBar(
         title: Text(
           "Plant Disease Detector",
-          style: GoogleFonts.poppins(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
+          style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w600),
         ),
         backgroundColor: Colors.white,
         foregroundColor: Colors.grey.shade800,
         elevation: 0,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(
-            color: Colors.grey.shade200,
-            height: 1,
-          ),
+          child: Container(color: Colors.grey.shade200, height: 1),
         ),
       ),
       body: FadeTransition(

@@ -7,7 +7,7 @@ import '../model/ebook_model.dart';
 class PurchaseConfirmationScreen extends StatefulWidget {
   final Ebook ebook;
 
-  const PurchaseConfirmationScreen({Key? key, required this.ebook}) : super(key: key);
+  const PurchaseConfirmationScreen({super.key, required this.ebook});
 
   @override
   State<PurchaseConfirmationScreen> createState() => _PurchaseConfirmationScreenState();

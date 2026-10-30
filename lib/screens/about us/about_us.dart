@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AboutUsScreen extends StatefulWidget {
-  const AboutUsScreen({Key? key, required Map<String, dynamic> userData, required String token}) : super(key: key);
+  const AboutUsScreen({super.key, required Map<String, dynamic> userData, required String token});
 
   @override
   State<AboutUsScreen> createState() => _AboutUsScreenState();
@@ -83,7 +83,7 @@ class _AboutUsScreenState extends State<AboutUsScreen>
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -95,7 +95,7 @@ class _AboutUsScreenState extends State<AboutUsScreen>
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: primaryGreen.withOpacity(0.1),
+                color: primaryGreen.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
@@ -223,10 +223,10 @@ class _AboutUsScreenState extends State<AboutUsScreen>
         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: accentGreen.withOpacity(0.3),
+          color: accentGreen.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: primaryGreen.withOpacity(0.2),
+            color: primaryGreen.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -252,7 +252,7 @@ class _AboutUsScreenState extends State<AboutUsScreen>
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [accentGreen.withOpacity(0.6), accentGreen.withOpacity(0.3)],
+            colors: [accentGreen.withValues(alpha: 0.6), accentGreen.withValues(alpha: 0.3)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -341,7 +341,7 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -353,7 +353,7 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1877F2).withOpacity(0.1),
+                      color: const Color(0xFF1877F2).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(
@@ -457,7 +457,7 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                           end: Alignment.bottomCenter,
                           colors: [
                             Colors.transparent,
-                            Colors.black.withOpacity(0.7),
+                            Colors.black.withValues(alpha: 0.7),
                           ],
                         ),
                       ),

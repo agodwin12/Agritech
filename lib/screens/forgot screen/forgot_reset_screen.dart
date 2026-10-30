@@ -24,7 +24,7 @@ class _ForgotResetScreenState extends State<ForgotResetScreen>
   bool _obscureNew = true;
   bool _obscureConfirm = true;
 
-  final String baseUrl = 'http://51.75.31.246:3000/api/auth';
+  final String baseUrl = 'http://192.168.1.126:3000/api/auth';
 
   AnimationController? _fadeController;
   AnimationController? _slideController;
@@ -60,7 +60,9 @@ class _ForgotResetScreenState extends State<ForgotResetScreen>
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _slideController!, curve: Curves.easeOutCubic));
+    ).animate(
+      CurvedAnimation(parent: _slideController!, curve: Curves.easeOutCubic),
+    );
 
     _progressAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _progressController!, curve: Curves.easeInOut),
@@ -250,7 +252,9 @@ class _ForgotResetScreenState extends State<ForgotResetScreen>
               return LinearProgressIndicator(
                 value: (_progressAnimation?.value ?? 0.0) * _progressValue,
                 backgroundColor: Colors.grey.shade200,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.green.shade600),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  Colors.green.shade600,
+                ),
                 minHeight: 6,
               );
             },
@@ -270,26 +274,28 @@ class _ForgotResetScreenState extends State<ForgotResetScreen>
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: isActive ? Colors.green.shade600 : Colors.grey.shade300,
-            boxShadow: isActive
-                ? [
-              BoxShadow(
-                color: Colors.green.shade200,
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              )
-            ]
-                : null,
+            boxShadow:
+                isActive
+                    ? [
+                      BoxShadow(
+                        color: Colors.green.shade200,
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]
+                    : null,
           ),
           child: Center(
-            child: isActive
-                ? const Icon(Icons.check, color: Colors.white, size: 20)
-                : Text(
-              step.toString(),
-              style: GoogleFonts.poppins(
-                color: Colors.grey.shade600,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            child:
+                isActive
+                    ? const Icon(Icons.check, color: Colors.white, size: 20)
+                    : Text(
+                      step.toString(),
+                      style: GoogleFonts.poppins(
+                        color: Colors.grey.shade600,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
           ),
         ),
         const SizedBox(height: 8),
@@ -385,14 +391,14 @@ class _ForgotResetScreenState extends State<ForgotResetScreen>
   }
 
   Widget _buildInput(
-      String label,
-      TextEditingController controller,
-      IconData icon, {
-        bool obscure = false,
-        VoidCallback? toggle,
-        TextInputType? keyboardType,
-        String? hint,
-      }) {
+    String label,
+    TextEditingController controller,
+    IconData icon, {
+    bool obscure = false,
+    VoidCallback? toggle,
+    TextInputType? keyboardType,
+    String? hint,
+  }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       child: Column(
@@ -440,15 +446,16 @@ class _ForgotResetScreenState extends State<ForgotResetScreen>
                   ),
                   child: Icon(icon, color: Colors.green.shade600, size: 20),
                 ),
-                suffixIcon: toggle != null
-                    ? IconButton(
-                  icon: Icon(
-                    obscure ? Icons.visibility_off : Icons.visibility,
-                    color: Colors.grey.shade500,
-                  ),
-                  onPressed: toggle,
-                )
-                    : null,
+                suffixIcon:
+                    toggle != null
+                        ? IconButton(
+                          icon: Icon(
+                            obscure ? Icons.visibility_off : Icons.visibility,
+                            color: Colors.grey.shade500,
+                          ),
+                          onPressed: toggle,
+                        )
+                        : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
                   borderSide: BorderSide.none,
@@ -459,11 +466,17 @@ class _ForgotResetScreenState extends State<ForgotResetScreen>
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: Colors.green.shade400, width: 2),
+                  borderSide: BorderSide(
+                    color: Colors.green.shade400,
+                    width: 2,
+                  ),
                 ),
                 filled: true,
                 fillColor: Colors.white,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
               ),
             ),
           ),
@@ -472,19 +485,24 @@ class _ForgotResetScreenState extends State<ForgotResetScreen>
     );
   }
 
-  Widget _buildButton(String label, VoidCallback onPressed, {bool isPrimary = true}) {
+  Widget _buildButton(
+    String label,
+    VoidCallback onPressed, {
+    bool isPrimary = true,
+  }) {
     return Container(
       width: double.infinity,
       height: 56,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        gradient: isPrimary
-            ? LinearGradient(
-          colors: [Colors.green.shade500, Colors.green.shade700],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        )
-            : null,
+        gradient:
+            isPrimary
+                ? LinearGradient(
+                  colors: [Colors.green.shade500, Colors.green.shade700],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+                : null,
         color: !isPrimary ? Colors.grey.shade100 : null,
         boxShadow: [
           BoxShadow(
@@ -498,26 +516,29 @@ class _ForgotResetScreenState extends State<ForgotResetScreen>
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
         onPressed: _loading ? null : onPressed,
-        child: _loading
-            ? const SizedBox(
-          width: 24,
-          height: 24,
-          child: CircularProgressIndicator(
-            color: Colors.white,
-            strokeWidth: 2,
-          ),
-        )
-            : Text(
-          label,
-          style: GoogleFonts.poppins(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: isPrimary ? Colors.white : Colors.grey.shade700,
-          ),
-        ),
+        child:
+            _loading
+                ? const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                )
+                : Text(
+                  label,
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: isPrimary ? Colors.white : Colors.grey.shade700,
+                  ),
+                ),
       ),
     );
   }
@@ -609,44 +630,48 @@ class _ForgotResetScreenState extends State<ForgotResetScreen>
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: _fadeAnimation == null
-          ? const Center(child: CircularProgressIndicator())
-          : FadeTransition(
-        opacity: _fadeAnimation!,
-        child: _slideAnimation == null
-            ? const Center(child: CircularProgressIndicator())
-            : SlideTransition(
-          position: _slideAnimation!,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                const SizedBox(height: 20),
-                _buildProgressIndicator(),
-                const SizedBox(height: 20),
-                _buildHeaderSection(),
-                const SizedBox(height: 30),
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 24),
-                  padding: const EdgeInsets.all(28),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.shade200,
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: _buildFormContent(),
-                ),
-                const SizedBox(height: 40),
-              ],
-            ),
-          ),
-        ),
-      ),
+      body:
+          _fadeAnimation == null
+              ? const Center(child: CircularProgressIndicator())
+              : FadeTransition(
+                opacity: _fadeAnimation!,
+                child:
+                    _slideAnimation == null
+                        ? const Center(child: CircularProgressIndicator())
+                        : SlideTransition(
+                          position: _slideAnimation!,
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 20),
+                                _buildProgressIndicator(),
+                                const SizedBox(height: 20),
+                                _buildHeaderSection(),
+                                const SizedBox(height: 30),
+                                Container(
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                  ),
+                                  padding: const EdgeInsets.all(28),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(24),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.shade200,
+                                        blurRadius: 20,
+                                        offset: const Offset(0, 8),
+                                      ),
+                                    ],
+                                  ),
+                                  child: _buildFormContent(),
+                                ),
+                                const SizedBox(height: 40),
+                              ],
+                            ),
+                          ),
+                        ),
+              ),
     );
   }
 }
